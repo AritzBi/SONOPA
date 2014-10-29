@@ -1,0 +1,9 @@
+{% extends "layout.html" %}
+{% block body %}
+<form class="form-signin" role="form" method="post" onsubmit="/login">
+    <h2 class="form-signin-heading">Login</h2>
+    <input class="form-control" type="text" autofocus="" required="" name="username" placeholder="Username" />
+    <input class="form-control" type="password" required="" name="password" placeholder="Password"/>
+    <button class="btn btn-lg btn-primary btn-block" type="submit">Login</button>
+</form>
+{% endblock %}

@@ -1,0 +1,13 @@
+{
+    "$schema": "http://json-schema.org/schema#",
+    "title": "Remove sensor",
+    "description": "Validation to remove a sensor from the system",
+    "type": "object",
+    "properties": {
+        "id": {
+            "description": "ID of the sensor",
+            "type": "integer"
+        }
+    },
+    "required": ["id"]
+}

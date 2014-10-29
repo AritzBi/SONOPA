@@ -1,0 +1,32 @@
+{
+    "$schema": "http://json-schema.org/schema#",
+    "title": "New activity",
+    "description": "Validation of the JSON data sent to the SONOPA social network of the new activity",
+    "type": "object",
+    "properties": {
+        "user_id": {
+            "type": "string",
+            "description":"User id in the social network"
+        },
+        "activity": {
+            "description": "The new activity",
+            "type": "object"
+            "properties": {
+                "id": {
+                    "type": "integer",
+                    "description":"The activity id"
+                },
+                "name": {
+                    "type": "string",
+                    "description":"Name of the activity"
+                }
+            },
+            "required": ["id", "name"]
+        },
+        "timestamp": {
+            "description": "Timestamp in seconds of the event",
+            "type": "integer"
+        }
+    },
+    "required": ["id", "activity", "timestamp"]
+}

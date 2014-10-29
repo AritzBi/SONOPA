@@ -1,0 +1,20 @@
+{
+
+	"name":"Temperature",
+	"type":"TMP36",
+	"location":2,
+	"event_definition": {
+		"$schema": "http://json-schema.org/schema#",
+		"title": "Temperature sensor",
+		"description": "Temperature sensor validation",
+		"type": "object",
+		"properties": {
+			"value": {
+			    "description": "Temperature value",
+			    "type": "number"
+			}
+		},
+		"required": ["value"]
+	}
+
+}

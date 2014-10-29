@@ -1,0 +1,36 @@
+{
+    "$schema": "http://json-schema.org/schema#",
+    "title": "Anomaly detected",
+    "description": "Validation of the JSON data sent to the SONOPA social network of a detected anomaly",
+    "type": "object",
+    "properties": {
+        "user_id": {
+            "type": "string",
+            "description":"User id in the social network"
+        },
+        "activity": {
+            "description": "The activity that triggered the anomaly",
+            "type": "object"
+            "properties": {
+                "id": {
+                    "type": "integer",
+                    "description":"The activity id"
+                },
+                "name": {
+                    "type": "string",
+                    "description":"Name of the activity"
+                }
+            },
+            "required": ["id", "name"]
+        },
+        "timestamp": {
+            "description": "Timestamp in seconds of the event",
+            "type": "integer"
+        },
+        "anomaly_id": {
+            "description": "Anomaly id",
+            "type": "integer"
+        }
+    },
+    "required": ["id", "activity", "timestamp", "anomaly_id"]
+}

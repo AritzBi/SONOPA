@@ -1,0 +1,25 @@
+{
+    "$schema": "http://json-schema.org/schema#",
+    "title": "Sensor",
+    "description": "A sensor to be registered in the system",
+    "type": "object",
+    "properties": {
+        "name": {
+            "description": "Name of the sensor",
+            "type": "string"
+        },
+        "type": {
+            "type": "string",
+            "description":"Type of the sensor"
+        },
+        "location": {
+            "type": "integer",
+            "description":"Location id of the sensor"
+        },
+        "event_definition": {
+            "type": "object",
+            "description":"JSON schema for the sensor's events"
+        }
+    },
+    "required": ["type", "name", "location", "event_definition"]
+}

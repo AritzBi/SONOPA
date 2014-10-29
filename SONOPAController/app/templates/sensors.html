@@ -1,0 +1,30 @@
+{% extends "layout.html" %}
+{% block body %}
+    <h1>Sensors</h1>
+    {% if sensors %}
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Name</th>
+                    <th>Type</th>
+                    <th>Location</th>
+                    <th>Last event</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for sensor in sensors %}
+                    <tr>
+                        <td><a href="{{ url_for('get_events', sensor=sensor.id) }}">{{ sensor.id }}</a></td>
+                        <td>{{ sensor.name }}</td>
+                        <td>{{ sensor.type }}</td>
+                        <td>{{ sensor.located_in.name }}</td>
+                        <td>{{ sensor.last_alive }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <h3>No sensors are registered</h3>
+    {% endif %}
+{% endblock %}

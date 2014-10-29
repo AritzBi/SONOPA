@@ -1,0 +1,13 @@
+{
+    "$schema": "http://json-schema.org/schema#",
+    "title": "Keep alive sensor",
+    "description": "Validation to keep alive a sensor in the system",
+    "type": "object",
+    "properties": {
+        "id": {
+            "description": "ID of the sensor",
+            "type": "integer"
+        }
+    },
+    "required": ["id"]
+}

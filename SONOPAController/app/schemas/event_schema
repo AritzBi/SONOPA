@@ -1,0 +1,21 @@
+{
+    "$schema": "http://json-schema.org/schema#",
+    "title": "Event",
+    "description": "An event to be registered in the system",
+    "type": "object",
+    "properties": {
+        "timestamp": {
+            "description": "Timestamp in seconds of the event",
+            "type": "integer"
+        },
+        "sensor_id": {
+            "type": "integer",
+            "description":"Sensor id that fired the event"
+        },
+        "value": {
+            "type": "object",
+            "description":"Value sent by the sensor"
+        }
+    },
+    "required": ["timestamp", "sensor_id", "value"]
+}

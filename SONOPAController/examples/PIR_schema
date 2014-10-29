@@ -1,0 +1,13 @@
+{
+    "$schema": "http://json-schema.org/schema#",
+    "title": "PIR sensor",
+    "description": "PIR sensor validation",
+    "type": "object",
+    "properties": {
+        "status": {
+            "type": "string",
+            "description": "'MANNED', 'FREE', OR 'UNKNOWN'"
+        }
+    },
+    "required": ["status"]
+}

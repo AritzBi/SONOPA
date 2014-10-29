@@ -1,0 +1,98 @@
+{% extends "layout.html" %}
+{% block body %}
+    <div class="page-header">
+        <h1>Events for sensor #{{ sensor.id }} <small>{{sensor.name}} in {{ sensor.located_in.name }}</small></h1>
+    </div>
+    {% if events %}
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Time</th>
+                    <th>Value</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for event in events %}
+                    <tr>
+                        <td>{{ event.id }}</td>
+                        <td>{{ event.timestamp }}</td>
+                        <td>{{ event.value }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <h3>No events are registered</h3>
+    {% endif %}
+    <div id="chart_div" style="width: 900px; height: 500px;"></div>
+    <div id="chart_div_2" style="width: 900px; height: 500px;"></div>
+    <script type="text/javascript">
+        //Regular expression to replace all the expression specified in the parameters
+        String.prototype.replaceAll = function(str1, str2, ignore)
+        {
+            return this.replace(new RegExp(str1.replace(/([\/\,\!\\\^\$\{\}\[\]\(\)\.\*\+\?\|\<\>\-\&])/g,"\\$&"),(ignore?"gi":"g")),(typeof(str2)=="string")?str2.replace(/\$/g,"$$$$"):str2);
+        }
+        google.load("visualization", "1", {packages:["corechart"]});
+        google.setOnLoadCallback(drawEvents);
+        google.setOnLoadCallback(drawActivity);
+        var sourceArray={{eventsJS | safe}};
+        var targetArray=new Array();
+        targetArray.push(new Array());
+        targetArray[0].push('Sensor');
+        targetArray[0].push('ValueEvent/Time');
+        for(var i=0;i<sourceArray.length;i++){
+            targetArray.push(new Array());
+            targetArray[i+1].push(new Date(sourceArray[i].timestamp[0], sourceArray[0].timestamp[1]-1, sourceArray[0].timestamp[2], sourceArray[0].timestamp[3], sourceArray[0].timestamp[4], sourceArray[0].timestamp[5], 0).toISOString());
+            targetArray[i+1].push(sourceArray[i].value.slice(0, 1) +sourceArray[i].value.slice(2, sourceArray[i].value.length));
+            targetArray[i+1][1]=targetArray[i+1][1].replaceAll("\'","\"");
+            targetArray[i+1][1]=parseFloat(JSON.parse(targetArray[i+1][1]).value);
+        }
+        function drawEvents() {
+            var data = google.visualization.arrayToDataTable(targetArray);
+            var options = {
+                title: 'The values of the events',
+                vAxis: {title: "Value of the event"},
+                hAxis: {title: "Timestamp"}
+            };
+
+        var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
+        chart.draw(data, options);
+      }
+      var lastWeekEventsArray={{lastWeekEventsJS | safe}};
+      var today=new Date();
+      var lastDay=new Date(today.getTime()-3600*24*1000);
+      var dailyData=new Array();
+      dailyData.push(new Array());
+      dailyData[0].push('Sensor');
+      dailyData[0].push('Numbers of events / Hour');
+      var currentHour=today.getHours();
+      var eventCounter=0;
+      for(var i=0;i<24;i++){
+        for(var j=0;j<lastWeekEventsArray.length;j++){
+            if(lastWeekEventsArray[j].timestamp[3] === currentHour){
+                eventCounter++;
+            }
+        }
+        dailyData.push(new Array(currentHour,eventCounter));
+        currentHour=dailyData[dailyData.length-1][0]+1;
+        if(currentHour === 24)
+            currentHour=0;
+        eventCounter=0;
+      }
+      function drawActivity() {
+            var data2 = google.visualization.arrayToDataTable(dailyData);
+            console.log(dailyData[0][0]);
+            var options = {
+                title: 'The activity of the sensor in the last 24 hours',
+                vAxis: {title: "# of events"},
+                hAxis: {
+                    title: "Hour"
+                }
+            };
+
+        var chart = new google.visualization.LineChart(document.getElementById('chart_div_2'));
+        chart.draw(data2, options);
+      }
+    </script>
+{% endblock %}
