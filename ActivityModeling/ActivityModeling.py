@@ -55,16 +55,51 @@ class HMM:
 			return self.NEG_INF
 		else:
 			return math.log(value)
-	"""def viterbi(self, ob_seq):
+	def viterbi(self, ob_seq):
+		#Number of possible states
 		N=len(self.st_list)
+		#Number of observations
 		ob_seq_len=len(ob_seq)
+		#initialize viterbi table's with NEG_INF
 		viterbi_table = [[self.NEG_INF for st in xrange(N)] for t in xrange(ob_seq_len + 1)]
 		bp_table = [[self.NEG_INF for st in xrange(N)] for t in xrange(ob_seq_len)]
+		#The sequence of observations in number
 		ob_seq_int = [self.ob_list_index[ob] for ob in ob_seq]
-
 		# initialize viterbi table's first entry
 		for i in xrange(N):
-			viterbi_table[0][i] = self.init_matrix[i]"""
+			viterbi_table[0][i] = self.init_matrix[i]
+		#print viterbi_table #[[0.6, 0.4], [-inf, -inf], [-inf, -inf], [-inf, -inf]]
+		for t in xrange(1, ob_seq_len + 1): # loop through time
+			#printea los identificadores de las observaciones 0 0 2 
+			ot = ob_seq_int[t - 1]
+			for st_j in xrange(N): # for each state
+				viterbi_t_j = self.NEG_INF
+				curr_best_st = None
+				for st_i in xrange(N):
+					log_sum = viterbi_table[t - 1][st_i] + self.trans_matrix[st_i][st_j] + self.emit_matrix[st_j][ot]
+					if (log_sum > viterbi_t_j):
+						viterbi_t_j = log_sum
+						curr_best_st = st_i
+				viterbi_table[t][st_j] = viterbi_t_j
+				#print viterbi_table
+				bp_table[t - 1][st_j] = curr_best_st
+				print bp_table
+		# perform the viterbi back-trace
+		t = len(bp_table) - 1
+		if (t < 0):
+			return None
+		states_seq = [0] * ob_seq_len
+		print states_seq
+		curr_state=0
+		for st in xrange(N):
+			if (bp_table[-1][st] > bp_table[-1][curr_state]):
+				curr_state = st
+		for t in xrange(ob_seq_len - 1, -1, -1):
+			if (curr_state is None):
+				return None
+			states_seq[t]=self.st_list[curr_state]
+			curr_state=bp_table[t][curr_state]
+		return states_seq
 	# set the list of states
 	def set_states(self, st_seq):
 		self.st_list = copy.copy(st_seq)
@@ -114,6 +149,7 @@ class HMM:
 
 states= ('Rainy','Sunny')
 observations=('walk','shop','clean')
+test_observations=('walk','walk','clean')
 start_probability = {'Rainy': 0.6, 'Sunny': 0.4}
 transition_probability = {
 	'Rainy' : {'Rainy': 0.7, 'Sunny': 0.3},
@@ -125,3 +161,4 @@ emission_probability = {
 	'Sunny' : {'walk': 0.6, 'shop': 0.3, 'clean': 0.1},
 	}
 hmm=HMM(states,observations,start_probability,transition_probability,emission_probability)
+print hmm.viterbi(test_observations)
