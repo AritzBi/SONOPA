@@ -60,15 +60,15 @@ class HMM:
 		N=len(self.st_list)
 		#Number of observations
 		ob_seq_len=len(ob_seq)
-		#initialize viterbi table's with NEG_INF
+		#initialize viterbi table's with NEG_INF [[-inf, -inf], [-inf, -inf], [-inf, -inf], [-inf, -inf]]
 		viterbi_table = [[self.NEG_INF for st in xrange(N)] for t in xrange(ob_seq_len + 1)]
+		#[[-inf, -inf], [-inf, -inf], [-inf, -inf]]
 		bp_table = [[self.NEG_INF for st in xrange(N)] for t in xrange(ob_seq_len)]
-		#The sequence of observations in number
+		#The sequence of observations in number [0, 0, 2]
 		ob_seq_int = [self.ob_list_index[ob] for ob in ob_seq]
-		# initialize viterbi table's first entry
+		# initialize viterbi table's first entry [[0.6, 0.4], [-inf, -inf], [-inf, -inf], [-inf, -inf]]
 		for i in xrange(N):
 			viterbi_table[0][i] = self.init_matrix[i]
-		#print viterbi_table #[[0.6, 0.4], [-inf, -inf], [-inf, -inf], [-inf, -inf]]
 		for t in xrange(1, ob_seq_len + 1): # loop through time
 			#printea los identificadores de las observaciones 0 0 2 
 			ot = ob_seq_int[t - 1]
@@ -83,13 +83,11 @@ class HMM:
 				viterbi_table[t][st_j] = viterbi_t_j
 				#print viterbi_table
 				bp_table[t - 1][st_j] = curr_best_st
-				print bp_table
 		# perform the viterbi back-trace
 		t = len(bp_table) - 1
 		if (t < 0):
 			return None
 		states_seq = [0] * ob_seq_len
-		print states_seq
 		curr_state=0
 		for st in xrange(N):
 			if (bp_table[-1][st] > bp_table[-1][curr_state]):
