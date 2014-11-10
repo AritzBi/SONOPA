@@ -1,0 +1,18 @@
+{
+	"name":"sound_qualifier_living",
+	"type":"sound_qualifier",
+	"location":"HS_Living_Room",
+	"event_definition": {
+		"$schema": "http://json-schema.org/schema#",
+		"title": "Sound qualifier",
+		"description": "Sound qualifier validation",
+		"type": "object",
+		"properties": {
+			"sound_type": {
+			"description": "Type of sound detected",
+			"type": "string"
+			}
+		},
+		"required": ["sound_type"]
+	}
+}

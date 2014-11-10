@@ -1,0 +1,18 @@
+{
+	"name":"track_motion_living_1",
+	"type":"motion_sensor",
+	"location":"HS_Living_Room",
+	"event_definition": {
+		"$schema": "http://json-schema.org/schema#",
+		"title": "Motion tracking sensor",
+		"description": "Motion tracking sensor validation",
+		"type": "object",
+		"properties": {
+			"motion": {
+				"description": "Motion",
+				"type": "boolean"
+			}
+		},
+		"required": ["motion"]
+	}
+}

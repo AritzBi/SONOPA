@@ -141,7 +141,7 @@ class HMM:
 				self.emit_matrix[self.st_list_index[st]][self.ob_list_index[ob]] = B_matrix[st][ob]
 
 
-
+class HSMM:
 
 
 

@@ -1,0 +1,1 @@
+{"description": "Motion tracking sensor validation", "title": "Motion tracking sensor", "required": ["motion"], "$schema": "http://json-schema.org/schema#", "type": "object", "properties": {"motion": {"type": "boolean", "description": "Motion"}}}

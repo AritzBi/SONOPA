@@ -13,8 +13,8 @@
             "description":"Type of the sensor"
         },
         "location": {
-            "type": "integer",
-            "description":"Location id of the sensor"
+            "type": "string",
+            "description":"Location name of the sensor"
         },
         "event_definition": {
             "type": "object",

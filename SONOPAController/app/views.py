@@ -169,10 +169,15 @@ def _fake_sensors_cron():
     temp_id = int(r.text)
     j['name'] = 'Humidity'
     j['type'] = 'SHT21'
-    j['location'] = 1
+    j['location'] = "Kitchen"
     r = requests.post('http://localhost:5000/register', data=json.dumps(j), headers=headers)
     hum_id = int(r.text)
-
+    with open('./examples/sensor2_example', 'r') as f:
+        j = json.load(f)
+    r = requests.post('http://localhost:5000/register', data=json.dumps(j), headers=headers)
+    with open('./examples/sensor3_example', 'r') as f:
+        j = json.load(f)
+    r = requests.post('http://localhost:5000/register', data=json.dumps(j), headers=headers)
     print 'Registration complete. Generating random data'
     from random import random, randrange
     while True:
@@ -414,10 +419,35 @@ def register_sensor():
     else:
         name = sensor['name']
         sensor_type = sensor['type']
-        location_id = sensor['location']
+        #location_id = sensor['location']
+        location_name=sensor['location']
+        #l = models.Location.query.get(location_id)
+        l=models.Location.query.filter_by(name=location_name).all()
+        if len(l) == 0:
+            l=models.Location(name=location_name)
+            db.session.add(l)
+            db.session.commit()
+            s = models.Sensor(name=name, type=sensor_type, located_in=l)
+            db.session.add(s)
+            db.session.commit()
+            if not isfile(schema_prefix + format_filename(sensor_type) + schema_suffix):
+                with open(schema_prefix + format_filename(sensor_type) + schema_suffix, 'w+') as f:
+                    json.dump(sensor['event_definition'], f)
 
-        l = models.Location.query.get(location_id)
-        if l is None:
+            return "{0}".format(s.id)
+
+        else:
+            s = models.Sensor(name=name, type=sensor_type, located_in=l[0])
+            db.session.add(s)
+            db.session.commit()
+
+            if not isfile(schema_prefix + format_filename(sensor_type) + schema_suffix):
+                with open(schema_prefix + format_filename(sensor_type) + schema_suffix, 'w+') as f:
+                    json.dump(sensor['event_definition'], f)
+
+            return "{0}".format(s.id)
+        #Previous way, giving the ID.
+        """if l is None:
             return 'Invalid location id: {0}'.format(location_id)
         else:
             s = models.Sensor(name=name, type=sensor_type, located_in=l)
@@ -428,7 +458,7 @@ def register_sensor():
                 with open(schema_prefix + format_filename(sensor_type) + schema_suffix, 'w+') as f:
                     json.dump(sensor['event_definition'], f)
 
-            return "{0}".format(s.id)
+            return "{0}".format(s.id)"""
 
 
 @app.route('/unregister', methods=['POST'])
