@@ -534,8 +534,9 @@ def on_event():
                 _append_sensor_event(e)
 
                 return "{0}".format(e.id)
-
 @app.route('/api/list_sensors',methods=['GET'])
+@login_required
+@models.Role.user_permission.require(http_exception=401)
 def on_api_list_sensors():
     """Returns the list of all the sensors in the system: type, location_name, sensor_id"""
     sensors=models.Sensor.query.all()
@@ -549,7 +550,10 @@ def on_api_list_sensors():
         i+=1
     json_str+=']'
     return json_str
+
 @app.route('/api/sensor/<int:sensor>',methods=['GET'])
+@login_required
+@models.Role.user_permission.require(http_exception=401)
 def on_api_sensor(sensor):
     s = models.Sensor.query.get(sensor)
     list=s.events.all()
@@ -558,7 +562,10 @@ def on_api_sensor(sensor):
     list = [{col: getattr(d, col) for col in cols} for d in list]
     eventsJS=json.dumps(list,cls=MyEncoder)
     return eventsJS
+
 @app.route('/api/sensor/<int:sensor>/<int:start>/<int:end>',methods=['GET'])
+@login_required
+@models.Role.user_permission.require(http_exception=401)
 def on_api_sensor_interval(sensor,start=1,end=1):
     start=datetime.fromtimestamp(start)
     end=datetime.fromtimestamp(end)
