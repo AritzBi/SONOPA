@@ -5,6 +5,6 @@ from app import app
 
 if __name__ == '__main__':
     app.config['UPDATE-SOCIAL-NETWORK'] = False
-    app.config['FAKE-SENSORS'] = False
+    app.config['FAKE-SENSORS'] = True
 
     app.run(debug = True)

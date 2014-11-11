@@ -535,7 +535,39 @@ def on_event():
 
                 return "{0}".format(e.id)
 
-
+@app.route('/api/list_sensors',methods=['GET'])
+def on_api_list_sensors():
+    """Returns the list of all the sensors in the system: type, location_name, sensor_id"""
+    sensors=models.Sensor.query.all()
+    json_str='['
+    i=0
+    for sensor in sensors:
+        if i==0:
+            json_str+='{"id": "%s", "name": "%s", "type": "%s", "location": "%s"}' % (sensor.id,sensor.name,sensor.type,models.Location.query.get(sensor.location).name)
+        else:
+            json_str+=',{"id": "%s", "name": "%s", "type": "%s", "location": "%s"}' % (sensor.id,sensor.name,sensor.type,models.Location.query.get(sensor.location).name)
+        i+=1
+    json_str+=']'
+    return json_str
+@app.route('/api/sensor/<int:sensor>',methods=['GET'])
+def on_api_sensor(sensor):
+    s = models.Sensor.query.get(sensor)
+    list=s.events.all()
+    cols = ['id', 'timestamp', 'value']
+    #Get only the information of the column specified in cols
+    list = [{col: getattr(d, col) for col in cols} for d in list]
+    eventsJS=json.dumps(list,cls=MyEncoder)
+    return eventsJS
+@app.route('/api/sensor/<int:sensor>/<int:start>/<int:end>',methods=['GET'])
+def on_api_sensor_interval(sensor,start=1,end=1):
+    start=datetime.fromtimestamp(start)
+    end=datetime.fromtimestamp(end)
+    cols = ['id', 'timestamp', 'value']
+    s = models.Sensor.query.get(sensor)
+    events = s.events.filter(models.Event.timestamp >start).filter(models.Event.timestamp<end).all()
+    events = [{col: getattr(d, col) for col in cols} for d in events]
+    eventsJS=json.dumps(events,cls=MyEncoder)
+    return eventsJS
 @async
 def _append_sensor_event(event):
     """Collects the given sensor event. Then, if an activity is inferred,
