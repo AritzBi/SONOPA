@@ -551,7 +551,7 @@ def on_api_list_sensors():
     json_str+=']'
     return json_str
 
-@app.route('/api/sensor/<int:sensor>',methods=['GET'])
+@app.route('/api/sensors/<int:sensor>',methods=['GET'])
 @login_required
 @models.Role.user_permission.require(http_exception=401)
 def on_api_sensor(sensor):
@@ -566,7 +566,7 @@ def on_api_sensor(sensor):
         eventsJS=json.dumps(list,cls=MyEncoder)
         return eventsJS
 
-@app.route('/api/sensor/<int:sensor>/<int:start>/<int:end>',methods=['GET'])
+@app.route('/api/sensors/<int:sensor>/<int:start>/<int:end>',methods=['GET'])
 @login_required
 @models.Role.user_permission.require(http_exception=401)
 def on_api_sensor_interval(sensor,start=1,end=1):
