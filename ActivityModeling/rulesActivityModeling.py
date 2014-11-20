@@ -1,6 +1,11 @@
 __author__ = 'AritzBi'
 import csv
-import datetime
+from datetime import datetime, timedelta
+import calendar
+from calendar import timegm
+import pandas as pd 
+import numpy as np
+from pandas import Series, DataFrame, Panel
 with open('SensorDataSurrey.csv','rb') as csvfile:
 	formatedData=[]
 	i=0;
@@ -17,7 +22,13 @@ with open('SensorDataSurrey.csv','rb') as csvfile:
 		location=(time[2].split(','))[1]
 		second=int((second.split('.',2))[0])
 		dataArray=[]
-		dataArray.append(datetime.datetime(year,month,day,hour,minute,second))
+		completeDate=datetime(year,month,day,hour,minute,second)
+		tt = datetime.timetuple(completeDate)
+		sec_epoch_utc = calendar.timegm(tt) * 1000
+		dataArray.append(sec_epoch_utc)
 		dataArray.append(location)
 		formatedData.append(dataArray)
-	print formatedData
+	data=np.array(formatedData)
+	dates = pd.date_range('1950-01', '2013-03', freq='M')
+	print data.shape
+		
