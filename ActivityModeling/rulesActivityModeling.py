@@ -1,11 +1,10 @@
 __author__ = 'AritzBi'
+"""t=datetime.fromtimestamp(float(data[0][0]))
+start=t.strftime('%Y-%m')"""
 import csv
 from datetime import datetime, timedelta
 import calendar
 from calendar import timegm
-import pandas as pd 
-import numpy as np
-from pandas import Series, DataFrame, Panel
 with open('SensorDataSurrey.csv','rb') as csvfile:
 	formatedData=[]
 	i=0;
@@ -24,11 +23,28 @@ with open('SensorDataSurrey.csv','rb') as csvfile:
 		dataArray=[]
 		completeDate=datetime(year,month,day,hour,minute,second)
 		tt = datetime.timetuple(completeDate)
-		sec_epoch_utc = calendar.timegm(tt) * 1000
-		dataArray.append(sec_epoch_utc)
+		sec_epoch_utc = calendar.timegm(tt)
+		dataArray.append(int(sec_epoch_utc))
 		dataArray.append(location)
 		formatedData.append(dataArray)
-	data=np.array(formatedData)
-	dates = pd.date_range('1950-01', '2013-03', freq='M')
-	print data.shape
+
+	upperLimit=formatedData[0][0]+300
+	index=0
+	intervalsArray=[]
+	while(index<len(formatedData)):
+		interval=[]
+		intervalsArray.append(interval)
+		limit=False
+		while(not limit and index<len(formatedData)):
+			data=formatedData[index]
+			if(upperLimit<data[0]):
+				upperLimit=formatedData[index][0]+300
+				limit=True
+			else:
+				interval.append(data)	
+				index=index+1
+	print intervalsArray[0]
+
+
+
 		
