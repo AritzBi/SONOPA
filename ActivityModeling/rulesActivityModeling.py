@@ -5,6 +5,33 @@ import csv
 from datetime import datetime, timedelta
 import calendar
 from calendar import timegm
+def calculate_concurrent(values):
+	lastTimeStamp=0
+	counter=0
+	biggestCounter=0
+	for value in values:
+		if(lastTimeStamp+2>=value[0]):
+			counter=counter+1
+			if counter > biggestCounter:
+				biggestCounter=counter
+		else:
+			counter=0
+		lastTimeStamp=value[0]
+	return biggestCounter
+def calculate_room(values):
+	roomMap= {}
+	for value in values:
+		roomMap[value[1]]=0
+	for value in values:
+		roomMap[value[1]]=roomMap[value[1]]+1
+	biggestValue=0
+	mostFrecuentActivation=""
+	for key in roomMap:
+		if roomMap[key]>biggestValue:
+			mostFrecuentActivation=key
+			biggestValue=roomMap[key]
+	return mostFrecuentActivation
+
 with open('SensorDataSurrey.csv','rb') as csvfile:
 	formatedData=[]
 	i=0;
@@ -43,8 +70,14 @@ with open('SensorDataSurrey.csv','rb') as csvfile:
 			else:
 				interval.append(data)	
 				index=index+1
-	print intervalsArray[0]
+	rulesData=[]
+	index=0
+	while(index<len(intervalsArray)):
+		data=[]
+		data.append((len(intervalsArray[index])))
+		data.append(calculate_concurrent(intervalsArray[index]))
+		data.append(calculate_room(intervalsArray[index]))
+		rulesData.append(data)
+		index=index+1
+	print rulesData
 
-
-
-		
