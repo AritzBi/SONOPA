@@ -5,6 +5,11 @@ import csv
 from datetime import datetime, timedelta
 import calendar
 from calendar import timegm
+import ConfigParser
+config = ConfigParser.ConfigParser()
+config.read('config.cfg')
+period=config.getfloat('Rules','period')
+print period
 def calculate_concurrent(values):
 	lastTimeStamp=0
 	counter=0
@@ -26,11 +31,18 @@ def calculate_room(values):
 		roomMap[value[1]]=roomMap[value[1]]+1
 	biggestValue=0
 	mostFrecuentActivation=""
+	secondBiggestValue=0
+	secondMostFrecuentActivation=""
 	for key in roomMap:
 		if roomMap[key]>biggestValue:
+			secondMostFrecuentActivation=mostFrecuentActivation
+			secondBiggestValue=biggestValue
 			mostFrecuentActivation=key
 			biggestValue=roomMap[key]
-	return mostFrecuentActivation
+		elif roomMap[key]>secondBiggestValue:
+			secondMostFrecuentActivation=key
+			secondBiggestValue=roomMap[key]
+	return [[mostFrecuentActivation,biggestValue], [secondMostFrecuentActivation,secondBiggestValue]]
 
 with open('SensorDataSurrey.csv','rb') as csvfile:
 	formatedData=[]
@@ -55,7 +67,7 @@ with open('SensorDataSurrey.csv','rb') as csvfile:
 		dataArray.append(location)
 		formatedData.append(dataArray)
 
-	upperLimit=formatedData[0][0]+300
+	upperLimit=formatedData[0][0]+period
 	index=0
 	intervalsArray=[]
 	while(index<len(formatedData)):
@@ -65,7 +77,7 @@ with open('SensorDataSurrey.csv','rb') as csvfile:
 		while(not limit and index<len(formatedData)):
 			data=formatedData[index]
 			if(upperLimit<data[0]):
-				upperLimit=formatedData[index][0]+300
+				upperLimit=formatedData[index][0]+period
 				limit=True
 			else:
 				interval.append(data)	
@@ -76,8 +88,9 @@ with open('SensorDataSurrey.csv','rb') as csvfile:
 		data=[]
 		data.append((len(intervalsArray[index])))
 		data.append(calculate_concurrent(intervalsArray[index]))
-		data.append(calculate_room(intervalsArray[index]))
+		mostFrecuentActivations=calculate_room(intervalsArray[index])
+		data.append([mostFrecuentActivations[0][0],mostFrecuentActivations[0][1]])
+		data.append([mostFrecuentActivations[1][0],mostFrecuentActivations[1][1]])
 		rulesData.append(data)
 		index=index+1
 	print rulesData
-
