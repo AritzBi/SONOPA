@@ -9,18 +9,17 @@ import ConfigParser
 config = ConfigParser.ConfigParser()
 config.read('config.cfg')
 period=config.getfloat('Rules','period')
-print period
 def calculate_concurrent(values):
 	lastTimeStamp=0
-	counter=0
-	biggestCounter=0
+	counter=1
+	biggestCounter=1
 	for value in values:
 		if(lastTimeStamp+2>=value[0]):
 			counter=counter+1
 			if counter > biggestCounter:
 				biggestCounter=counter
 		else:
-			counter=0
+			counter=1
 		lastTimeStamp=value[0]
 	return biggestCounter
 def calculate_room(values):
@@ -83,14 +82,28 @@ with open('SensorDataSurrey.csv','rb') as csvfile:
 				interval.append(data)	
 				index=index+1
 	rulesData=[]
+	toProcessWithRules=[]
+	toProcessManually=[]
 	index=0
 	while(index<len(intervalsArray)):
 		data=[]
-		data.append((len(intervalsArray[index])))
+		startTime=intervalsArray[index][0][0]
+		data.append(startTime)
+		size=(len(intervalsArray[index]))
+		data.append(size)
 		data.append(calculate_concurrent(intervalsArray[index]))
+		toProcessWithRules.append(data)
+		data=[]
+		data.append(startTime)
 		mostFrecuentActivations=calculate_room(intervalsArray[index])
 		data.append([mostFrecuentActivations[0][0],mostFrecuentActivations[0][1]])
-		data.append([mostFrecuentActivations[1][0],mostFrecuentActivations[1][1]])
-		rulesData.append(data)
+		zatiketa=1.*mostFrecuentActivations[1][1]/len(intervalsArray[index])
+		if zatiketa>0.3:
+			data.append([mostFrecuentActivations[1][0],mostFrecuentActivations[1][1]])
+		toProcessManually.append(data)
 		index=index+1
-	print rulesData
+	stringToInsert=''
+	file=open('sensor_data.kfb', 'w')
+	for data in toProcessWithRules:
+		stringToInsert=stringToInsert+"test("+str(data[0])+","+str(data[1])+","+str(data[2])+")\n"
+	file.write(stringToInsert)

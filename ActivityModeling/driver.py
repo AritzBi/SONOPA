@@ -9,7 +9,7 @@ engine = knowledge_engine.engine(__file__)
 def run():
 	engine.reset()
 	try:
-		fc_goal = goal.compile('sensor_data.processed($activations, $concurrentActivations)')
+		fc_goal = goal.compile('sensor_data.processed($time, $activations, $concurrentActivations)')
 		start_time = time.time()
 		engine.activate('rule_system')
 		fc_end_time = time.time()

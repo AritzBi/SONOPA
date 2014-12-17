@@ -1,34 +1,34 @@
 concurrent
 	foreach
-		sensor_data.activity_level($activations, $concurrentActivations)
-		check $concurrentActivations >0
+		sensor_data.activity_level($time,$activations, $concurrentActivations)
+		check $concurrentActivations >1
 	assert
-		sensor_data.processed($activations, 'Mas de una')
+		sensor_data.processed($time,$activations, ("Concurrent activations:", $concurrentActivations))
 
 not_concurrent
 	foreach
-		sensor_data.activity_level($activations, $concurrentActivations)
-		check $concurrentActivations == 0
+		sensor_data.activity_level($time,$activations, $concurrentActivations)
+		check $concurrentActivations == 1
 	assert
-		sensor_data.processed($activations, 'cero')
+		sensor_data.processed($time,$activations, 'No concurrent activations')
 
 high_activity_level
 	foreach
-		sensor_data.test($activations, $concurrentActivations)
+		sensor_data.test($time,$activations, $concurrentActivations)
 		check $activations >=10
 	assert
-		sensor_data.activity_level('High',$concurrentActivations)
+		sensor_data.activity_level($time,'High',$concurrentActivations)
 
 medium_activity_level
 	foreach
-		sensor_data.test($activations, $concurrentActivations)
+		sensor_data.test($time,$activations, $concurrentActivations)
 		check $activations >=5 and  10>$activations
 		
 	assert
-		sensor_data.activity_level('Medium',$concurrentActivations)
+		sensor_data.activity_level($time,'Medium',$concurrentActivations)
 low_activity_level
 	foreach
-		sensor_data.test($activations, $concurrentActivations)
+		sensor_data.test($time,$activations, $concurrentActivations)
 		check $activations >0 and  5>$activations
 	assert
-		sensor_data.activity_level('Low',$concurrentActivations)
+		sensor_data.activity_level($time,'Low',$concurrentActivations)
