@@ -103,6 +103,8 @@ with open('SensorDataSurrey.csv','rb') as csvfile:
 		toProcessManually.append(data)
 		index=index+1
 	stringToInsert=''
+	for data in toProcessManually:
+		print str(data) +"\n"
 	file=open('sensor_data.kfb', 'w')
 	for data in toProcessWithRules:
 		stringToInsert=stringToInsert+"test("+str(data[0])+","+str(data[1])+","+str(data[2])+")\n"

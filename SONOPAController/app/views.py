@@ -1,12 +1,9 @@
 __author__ = 'hasier'
 
 import sys,os
-#sys.path.insert(0, '/home/aritz/DeustoTech/sonopa_pub')
-#sys.path.insert(0, '/home/aritz/DeustoTech/sonopa_pub/TimeMarkov')
-#sys.path.insert(0, '/home/aritz/DeustoTech/sonopa_pub/TimeMarkov/controller_api.py')
-sys.path.insert(0, os.path.realpath('..'))
-sys.path.insert(0, os.path.join( os.path.realpath('..'),'TimeMarkov'))
-sys.path.insert(0, os.path.join( os.path.realpath('..'),'TimeMarkov/controller_api.py'))
+#sys.path.insert(0, os.path.realpath('..'))
+#sys.path.insert(0, os.path.join( os.path.realpath('..'),'TimeMarkov'))
+#sys.path.insert(0, os.path.join( os.path.realpath('..'),'TimeMarkov/controller_api.py'))
 from jsonschema.exceptions import ValidationError
 from app import db, models, app, login_manager
 from flask import request, g, redirect, url_for, render_template, flash
@@ -22,7 +19,7 @@ from time import sleep, mktime
 from app.decorators import async
 from flask_login import login_user, logout_user, session, current_user, login_required
 from flask_principal import identity_changed, Identity, AnonymousIdentity, identity_loaded, RoleNeed, UserNeed
-import TimeMarkov.controller_api
+#import TimeMarkov.controller_api
 from activity_inference import Reasoner
 from json import JSONEncoder
 import requests
@@ -36,7 +33,7 @@ event_schema = schema_prefix + 'event_schema'
 keep_alive_schema = schema_prefix + 'keep_alive_sensor_schema'
 configuration_file = './app/configuration/config.json'
 
-model_backup_file = './model_backup/model.bak'
+#model_backup_file = './model_backup/model.bak'
 
 sensor_cleanup_rounds = 3
 sensor_cleanup_round_time = 600
@@ -71,7 +68,7 @@ def init():
         global started
         started = True
         global model
-        model = TimeMarkov.controller_api.ControllerAPI(model_backup_file)
+        #model = TimeMarkov.controller_api.ControllerAPI(model_backup_file)
         _cron()
 
     return message
@@ -144,10 +141,10 @@ def init_db():
 def _cron():
     """Initializes the different scheduled tasks"""
     _cleanup_cron()
-    if app.config['UPDATE-SOCIAL-NETWORK']:
-        _send_model_update_cron()
-    _exit_training_cron()
-    _backup_cron()
+    #if app.config['UPDATE-SOCIAL-NETWORK']:
+        #_send_model_update_cron()
+    #_exit_training_cron()
+    #_backup_cron()
     if app.config['FAKE-SENSORS']:
         _fake_sensors_cron()
 
@@ -199,9 +196,9 @@ def _fake_sensors_cron():
                                                headers=headers).text
 
 
-@async
+"""@async
 def _backup_cron():
-    """Schedules a new model backup"""
+    #Schedules a new model backup
     while True:
         sleep(60)  # TODO Setup larger backup interval
         print 'Backup model to ' + model_backup_file
@@ -210,18 +207,18 @@ def _backup_cron():
 
 @async
 def _exit_training_cron():
-    """Exits the training mode of the behavior model"""
+    #Exits the training mode of the behavior model
     sleep(2592000)
     model.exit_training()
 
 
 @async
 def _send_model_update_cron():
-    """Schedules a periodical update of the model to the social network"""
+    #Schedules a periodical update of the model to the social network
     while True:
         url = 'http://www.sonopa.com/network/model'  # TODO Set correct URL
         response = _send_post(url, model.get_serialized_model)  # TODO Handle response
-        sleep(21600)  # Send four times per day
+        sleep(21600)  # Send four times per day"""
 
 
 @async
@@ -531,7 +528,7 @@ def on_event():
                 db.session.add(e)
                 db.session.commit()
 
-                _append_sensor_event(e)
+                #_append_sensor_event(e)
 
                 return "{0}".format(e.id)
 @app.route('/api/list_sensors',methods=['GET'])
