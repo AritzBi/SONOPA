@@ -10,12 +10,34 @@ config = ConfigParser.ConfigParser()
 config.read('config.cfg')
 period=config.getfloat('Rules','period')
 def calculate_concurrent(values):
+	print values
 	lastTimeStamp=0
 	counter=1
 	biggestCounter=1
 	for value in values:
 		if(lastTimeStamp+2>=value[0]):
 			counter=counter+1
+			if counter > biggestCounter:
+				biggestCounter=counter
+		else:
+			counter=1
+		lastTimeStamp=value[0]
+	return biggestCounter
+def isDifferentPlace(values, place):
+	for value in values:
+		if value[1]==place:
+			return False
+	return True
+def concurrentDifferentRooms(values):
+	concurrentActivations=[]
+	lastTimeStamp=0
+	counter=1
+	biggestCounter=1
+	for value in values:
+		print value
+		if(lastTimeStamp+2>=value[0]) and isDifferentPlace(concurrentActivations,value[1]):
+			counter=counter+1
+			concurrentActivations.append(value)
 			if counter > biggestCounter:
 				biggestCounter=counter
 		else:
@@ -47,6 +69,7 @@ with open('SensorDataSurrey.csv','rb') as csvfile:
 	formatedData=[]
 	i=0;
 	data=csv.reader(csvfile,delimiter=' ')
+	numberOfActivations=0
 	for row in data:
 		date=row[0].split('-' );
 		year=int(date[0])
@@ -65,7 +88,7 @@ with open('SensorDataSurrey.csv','rb') as csvfile:
 		dataArray.append(int(sec_epoch_utc))
 		dataArray.append(location)
 		formatedData.append(dataArray)
-
+		numberOfActivations=numberOfActivations +1
 	upperLimit=formatedData[0][0]+period
 	index=0
 	intervalsArray=[]
@@ -91,7 +114,7 @@ with open('SensorDataSurrey.csv','rb') as csvfile:
 		data.append(startTime)
 		size=(len(intervalsArray[index]))
 		data.append(size)
-		data.append(calculate_concurrent(intervalsArray[index]))
+		data.append(concurrentDifferentRooms(intervalsArray[index]))
 		toProcessWithRules.append(data)
 		data=[]
 		data.append(startTime)
