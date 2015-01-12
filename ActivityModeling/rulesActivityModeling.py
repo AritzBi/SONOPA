@@ -1,6 +1,4 @@
 __author__ = 'AritzBi'
-"""t=datetime.fromtimestamp(float(data[0][0]))
-start=t.strftime('%Y-%m')"""
 import csv
 from datetime import datetime, timedelta
 import calendar
@@ -9,8 +7,8 @@ import ConfigParser
 config = ConfigParser.ConfigParser()
 config.read('config.cfg')
 period=config.getfloat('Rules','period')
+json_period=config.getfloat('Rules','json_period')
 def calculate_concurrent(values):
-	print values
 	lastTimeStamp=0
 	counter=1
 	biggestCounter=1
@@ -34,7 +32,6 @@ def concurrentDifferentRooms(values):
 	counter=1
 	biggestCounter=1
 	for value in values:
-		print value
 		if(lastTimeStamp+2>=value[0]) and isDifferentPlace(concurrentActivations,value[1]):
 			counter=counter+1
 			concurrentActivations.append(value)
@@ -44,6 +41,14 @@ def concurrentDifferentRooms(values):
 			counter=1
 		lastTimeStamp=value[0]
 	return biggestCounter
+def calculateRoomChanges(values):
+	numRoomChanges=0
+	lastRoom=values[0][1]
+	for value in values:
+		if(lastRoom!=value[1]):
+			numRoomChanges=numRoomChanges+1
+		lastRoom=value[1]
+	return numRoomChanges
 def calculate_room(values):
 	roomMap= {}
 	for value in values:
@@ -89,6 +94,46 @@ with open('SensorDataSurrey.csv','rb') as csvfile:
 		dataArray.append(location)
 		formatedData.append(dataArray)
 		numberOfActivations=numberOfActivations +1
+	"""Get the date of the first day of the data"""
+	initialDate=datetime.fromtimestamp(formatedData[0][0])
+	initialDate=initialDate.replace(hour=0, minute=0,second=0)
+	tt = datetime.timetuple(initialDate)
+	initialDate = calendar.timegm(tt)
+	"""Calculate the date in seconds of the next day to uses it as the upperLimit """
+	upperLimit=initialDate+json_period
+	index=0
+	intervalsArray=[]
+	while(index<len(formatedData)):
+		interval=[]
+		intervalsArray.append(interval)
+		limit=False
+		while(not limit and index<len(formatedData)):
+			data=formatedData[index]
+			if(upperLimit<data[0]):
+				"""Get the date of the first day of the data"""
+				initialDate=datetime.fromtimestamp(formatedData[index][0])
+				initialDate=initialDate.replace(hour=0, minute=0,second=0)
+				tt = datetime.timetuple(initialDate)
+				initialDate = calendar.timegm(tt)
+				"""Calculate the date in seconds of the next day to uses it as the upperLimit """
+				upperLimit=upperLimit+json_period
+				limit=True
+			else:
+				interval.append(data)	
+				index=index+1
+	array_json=[]
+	for interval in intervalsArray:
+		data_json={};
+		data_json['total_activations']=numberOfActivations
+		#TODO Waiting for API.
+		data_json['socialNetwork_friends']=100
+		data_json['number_persons']=concurrentDifferentRooms(formatedData)
+		data_json['room_changes']=calculateRoomChanges(formatedData)
+		array_json.append(data_json)
+
+
+
+
 	upperLimit=formatedData[0][0]+period
 	index=0
 	intervalsArray=[]
@@ -105,17 +150,17 @@ with open('SensorDataSurrey.csv','rb') as csvfile:
 				interval.append(data)	
 				index=index+1
 	rulesData=[]
-	toProcessWithRules=[]
+	#toProcessWithRules=[]
 	toProcessManually=[]
 	index=0
 	while(index<len(intervalsArray)):
-		data=[]
+		#data=[]
 		startTime=intervalsArray[index][0][0]
-		data.append(startTime)
-		size=(len(intervalsArray[index]))
-		data.append(size)
-		data.append(concurrentDifferentRooms(intervalsArray[index]))
-		toProcessWithRules.append(data)
+		#data.append(startTime)
+		#size=(len(intervalsArray[index]))
+		#data.append(size)
+		#data.append(concurrentDifferentRooms(intervalsArray[index]))
+		#toProcessWithRules.append(data)
 		data=[]
 		data.append(startTime)
 		mostFrecuentActivations=calculate_room(intervalsArray[index])
@@ -125,10 +170,10 @@ with open('SensorDataSurrey.csv','rb') as csvfile:
 			data.append([mostFrecuentActivations[1][0],mostFrecuentActivations[1][1]])
 		toProcessManually.append(data)
 		index=index+1
-	stringToInsert=''
-	for data in toProcessManually:
-		print str(data) +"\n"
-	file=open('sensor_data.kfb', 'w')
-	for data in toProcessWithRules:
-		stringToInsert=stringToInsert+"test("+str(data[0])+","+str(data[1])+","+str(data[2])+")\n"
-	file.write(stringToInsert)
+	#stringToInsert=''
+	#for data in toProcessManually:
+	#	print str(data) +"\n"
+	#file=open('sensor_data.kfb', 'w')
+	#for data in toProcessWithRules:
+	#	stringToInsert=stringToInsert+"test("+str(data[0])+","+str(data[1])+","+str(data[2])+")\n"
+	#file.write(stringToInsert)"""
