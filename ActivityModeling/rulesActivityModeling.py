@@ -4,10 +4,14 @@ from datetime import datetime, timedelta
 import calendar
 from calendar import timegm
 import ConfigParser
+import json
 config = ConfigParser.ConfigParser()
 config.read('config.cfg')
 period=config.getfloat('Rules','period')
 json_period=config.getfloat('Rules','json_period')
+json_data=open("houseConfiguration.json")
+houseConfiguration=json.load(json_data)
+json_data.close()
 def calculate_concurrent(values):
 	lastTimeStamp=0
 	counter=1
@@ -22,9 +26,14 @@ def calculate_concurrent(values):
 		lastTimeStamp=value[0]
 	return biggestCounter
 def isDifferentPlace(values, place):
+	adjacentRooms=houseConfiguration[place]
 	for value in values:
 		if value[1]==place:
 			return False
+	for value in values:
+		for adjacentRoom in adjacentRooms:
+			if value[1]==adjacentRoom:
+				return False
 	return True
 def concurrentDifferentRooms(values):
 	concurrentActivations=[]
@@ -35,11 +44,34 @@ def concurrentDifferentRooms(values):
 		if(lastTimeStamp+2>=value[0]) and isDifferentPlace(concurrentActivations,value[1]):
 			counter=counter+1
 			concurrentActivations.append(value)
+			if(counter == 4):
+				print concurrentActivations
 			if counter > biggestCounter:
 				biggestCounter=counter
 		else:
 			counter=1
+			concurrentActivations=[]
+			concurrentActivations.append(value)
 		lastTimeStamp=value[0]
+	return biggestCounter
+def concurrentDifferentRooms2(values):
+	concurrentActivations=[]
+	lastTimeStamp=0
+	counter=1
+	biggestCounter=1
+	for value in values:
+		if(lastTimeStamp+2>=value[0]) and isDifferentPlace(concurrentActivations,value[1]):
+			counter=counter+1
+			concurrentActivations.append(value)
+			if(counter == 3):
+				print concurrentActivations
+			if counter > biggestCounter:
+				biggestCounter=counter
+		else:
+			counter=1
+			concurrentActivations=[]
+			concurrentActivations.append(value)
+			lastTimeStamp=value[0]
 	return biggestCounter
 def calculateRoomChanges(values):
 	numRoomChanges=0
@@ -127,13 +159,11 @@ with open('SensorDataSurrey.csv','rb') as csvfile:
 		data_json['total_activations']=numberOfActivations
 		#TODO Waiting for API.
 		data_json['socialNetwork_friends']=100
-		data_json['number_persons']=concurrentDifferentRooms(formatedData)
+		data_json['number_persons']=concurrentDifferentRooms2(formatedData)
+		#print str(data_json['number_persons'])+"\n"
 		data_json['room_changes']=calculateRoomChanges(formatedData)
 		array_json.append(data_json)
-
-
-
-
+	"""Now proccess data in order to get the activities"""
 	upperLimit=formatedData[0][0]+period
 	index=0
 	intervalsArray=[]
@@ -149,7 +179,7 @@ with open('SensorDataSurrey.csv','rb') as csvfile:
 			else:
 				interval.append(data)	
 				index=index+1
-	rulesData=[]
+	#rulesData=[]
 	#toProcessWithRules=[]
 	toProcessManually=[]
 	index=0
@@ -161,6 +191,7 @@ with open('SensorDataSurrey.csv','rb') as csvfile:
 		#data.append(size)
 		#data.append(concurrentDifferentRooms(intervalsArray[index]))
 		#toProcessWithRules.append(data)
+		#concurrentDifferentRooms2(intervalsArray[index])
 		data=[]
 		data.append(startTime)
 		mostFrecuentActivations=calculate_room(intervalsArray[index])

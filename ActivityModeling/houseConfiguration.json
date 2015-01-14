@@ -1,0 +1,14 @@
+{
+    "HS_Hallway_Downstairs":["HS_Living_Room"],
+    "HS_Kitchen":["HS_Winter_Garden","HS_Dining_Room"],
+    "HS_Winter_Garden":["HS_Kitchen"],
+    "HS_Living_Room":["HS_Hallway_Downstairs","HS_Drawing_Room"],
+    "HS_Bathroom":["HS_Bedroom"],
+    "HS_Drawing_Room":["HS_Living_Room", "HS_Dining_Room"],
+    "HS_Dining_Room":["HS_Drawing_Room","HS_Kitchen"],
+    "HS_Hallway_Upstairs":["HS_Bedroom"],
+    "HS_Bedroom":["HS_Hallway_Upstairs","HS_Bathroom","HS_Box_Room"],
+    "HS_Box_Room":["HS_Bedroom"]
+
+
+}
