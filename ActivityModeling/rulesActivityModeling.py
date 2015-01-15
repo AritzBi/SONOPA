@@ -26,7 +26,7 @@ def calculate_concurrent(values):
 		lastTimeStamp=value[0]
 	return biggestCounter
 def isDifferentPlace(values, place):
-	adjacentRooms=houseConfiguration[place]
+	adjacentRooms=houseConfiguration[place]["adjacent"]
 	for value in values:
 		if value[1]==place:
 			return False
@@ -63,7 +63,7 @@ def concurrentDifferentRooms2(values):
 		if(lastTimeStamp+2>=value[0]) and isDifferentPlace(concurrentActivations,value[1]):
 			counter=counter+1
 			concurrentActivations.append(value)
-			if(counter == 3):
+			if(counter == 4):
 				print concurrentActivations
 			if counter > biggestCounter:
 				biggestCounter=counter
@@ -76,10 +76,23 @@ def concurrentDifferentRooms2(values):
 def calculateRoomChanges(values):
 	numRoomChanges=0
 	lastRoom=values[0][1]
+	adjacentRooms=houseConfiguration[lastRoom]["adjacent"]
+	noAdjacentRooms=houseConfiguration[lastRoom]["noAdjacent"]
+	adjacent=False
 	for value in values:
 		if(lastRoom!=value[1]):
-			numRoomChanges=numRoomChanges+1
+			for adjacentRoom in adjacentRooms:
+				if value[1]==adjacentRoom:
+					numRoomChanges=numRoomChanges+1	
+					adjacent=True	
+					break
+			if not adjacent:
+				for noAdjacentRoom in noAdjacentRooms:
+					if(value[1]==noAdjacentRoom['room']):
+						numRoomChanges=numRoomChanges+noAdjacentRoom['distance']
+						break
 		lastRoom=value[1]
+		adjacent=False
 	return numRoomChanges
 def calculate_room(values):
 	roomMap= {}
@@ -156,12 +169,12 @@ with open('SensorDataSurrey.csv','rb') as csvfile:
 	array_json=[]
 	for interval in intervalsArray:
 		data_json={};
-		data_json['total_activations']=numberOfActivations
+		data_json['total_activations']=len(interval)
 		#TODO Waiting for API.
 		data_json['socialNetwork_friends']=100
-		data_json['number_persons']=concurrentDifferentRooms2(formatedData)
+		data_json['number_persons']=concurrentDifferentRooms2(interval)
 		#print str(data_json['number_persons'])+"\n"
-		data_json['room_changes']=calculateRoomChanges(formatedData)
+		data_json['room_changes']=calculateRoomChanges(interval)
 		array_json.append(data_json)
 	"""Now proccess data in order to get the activities"""
 	upperLimit=formatedData[0][0]+period
@@ -208,3 +221,5 @@ with open('SensorDataSurrey.csv','rb') as csvfile:
 	#for data in toProcessWithRules:
 	#	stringToInsert=stringToInsert+"test("+str(data[0])+","+str(data[1])+","+str(data[2])+")\n"
 	#file.write(stringToInsert)"""
+
+	print array_json
