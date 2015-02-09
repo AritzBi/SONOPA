@@ -1,0 +1,24 @@
+{"name":"ZBS121010084",
+"type":"ZBS-122(mac\u003d0x0013a200407bd5ea)",
+"location":"unknown",
+"event_definition":{
+    "$schema":"http://json-schema.org/schema#",
+    "title":"Motion and Presence Sensor",
+    "description":"ZBS121",
+    "type":"object",
+    "properties":{
+            "motion":{        "description":"Motion indicator", "type":"number"},
+            "state":{            "description":"Presence detector (presence|free","type":"string"}
+    },
+    "anyOf": [
+        {
+            "required": [
+                "motion"
+            ]
+        },
+        {
+            "required": [
+                "state"
+            ]
+        }
+    ]}}

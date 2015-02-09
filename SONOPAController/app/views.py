@@ -9,6 +9,8 @@ from app import db, models, app, login_manager
 from flask import request, g, redirect, url_for, render_template, flash
 from app.database import db_create
 from datetime import datetime, timedelta
+import calendar
+from calendar import timegm
 import json
 from jsonschema import validate
 from os import remove
@@ -541,9 +543,9 @@ def on_api_list_sensors():
     i=0
     for sensor in sensors:
         if i==0:
-            json_str+='{"id": "%s", "name": "%s", "type": "%s", "location": "%s"}' % (sensor.id,sensor.name,sensor.type,models.Location.query.get(sensor.location).name)
+            json_str+='{"sensor_id": "%s", "name": "%s", "type": "%s", "location": "%s"}' % (sensor.id,sensor.name,sensor.type,models.Location.query.get(sensor.location).name)
         else:
-            json_str+=',{"id": "%s", "name": "%s", "type": "%s", "location": "%s"}' % (sensor.id,sensor.name,sensor.type,models.Location.query.get(sensor.location).name)
+            json_str+=',{"sensor_id": "%s", "name": "%s", "type": "%s", "location": "%s"}' % (sensor.id,sensor.name,sensor.type,models.Location.query.get(sensor.location).name)
         i+=1
     json_str+=']'
     return json_str
@@ -557,6 +559,10 @@ def on_api_sensor(sensor):
             return 'Invalid sensor id: {0}'.format(sensor)
     else:
         list=s.events.all()
+        for l in list:
+            tt = datetime.timetuple(l.timestamp)
+            sec_epoch_utc = calendar.timegm(tt)
+            l.timestamp=int(sec_epoch_utc)
         cols = ['id', 'timestamp', 'value']
         #Get only the information of the column specified in cols
         list = [{col: getattr(d, col) for col in cols} for d in list]
@@ -575,6 +581,10 @@ def on_api_sensor_interval(sensor,start=1,end=1):
         end=datetime.fromtimestamp(end)
         cols = ['id', 'timestamp', 'value']
         events = s.events.filter(models.Event.timestamp >start).filter(models.Event.timestamp<end).all()
+        for event in events:
+            tt = datetime.timetuple(event.timestamp)
+            sec_epoch_utc = calendar.timegm(tt)
+            event.timestamp=int(sec_epoch_utc)            
         events = [{col: getattr(d, col) for col in cols} for d in events]
         eventsJS=json.dumps(events,cls=MyEncoder)
         return eventsJS
@@ -649,7 +659,9 @@ def get_last_event():
                                                                                       e.fired_by.located_in.name,
                                                                                       e.value)
 
-
+@app.route('/rules', methods=['GET'])
+def rules():
+    return render_template('rules.html', title='Rule system')
 # @app.errorhandler(404)
 # def internal_error(error):
 #     return render_template('404.html'), 404

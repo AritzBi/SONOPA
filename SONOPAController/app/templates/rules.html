@@ -1,0 +1,54 @@
+{% extends "layout.html" %}
+{% block body %}
+<div class="row">
+	<ul id="rules" class="list-group">
+		<li class="list-group-item" > 
+			<div class="row">
+				<div class="col-md-5" id="conditions">
+					<div class="row">
+						<div class="col-md-1">
+							<button class="btn btn-twitter" id="addCondition"> + </button>
+						</div>
+						<div class="col-md-11">
+							<input class="form-control"  id="addConsequence" type="text" >
+						</div>
+					</div>
+				</div>
+				<div class="col-md-5">
+					<div class="row">
+						<div class="col-md-1">
+							<button class="btn btn-twitter"> + </button>
+						</div>
+						<div class="col-md-11">
+							<input class="form-control"  type="text" >
+						</div>
+					</div>
+				</div>
+				<div class="col-md-2">
+					<button id="addRule" class="btn btn-twitter"> Add rule </button>
+				</div>
+			</div>
+		</li>
+	</ul>
+</div>
+<script type="text/javascript">
+	$(".container").on( "click", "#addRule", function(){
+           	 $("#addRule").remove();
+             $("#rules").append(
+             	'<li class="list-group-item" ><div class="row"><div class="col-md-5"><input class="form-control " name="username" type="text" ></div><div class="col-md-5"><input class="form-control " name="username" type="text" ></div><div class="col-md-2"><button id="addRule" class="btn btn-twitter"> Add rule </button></div></div></li>'
+			);
+	} );
+	$(".container").on( "click", "#addCondition", function(){
+           	 $("#addCondition").remove();
+             $("#conditions").append(
+             	'<div class="row"><div class="col-md-1"><button class="btn btn-twitter" id="addCondition"> + </button></div><div class="col-md-11"><input class="form-control"  type="text" ></div></div>'
+			);
+	} );
+	$(".container").on( "click", "#addConsequence", function(){
+           	 $("#addCondition").remove();
+             $("#consequences").append(
+             	'<div class="row"><div class="col-md-1"><button class="btn btn-twitter" id="addConsequence"> + </button></div><div class="col-md-11"><input class="form-control"  type="text" ></div></div>'
+			);
+	} );
+</script>
+{% endblock %}
