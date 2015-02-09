@@ -16,6 +16,7 @@ class Sensor(db.Model):
     """Represents a sensor in the system"""
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64))
+    sensorRef = db.Column(db.String(64))
     type = db.Column(db.String(64))
     last_alive = db.Column(db.DateTime, default=datetime.now())
     location = db.Column(db.Integer, db.ForeignKey('location.id'))

@@ -169,6 +169,7 @@ def _fake_sensors_cron():
     j['name'] = 'Humidity'
     j['type'] = 'SHT21'
     j['location'] = "Kitchen"
+    j['sensorRef']="cronGeneratedSensor"
     r = requests.post('http://localhost:5000/register', data=json.dumps(j), headers=headers)
     hum_id = int(r.text)
     with open('./examples/sensor2_example', 'r') as f:
@@ -426,7 +427,10 @@ def register_sensor():
             l=models.Location(name=location_name)
             db.session.add(l)
             db.session.commit()
-            s = models.Sensor(name=name, type=sensor_type, located_in=l)
+            if 'sensorRef' in sensor:
+                s = models.Sensor(name=name, type=sensor_type, located_in=l,sensorRef=sensor['sensorRef'])
+            else:
+                s = models.Sensor(name=name, type=sensor_type, located_in=l)
             db.session.add(s)
             db.session.commit()
             if not isfile(schema_prefix + format_filename(sensor_type) + schema_suffix):
@@ -436,7 +440,10 @@ def register_sensor():
             return "{0}".format(s.id)
 
         else:
-            s = models.Sensor(name=name, type=sensor_type, located_in=l[0])
+            if 'sensorRef' in sensor:
+                s = models.Sensor(name=name, type=sensor_type, located_in=l[0],sensorRef=sensor['sensorRef'])
+            else:
+                s = models.Sensor(name=name, type=sensor_type, located_in=l[0])
             db.session.add(s)
             db.session.commit()
 
@@ -543,9 +550,9 @@ def on_api_list_sensors():
     i=0
     for sensor in sensors:
         if i==0:
-            json_str+='{"sensor_id": "%s", "name": "%s", "type": "%s", "location": "%s"}' % (sensor.id,sensor.name,sensor.type,models.Location.query.get(sensor.location).name)
+            json_str+='{"sensor_id": "%s", "name": "%s", "type": "%s", "location": "%s","sensorRef":"%s"}' % (sensor.id,sensor.name,sensor.type,models.Location.query.get(sensor.location).name,sensor.sensorRef)
         else:
-            json_str+=',{"sensor_id": "%s", "name": "%s", "type": "%s", "location": "%s"}' % (sensor.id,sensor.name,sensor.type,models.Location.query.get(sensor.location).name)
+            json_str+=',{"sensor_id": "%s", "name": "%s", "type": "%s", "location": "%s","sensorRef":"%s"}' % (sensor.id,sensor.name,sensor.type,models.Location.query.get(sensor.location).name,sensor.sensorRef)
         i+=1
     json_str+=']'
     return json_str

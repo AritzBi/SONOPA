@@ -19,6 +19,10 @@
         "event_definition": {
             "type": "object",
             "description":"JSON schema for the sensor's events"
+        },        
+        "sensorRef": {
+            "type": "string",
+            "description":"Type of the sensor"
         }
     },
     "required": ["type", "name", "location", "event_definition"]
