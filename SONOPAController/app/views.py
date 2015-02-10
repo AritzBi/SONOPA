@@ -33,6 +33,7 @@ sensor_schema = schema_prefix + 'register_sensor_schema'
 unregister_sensor_schema = schema_prefix + 'unregister_sensor_schema'
 event_schema = schema_prefix + 'event_schema'
 keep_alive_schema = schema_prefix + 'keep_alive_sensor_schema'
+keep_alive_list_schema = schema_prefix + 'keep_alive_list_schema'
 configuration_file = './app/configuration/config.json'
 
 #model_backup_file = './model_backup/model.bak'
@@ -400,7 +401,30 @@ def keep_alive():
             db.session.commit()
 
             return "Sensor alive: {0}<br />".format(sensor_id)
-
+@app.route('/keep_alive_list', methods=['POST'])
+@login_required
+@models.Role.user_permission.require(http_exception=401)
+def keep_alive_list():
+    """Sets the given list of sensors as alive if the provided JSON POST message is correctly formed"""
+    try:
+        sensor_list = json.loads(request.data)
+        with open(keep_alive_list_schema, 'r') as f:
+            validate(sensor_list, json.load(f))
+    except ValueError as e:
+        return 'JSON data is malformed: {0}'.format(e.message)
+    except ValidationError as e:
+        return 'JSON does not comply with schema: {0}'.format(e.message)
+    else:
+        return_message=""
+        for sensor_id in sensor_list:
+            s = models.Sensor.query.get(sensor_id)
+            if s is None:
+                return_message=return_message+'Invalid sensor id: {0}'.format(sensor_id)
+            else:
+                s.last_alive = datetime.now()
+                db.session.commit()
+                return_message=return_message+  " Sensor alive: {0}<br />".format(sensor_id)
+        return return_message
 
 @app.route('/register', methods=['POST'])
 @login_required
