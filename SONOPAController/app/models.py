@@ -28,6 +28,7 @@ class Event(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     timestamp = db.Column(db.DateTime)
     sensor = db.Column(db.Integer, db.ForeignKey('sensor.id'))
+    #sensorRef = db.Column(db.Integer, db.ForeignKey('sensor.sensorRef'))
     value = db.Column(db.Text)
 
 

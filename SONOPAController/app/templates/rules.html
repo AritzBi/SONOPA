@@ -2,22 +2,22 @@
 {% block body %}
 <div class="row">
 	<ul id="rules" class="list-group">
-		<li class="list-group-item" > 
+		<li class="list-group-item rule" id="0" > 
 			<div class="row">
-				<div class="col-md-5" id="conditions">
-					<div class="row">
+				<div class="col-md-5" id="conditions" >
+					<div class="row" id="conditions0">
 						<div class="col-md-1">
-							<button class="btn btn-twitter" id="addCondition"> + </button>
+							<button class="btn btn-twitter addCondition" id="0"> + </button>
 						</div>
 						<div class="col-md-11">
-							<input class="form-control"  id="addConsequence" type="text" >
+							<input class="form-control"  type="text" >
 						</div>
 					</div>
 				</div>
-				<div class="col-md-5">
-					<div class="row">
+				<div class="col-md-5" id="consequences">
+					<div class="row"  id="consequences0">
 						<div class="col-md-1">
-							<button class="btn btn-twitter"> + </button>
+							<button class="btn btn-twitter addConsequence" id="0"> + </button>
 						</div>
 						<div class="col-md-11">
 							<input class="form-control"  type="text" >
@@ -32,23 +32,37 @@
 	</ul>
 </div>
 <script type="text/javascript">
+	var numRowsConditions=0;
+	var numRowsConsequences=0;
+	var numRules=0;
 	$(".container").on( "click", "#addRule", function(){
-           	 $("#addRule").remove();
-             $("#rules").append(
-             	'<li class="list-group-item" ><div class="row"><div class="col-md-5"><input class="form-control " name="username" type="text" ></div><div class="col-md-5"><input class="form-control " name="username" type="text" ></div><div class="col-md-2"><button id="addRule" class="btn btn-twitter"> Add rule </button></div></div></li>'
-			);
+		numRules++;
+       	$("#addRule").remove();
+        $("#rules").append(
+         	'<li class="list-group-item rule" id="'+numRules+'"><div class="row" ><div class="col-md-5"><input class="form-control " name="username" type="text" ></div><div class="col-md-5"><input class="form-control " name="username" type="text" ></div><div class="col-md-2"><button id="addRule" class="btn btn-twitter"> Add rule </button></div></div></li>'
+		);
+	});
+	$(".container").on( "click", ".addCondition", function(){
+    	$(".addCondition").replaceWith('<button class="btn btn-twitter removeCondition" id="'+numRowsConditions+'"> - </button>');
+    	numRowsConditions++;
+    	$("#conditions").append(
+     	'<div class="row" id="conditions'+numRowsConditions+'"><div class="col-md-1"><button class="btn btn-twitter addCondition" id="'+numRowsConditions+'"> + </button></div><div class="col-md-11"><input class="form-control"  type="text" ></div></div>'
+		);
+	});
+	$(".container").on( "click", ".addConsequence", function(){
+        $(".addConsequence").replaceWith('<button class="btn btn-twitter removeConsequence" id="'+numRowsConsequences+'"> - </button>');
+        numRowsConsequences++;
+        $("#consequences").append(
+             	'<div class="row" id="consequences'+numRowsConsequences+'" ><div class="col-md-1"><button class="btn btn-twitter addConsequence" id="'+numRowsConsequences+'"> + </button></div><div class="col-md-11"><input class="form-control"  type="text" ></div></div>'
+		);
+	});
+	$(".container").on( "click", ".removeCondition", function(){ 
+		var id = $(this).attr('id');
+        $("#conditions"+id).remove();
 	} );
-	$(".container").on( "click", "#addCondition", function(){
-           	 $("#addCondition").remove();
-             $("#conditions").append(
-             	'<div class="row"><div class="col-md-1"><button class="btn btn-twitter" id="addCondition"> + </button></div><div class="col-md-11"><input class="form-control"  type="text" ></div></div>'
-			);
-	} );
-	$(".container").on( "click", "#addConsequence", function(){
-           	 $("#addCondition").remove();
-             $("#consequences").append(
-             	'<div class="row"><div class="col-md-1"><button class="btn btn-twitter" id="addConsequence"> + </button></div><div class="col-md-11"><input class="form-control"  type="text" ></div></div>'
-			);
+	$(".container").on( "click", ".removeConsequence", function(){
+        var id = $(this).attr('id');
+        $("#consequences"+id).remove();
 	} );
 </script>
 {% endblock %}
