@@ -71,11 +71,9 @@ def init():
         global started
         started = True
         global model
-        #model = TimeMarkov.controller_api.ControllerAPI(model_backup_file)
         _cron()
 
     return message
-
 
 def init_db():
     """Initializes the database if needed"""
@@ -238,11 +236,17 @@ def _cleanup_cron():
         print 'Cleaning sensors...'
 
         i = 0
+        print datetime.now() - last_allowed_alive
         sensors = db.session.query(models.Sensor).filter(
-            datetime.now() - models.Sensor.last_alive > last_allowed_alive).all()
+            (models.Sensor.last_alive) < datetime.now() - last_allowed_alive).all()
         for sensor in sensors:
             _remove_sensor(sensor)
             i += 1
+        """sensors = db.session.query(models.Sensor).all()
+        for sensor in sensors:
+            if((datetime.now() - sensor.last_alive)>last_allowed_alive):
+                _remove_sensor(sensor)
+                i += 1"""
         print '{0} sensors cleaned'.format(i)
 
         i = 0

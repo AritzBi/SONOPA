@@ -1,1 +1,0 @@
-{"description": "Temperature sensor validation", "title": "Temperature sensor", "required": ["value"], "$schema": "http://json-schema.org/schema#", "type": "object", "properties": {"value": {"type": "number", "description": "Temperature value"}}}
