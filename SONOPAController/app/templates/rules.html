@@ -1,6 +1,18 @@
 {% extends "layout.html" %}
 {% block body %}
 <div class="row">
+	<div class="btn-group">
+		<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+		    Sensors <span class="caret"></span>
+		</button>
+		<ul class="dropdown-menu" role="menu">
+			{% for sensor in sensors %}
+				<li class="sensor" role="presentation" id="{{sensor.id}}"><a href="#">{{ sensor.name }}</a></li>
+			{% endfor %}
+		</ul>
+	</div>
+</div>
+<div class="row">
 	<ul id="rules" class="list-group">
 		<li class="list-group-item rule" id="0" > 
 			<div class="row">
@@ -32,6 +44,7 @@
 	</ul>
 </div>
 <script type="text/javascript">
+  	$SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
 	var numRowsConditions=0;
 	var numRowsConsequences=0;
 	var numRules=0;
@@ -64,5 +77,15 @@
         var id = $(this).attr('id');
         $("#consequences"+id).remove();
 	} );
+
+	$(".dropdown-menu li a").click(function(){
+	  $(this).parents(".btn-group").find('.btn').text($(this).text());
+	  $(this).parents(".btn-group").find('.btn').val($(this).text());
+	  var id = $(this).parent().attr('id');
+	  $.getJSON($SCRIPT_ROOT + '/get_sensor_data',{sensor_id:id}, function(data) {
+        $("#result").text(data.result);
+      });
+	});
+
 </script>
 {% endblock %}

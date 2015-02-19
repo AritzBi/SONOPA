@@ -539,6 +539,7 @@ def on_event():
     """Saves the given event from a sensor if the provided JSON POST message is correctly formed"""
     try:
         event = json.loads(request.data)
+        print event
         with open(event_schema, 'r') as f:
             validate(event, json.load(f))
     except ValueError as e:
@@ -548,8 +549,8 @@ def on_event():
     else:
         timestamp = int(event['timestamp'] / 1000)
         value = event['value']
+        value=json.dumps(value)
         sensor_id = event['sensor_id']
-
         s = models.Sensor.query.get(sensor_id)
         if s is None:
             return 'Invalid sensor id: {0}'.format(sensor_id)
@@ -696,7 +697,38 @@ def get_last_event():
 
 @app.route('/rules', methods=['GET'])
 def rules():
-    return render_template('rules.html', title='Rule system')
+    sensors=models.Sensor.query.all()
+    return render_template('rules.html', sensors=sensors, title='Rule system')
+
+@app.route('/get_sensor_data', methods=['GET'])
+def get_sensor_data():
+    sensor_id = request.args.get('sensor_id', 0, type=int)
+    s = models.Sensor.query.get(sensor_id)
+    print s.type
+    dbToJSon(s)
+    return render_template('rules.html', sensors=s.events, title='Rule system')
+
+
+def dbToJSon(sensor):
+    sensor_type=sensor.type
+    if sensor_type=="TMP36" || sensor_type=="SHT21" :
+        max=0
+        min=sys.maxint
+        avg=0
+        i=0
+        for event in sensor.events:
+            data=event.value
+            data=json.loads(data)
+            data=float(data['value'])
+            if max<data:
+                max=data
+            if min>data:
+                min=data
+            avg=avg+data
+            i=i+1
+        avg=avg/i
+         
+
 # @app.errorhandler(404)
 # def internal_error(error):
 #     return render_template('404.html'), 404

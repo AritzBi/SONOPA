@@ -1,5 +1,6 @@
 {
     "id":"aaaa",
     "keep_alive_round":"1800",
-    "last_allowed_alive":"600"
+    "last_allowed_alive":"600",
+    "sn_api": "dhT6pd3VGju476BS"
 }
