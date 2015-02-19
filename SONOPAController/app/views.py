@@ -705,13 +705,13 @@ def get_sensor_data():
     sensor_id = request.args.get('sensor_id', 0, type=int)
     s = models.Sensor.query.get(sensor_id)
     print s.type
-    dbToJSon(s)
-    return render_template('rules.html', sensors=s.events, title='Rule system')
+    data=dbToJSon(s)
+    return json.dumps(data)
 
 
 def dbToJSon(sensor):
     sensor_type=sensor.type
-    if sensor_type=="TMP36" || sensor_type=="SHT21" :
+    if sensor_type=="TMP36" or  sensor_type=="SHT21" :
         max=0
         min=sys.maxint
         avg=0
@@ -727,6 +727,8 @@ def dbToJSon(sensor):
             avg=avg+data
             i=i+1
         avg=avg/i
+        return {'max':max,'min':min,'avg':avg}
+        
          
 
 # @app.errorhandler(404)

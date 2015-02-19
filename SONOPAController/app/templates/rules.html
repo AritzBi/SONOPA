@@ -1,16 +1,31 @@
 {% extends "layout.html" %}
 {% block body %}
 <div class="row">
-	<div class="btn-group">
-		<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-		    Sensors <span class="caret"></span>
-		</button>
-		<ul class="dropdown-menu" role="menu">
-			{% for sensor in sensors %}
-				<li class="sensor" role="presentation" id="{{sensor.id}}"><a href="#">{{ sensor.name }}</a></li>
-			{% endfor %}
-		</ul>
+	<div class="col-md-6">
+		<div class="btn-group">
+			<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+			    Sensors <span class="caret"></span>
+			</button>
+			<ul class="dropdown-menu" role="menu">
+				{% for sensor in sensors %}
+					<li class="sensor" role="presentation" id="{{sensor.id}}"><a href="#">{{ sensor.name }}</a></li>
+				{% endfor %}
+			</ul>
+		</div>
 	</div>
+	<div class="col-md-6">
+		<table class="table table-striped">
+			<thead>
+				<tr>
+					<th>Avg</th>
+					<th>Max</th>
+					<th>Min</th>
+				</tr>
+			</thead>
+			<tbody id="tableBody">
+            </tbody>
+		</table>
+	</div>	
 </div>
 <div class="row">
 	<ul id="rules" class="list-group">
@@ -48,6 +63,7 @@
 	var numRowsConditions=0;
 	var numRowsConsequences=0;
 	var numRules=0;
+	$(".table").hide();
 	$(".container").on( "click", "#addRule", function(){
 		numRules++;
        	$("#addRule").remove();
@@ -83,7 +99,11 @@
 	  $(this).parents(".btn-group").find('.btn').val($(this).text());
 	  var id = $(this).parent().attr('id');
 	  $.getJSON($SCRIPT_ROOT + '/get_sensor_data',{sensor_id:id}, function(data) {
-        $("#result").text(data.result);
+	  	var html="<tr><td>"+data.avg+"</td><td>"+data.max+"</td><td>"+data.min+"</td></trow>"
+	  	$(".table").show();
+	  	$('#tableBody').append(html);
+
+        
       });
 	});
 
