@@ -1,6 +1,6 @@
 {% extends "layout.html" %}
 {% block body %}
-<div class="row">
+<div class="bot-medium-buffer row ">
 	<div class="col-md-6">
 		<div class="btn-group">
 			<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
@@ -8,7 +8,7 @@
 			</button>
 			<ul class="dropdown-menu" role="menu">
 				{% for sensor in sensors %}
-					<li class="sensor" role="presentation" id="{{sensor.id}}"><a href="#">{{ sensor.name }}</a></li>
+					<li class="sensor" role="presentation" id="{{sensor.type}}"><a href="#">{{ sensor.name }}</a></li>
 				{% endfor %}
 			</ul>
 		</div>
@@ -17,9 +17,11 @@
 		<table class="table table-striped">
 			<thead>
 				<tr>
-					<th>Avg</th>
+					<th>Sensor ID</th>
+					<th>Location</th>
 					<th>Max</th>
 					<th>Min</th>
+					<th>Avg</th>
 				</tr>
 			</thead>
 			<tbody id="tableBody">
@@ -27,8 +29,8 @@
 		</table>
 	</div>	
 </div>
-<div class="row">
-	<ul id="rules" class="list-group">
+<div class="row ">
+	<ul id="rules" class="list-group ">
 		<li class="list-group-item rule" id="0" > 
 			<div class="row">
 				<div class="col-md-5" id="conditions" >
@@ -93,8 +95,20 @@
         var id = $(this).attr('id');
         $("#consequences"+id).remove();
 	} );
-
 	$(".dropdown-menu li a").click(function(){
+	  $(this).parents(".btn-group").find('.btn').text($(this).text());
+	  $(this).parents(".btn-group").find('.btn').val($(this).text());
+	  var id = $(this).parent().attr('id');
+	  $.getJSON($SCRIPT_ROOT + '/get_sensors_by_type',{sensor_type:id}, function(data) {
+	  	$("#tableBody").find("tr").remove()
+	  	for(var i=0;i<data.length;i++){
+	  		var html="<tr><td>"+data[i].sensor_id+"</td><td>"+data[i].location+"</td><td>"+data[i].max+"</td><td>"+data[i].min+"</td><td>"+data[i].avg+"</td></trow>"
+	  		$(".table").show();
+	  		$('#tableBody').append(html);
+	  	}
+      });
+	});
+	/*$(".dropdown-menu li a").click(function(){
 	  $(this).parents(".btn-group").find('.btn').text($(this).text());
 	  $(this).parents(".btn-group").find('.btn').val($(this).text());
 	  var id = $(this).parent().attr('id');
@@ -105,7 +119,7 @@
 
         
       });
-	});
+	});*/
 
 </script>
 {% endblock %}

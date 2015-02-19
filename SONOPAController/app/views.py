@@ -700,6 +700,15 @@ def rules():
     sensors=models.Sensor.query.all()
     return render_template('rules.html', sensors=sensors, title='Rule system')
 
+@app.route('/get_sensors_by_type', methods=['GET'])
+def get_sensors_by_type():
+    sensor_type = request.args.get('sensor_type', 0, type=str)
+    sensors = models.Sensor.query.filter_by(type=sensor_type)
+    data=[]
+    for sensor in sensors:
+        data.append(dbToJSon(sensor))
+    return json.dumps(data)
+
 @app.route('/get_sensor_data', methods=['GET'])
 def get_sensor_data():
     sensor_id = request.args.get('sensor_id', 0, type=int)
@@ -727,7 +736,7 @@ def dbToJSon(sensor):
             avg=avg+data
             i=i+1
         avg=avg/i
-        return {'max':max,'min':min,'avg':avg}
+        return {'sensor_id': sensor.id, 'location':models.Location.query.get(sensor.location).name ,'max':max,'min':min,'avg':avg}
         
          
 
