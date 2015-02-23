@@ -114,7 +114,17 @@ def calculate_room(values):
 			secondMostFrecuentActivation=key
 			secondBiggestValue=roomMap[key]
 	return [[mostFrecuentActivation,biggestValue], [secondMostFrecuentActivation,secondBiggestValue]]
-
+def occupation_level(values):
+	rooms={}
+	total=0
+	for value in values:
+		rooms[value[1]]=0
+	for value in values:
+		rooms[value[1]]=rooms[value[1]]+1
+		total=total+1
+	for key in rooms:
+		rooms[key]=rooms[key]*100/float(total)
+	return rooms
 with open('SensorDataSurrey.csv','rb') as csvfile:
 	formatedData=[]
 	i=0;
@@ -174,6 +184,8 @@ with open('SensorDataSurrey.csv','rb') as csvfile:
 		data_json['socialNetwork_friends']=100
 		data_json['number_persons']=concurrentDifferentRooms2(interval)
 		#print str(data_json['number_persons'])+"\n"
+		data_json['occupation_level']=occupation_level(interval)
+		print data_json['occupation_level']
 		data_json['room_changes']=calculateRoomChanges(interval)
 		array_json.append(data_json)
 	"""Now proccess data in order to get the activities"""
