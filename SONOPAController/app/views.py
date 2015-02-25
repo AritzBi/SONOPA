@@ -697,8 +697,9 @@ def get_last_event():
 
 @app.route('/rules', methods=['GET'])
 def rules():
-    sensors=models.Sensor.query.all()
-    return render_template('rules.html', sensors=sensors, title='Rule system')
+    #sensors=models.Sensor.query.all()
+    sensor_types=db.session.query(models.Sensor.type).distinct()
+    return render_template('rules.html', sensors=sensor_types, title='Rule system')
 
 @app.route('/get_sensors_by_type', methods=['GET'])
 def get_sensors_by_type():
@@ -736,6 +737,7 @@ def dbToJSon(sensor):
             avg=avg+data
             i=i+1
         avg=avg/i
+        avg="%.2f" % avg
         return {'sensor_id': sensor.id, 'location':models.Location.query.get(sensor.location).name ,'max':max,'min':min,'avg':avg}
         
          

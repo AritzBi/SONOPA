@@ -8,7 +8,7 @@
 			</button>
 			<ul class="dropdown-menu" role="menu">
 				{% for sensor in sensors %}
-					<li class="sensor" role="presentation" id="{{sensor.type}}"><a href="#">{{ sensor.name }}</a></li>
+					<li class="sensor" role="presentation" id="{{sensor.type}}"><a href="#">{{ sensor.type }}</a></li>
 				{% endfor %}
 			</ul>
 		</div>
@@ -39,7 +39,7 @@
 							<button class="btn btn-twitter addCondition" id="0"> + </button>
 						</div>
 						<div class="col-md-11">
-							<input class="form-control"  type="text" >
+							<input class="form-control conditions"  type="text" >
 						</div>
 					</div>
 				</div>
@@ -49,7 +49,7 @@
 							<button class="btn btn-twitter addConsequence" id="0"> + </button>
 						</div>
 						<div class="col-md-11">
-							<input class="form-control"  type="text" >
+							<input class="form-control consequences"  type="text" >
 						</div>
 					</div>
 				</div>
@@ -60,6 +60,13 @@
 		</li>
 	</ul>
 </div>
+<div class="row">
+	<div class="col-md-12">
+		<button type="button" id="send" class="btn btn-primary">
+			Send
+		</button>		
+	</div>
+</div>
 <script type="text/javascript">
   	$SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
 	var numRowsConditions=0;
@@ -69,35 +76,40 @@
 	$(".container").on( "click", "#addRule", function(){
 		numRules++;
        	$("#addRule").remove();
-        $("#rules").append(
-         	'<li class="list-group-item rule" id="'+numRules+'"><div class="row" ><div class="col-md-5"><input class="form-control " name="username" type="text" ></div><div class="col-md-5"><input class="form-control " name="username" type="text" ></div><div class="col-md-2"><button id="addRule" class="btn btn-twitter"> Add rule </button></div></div></li>'
+        $("#rules").append('<li class="list-group-item rule" id="'+numRules+'" > <div class="row"><div class="col-md-5" id="conditions" ><div class="row" id="conditions0"><div class="col-md-1"><button class="btn btn-twitter addCondition" id="0"> + </button></div><div class="col-md-11"><input class="form-control conditions"  type="text" ></div></div></div><div class="col-md-5" id="consequences"><div class="row"  id="consequences0"><div class="col-md-1"><button class="btn btn-twitter addConsequence" id="0"> + </button></div><div class="col-md-11"><input class="form-control consequences"  type="text" ></div></div></div><div class="col-md-2"><button id="addRule" class="btn btn-twitter"> Add rule </button></div></div></li>'
 		);
 	});
 	$(".container").on( "click", ".addCondition", function(){
-    	$(".addCondition").replaceWith('<button class="btn btn-twitter removeCondition" id="'+numRowsConditions+'"> - </button>');
-    	numRowsConditions++;
-    	$("#conditions").append(
-     	'<div class="row" id="conditions'+numRowsConditions+'"><div class="col-md-1"><button class="btn btn-twitter addCondition" id="'+numRowsConditions+'"> + </button></div><div class="col-md-11"><input class="form-control"  type="text" ></div></div>'
+		numRowsConditions++;
+		$(this).closest("#conditions").append(
+     		'<div class="row" id="conditions'+numRowsConditions+'"><div class="col-md-1"><button class="btn btn-twitter addCondition" id="'+numRowsConditions+'"> + </button></div><div class="col-md-11"><input class="form-control conditions"  type="text" ></div></div>'
 		);
+    	$(this).replaceWith('<button class="btn btn-twitter removeCondition" id="'+(numRowsConditions-1)+'"> - </button>');
 	});
 	$(".container").on( "click", ".addConsequence", function(){
-        $(".addConsequence").replaceWith('<button class="btn btn-twitter removeConsequence" id="'+numRowsConsequences+'"> - </button>');
-        numRowsConsequences++;
-        $("#consequences").append(
-             	'<div class="row" id="consequences'+numRowsConsequences+'" ><div class="col-md-1"><button class="btn btn-twitter addConsequence" id="'+numRowsConsequences+'"> + </button></div><div class="col-md-11"><input class="form-control"  type="text" ></div></div>'
+		numRowsConsequences++;
+        $(this).closest("#consequences").append(
+             	'<div class="row" id="consequences'+numRowsConsequences+'" ><div class="col-md-1"><button class="btn btn-twitter addConsequence" id="'+numRowsConsequences+'"> + </button></div><div class="col-md-11"><input class="form-control consequences"  type="text" ></div></div>'
 		);
+        $(this).replaceWith('<button class="btn btn-twitter removeConsequence" id="'+(numRowsConsequences-1)+'"> - </button>');
 	});
 	$(".container").on( "click", ".removeCondition", function(){ 
 		var id = $(this).attr('id');
-        $("#conditions"+id).remove();
+        console.log(id);
+        $(this).closest("#conditions"+id).remove();
 	} );
 	$(".container").on( "click", ".removeConsequence", function(){
         var id = $(this).attr('id');
-        $("#consequences"+id).remove();
+        console.log(id);
+        $(this).closest("#consequences"+id).remove();
 	} );
 	$(".dropdown-menu li a").click(function(){
 	  $(this).parents(".btn-group").find('.btn').text($(this).text());
 	  $(this).parents(".btn-group").find('.btn').val($(this).text());
+	  if ($(this).parents(".btn-group").find('.btn').children().length == 0){
+	  		  $(this).parents(".btn-group").find('.btn').append('<span class="caret"></span>');
+	  }
+
 	  var id = $(this).parent().attr('id');
 	  $.getJSON($SCRIPT_ROOT + '/get_sensors_by_type',{sensor_type:id}, function(data) {
 	  	$("#tableBody").find("tr").remove()
@@ -108,18 +120,23 @@
 	  	}
       });
 	});
-	/*$(".dropdown-menu li a").click(function(){
-	  $(this).parents(".btn-group").find('.btn').text($(this).text());
-	  $(this).parents(".btn-group").find('.btn').val($(this).text());
-	  var id = $(this).parent().attr('id');
-	  $.getJSON($SCRIPT_ROOT + '/get_sensor_data',{sensor_id:id}, function(data) {
-	  	var html="<tr><td>"+data.avg+"</td><td>"+data.max+"</td><td>"+data.min+"</td></trow>"
-	  	$(".table").show();
-	  	$('#tableBody').append(html);
-
-        
-      });
-	});*/
-
+	$(".container").on( "click", "#send", function(){
+		var numberRules=$(".rule").size();
+		var rules=new Array(numberRules);
+		for(var i=0;i<rules.length;i++){
+			rules[i]=new Array(2);
+			rules[i][0]=new Array();
+			rules[i][1]=new Array();
+		}
+		$(".conditions").each(function() {
+    		var rule_id=$(this).closest(".rule").attr('id');
+    		rules[rule_id][0].push($(this).val());
+		});	
+		$(".consequences").each(function() {
+    		var rule_id=$(this).closest(".rule").attr('id');
+    		rules[rule_id][1].push($(this).val());
+		});	
+		console.log(rules);
+	} );
 </script>
 {% endblock %}

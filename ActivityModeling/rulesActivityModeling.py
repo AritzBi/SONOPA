@@ -123,7 +123,7 @@ def occupation_level(values):
 		rooms[value[1]]=rooms[value[1]]+1
 		total=total+1
 	for key in rooms:
-		rooms[key]=rooms[key]*100/float(total)
+		rooms[key]="%.2f" %(rooms[key]*100/float(total))
 	return rooms
 with open('SensorDataSurrey.csv','rb') as csvfile:
 	formatedData=[]
