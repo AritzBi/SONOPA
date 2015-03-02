@@ -6,8 +6,8 @@
 			<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
 			    Sensors <span class="caret"></span>
 			</button>
-			<ul class="dropdown-menu" role="menu">
-				{% for sensor in sensors %}
+			<ul class="dropdown-menu types" role="menu">
+				{% for sensor in sensors_types %}
 					<li class="sensor" role="presentation" id="{{sensor.type}}"><a href="#">{{ sensor.type }}</a></li>
 				{% endfor %}
 			</ul>
@@ -38,8 +38,29 @@
 						<div class="col-md-1">
 							<button class="btn btn-twitter addCondition" id="0"> + </button>
 						</div>
-						<div class="col-md-11">
-							<input class="form-control conditions"  type="text" >
+						<div class="col-md-3">
+							<div class="btn-group">
+								<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+			    					Sensors <span class="caret"></span>
+								</button>
+								<ul class="dropdown-menu sensors" role="menu">
+									{% for sensor in sensors %}
+									<li class="sensor" role="presentation" id="{{sensor.id}}"><a href="#">{{ sensor.id  }}</a></li>
+									{% endfor %}
+								</ul>
+							</div>
+						</div>
+						<div class="col-md-3">
+							<div class="btn-group">
+								<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+			    					Rules <span class="caret"></span>
+								</button>
+								<ul class="dropdown-menu rules_types" role="menu">
+									<li role="presentation"><a href="#">Time interval</a></li>
+								</ul>
+							</div>
+						</div>
+						<div class="col-md-5 conditional">
 						</div>
 					</div>
 				</div>
@@ -49,7 +70,22 @@
 							<button class="btn btn-twitter addConsequence" id="0"> + </button>
 						</div>
 						<div class="col-md-11">
-							<input class="form-control consequences"  type="text" >
+							<div class="row">
+								<div class="col-md-4">
+									<div class="btn-group">
+										<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+			    							Rules <span class="caret"></span>
+										</button>
+										<ul class="dropdown-menu consequences_types" role="menu">
+											<li role="presentation"><a href="#">Message</a></li>
+											<li role="presentation"><a href="#">State</a></li>
+										</ul>
+									</div>
+								</div>
+								<div class="col-md-8 consequence">
+									
+								</div>
+							</div>
 						</div>
 					</div>
 				</div>
@@ -76,13 +112,13 @@
 	$(".container").on( "click", "#addRule", function(){
 		numRules++;
        	$("#addRule").remove();
-        $("#rules").append('<li class="list-group-item rule" id="'+numRules+'" > <div class="row"><div class="col-md-5" id="conditions" ><div class="row" id="conditions0"><div class="col-md-1"><button class="btn btn-twitter addCondition" id="0"> + </button></div><div class="col-md-11"><input class="form-control conditions"  type="text" ></div></div></div><div class="col-md-5" id="consequences"><div class="row"  id="consequences0"><div class="col-md-1"><button class="btn btn-twitter addConsequence" id="0"> + </button></div><div class="col-md-11"><input class="form-control consequences"  type="text" ></div></div></div><div class="col-md-2"><button id="addRule" class="btn btn-twitter"> Add rule </button></div></div></li>'
+        $("#rules").append('<li class="list-group-item rule" id="'+numRules+'" ><div class="row"><div class="col-md-5" id="conditions" ><div class="row" id="conditions0"><div class="col-md-1"><button class="btn btn-twitter addCondition" id="0"> + </button></div><div class="col-md-3"><div class="btn-group"><button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Sensors <span class="caret"></span></button><ul class="dropdown-menu sensors" role="menu">{% for sensor in sensors %}<li class="sensor" role="presentation" id="{{sensor.id}}"><a href="#">{{ sensor.id  }}</a></li>{% endfor %}</ul></div></div><div class="col-md-3"><div class="btn-group"><button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Rules <span class="caret"></span></button><ul class="dropdown-menu rules_types" role="menu"><li role="presentation"><a href="#">Time interval</a></li></ul></div></div><div class="col-md-5 conditional"></div></div></div><div class="col-md-5" id="consequences"><div class="row"  id="consequences0"><div class="col-md-1"><button class="btn btn-twitter addConsequence" id="0"> + </button></div><div class="col-md-11"><input class="form-control consequences"  type="text" ></div></div></div><div class="col-md-2"><button id="addRule" class="btn btn-twitter"> Add rule </button></div></div></li>'
 		);
 	});
 	$(".container").on( "click", ".addCondition", function(){
 		numRowsConditions++;
 		$(this).closest("#conditions").append(
-     		'<div class="row" id="conditions'+numRowsConditions+'"><div class="col-md-1"><button class="btn btn-twitter addCondition" id="'+numRowsConditions+'"> + </button></div><div class="col-md-11"><input class="form-control conditions"  type="text" ></div></div>'
+     		'<div class="row" id="conditions'+numRowsConditions+'"><div class="col-md-1"><button class="btn btn-twitter addCondition" id="'+numRowsConditions+'"> + </button></div><div class="col-md-3"><div class="btn-group"><button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Sensors <span class="caret"></span></button><ul class="dropdown-menu sensors" role="menu">{% for sensor in sensors %}<li class="sensor" role="presentation" id="{{sensor.id}}"><a href="#">{{ sensor.id  }}</a></li>{% endfor %}</ul></div></div><div class="col-md-3"><div class="btn-group"><button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Rules <span class="caret"></span></button><ul class="dropdown-menu rules_types" role="menu"><li role="presentation"><a href="#">Time interval</a></li></ul></div></div><div class="col-md-5 conditional"></div></div>'
 		);
     	$(this).replaceWith('<button class="btn btn-twitter removeCondition" id="'+(numRowsConditions-1)+'"> - </button>');
 	});
@@ -103,7 +139,7 @@
         console.log(id);
         $(this).closest("#consequences"+id).remove();
 	} );
-	$(".dropdown-menu li a").click(function(){
+	$(".types li a").click(function(){
 	  $(this).parents(".btn-group").find('.btn').text($(this).text());
 	  $(this).parents(".btn-group").find('.btn').val($(this).text());
 	  if ($(this).parents(".btn-group").find('.btn').children().length == 0){
@@ -119,6 +155,13 @@
 	  		$('#tableBody').append(html);
 	  	}
       });
+	});
+	$(".container").on("click", ".sensors li a",function(){
+	  $(this).parents(".btn-group").find('.btn').text($(this).text());
+	  $(this).parents(".btn-group").find('.btn').val($(this).text());
+	  if ($(this).parents(".btn-group").find('.btn').children().length == 0){
+	  		  $(this).parents(".btn-group").find('.btn').append('<span class="caret"></span>');
+	  }
 	});
 	$(".container").on( "click", "#send", function(){
 		var numberRules=$(".rule").size();
@@ -138,5 +181,60 @@
 		});	
 		console.log(rules);
 	} );
+
+	$(".container").on("click", ".rules_types li a",function(){
+	  $(this).parents(".btn-group").find('.btn').text($(this).text());
+	  $(this).parents(".btn-group").find('.btn').val($(this).text());
+	  if ($(this).parents(".btn-group").find('.btn').children().length == 0){
+	  		  $(this).parents(".btn-group").find('.btn').append('<span class="caret"></span>');
+	  }
+	  var text=$(this).text();
+	  if(text == "Time interval"){
+	  	$(this).closest(".col-md-3").parent().find(".conditional").append('<div class="row"></div>');
+	  	populate($(this).closest(".col-md-3").parent().find(".conditional").find(".row"),"start",6);
+	  	populate($(this).closest(".col-md-3").parent().find(".conditional").find(".row"),"end",6);
+	  }
+	 });
+	$(".container").on("click", ".consequences_types li a",function(){
+	  $(this).parents(".btn-group").find('.btn').text($(this).text());
+	  $(this).parents(".btn-group").find('.btn').val($(this).text());
+	  if ($(this).parents(".btn-group").find('.btn').children().length == 0){
+	  		  $(this).parents(".btn-group").find('.btn').append('<span class="caret"></span>');
+	  }
+	  var text=$(this).text();
+	  if(text == "Message"){
+	  	$(this).closest('.col-md-4').parent().find(".consequence").append('<input class="form-control"  type="text" >');
+	  	console.log($(this).text());
+	  }
+	 });
+	$(".container").on( "click", ".interval li a", function(){
+		console.log("asdsa");
+	  $(this).parents(".btn-group").find('.btn').text($(this).text());
+	  $(this).parents(".btn-group").find('.btn').val($(this).text());
+	  if ($(this).parents(".btn-group").find('.btn').children().length == 0){
+	  		  $(this).parents(".btn-group").find('.btn').append('<span class="caret"></span>');
+	  }
+	 });
+	function populate(selector,position,numCol) {
+	    var select = $(selector);
+	    var hours, minutes,ampm;
+	    var html='<div class="col-md-'+numCol+'"><div class="btn-group"><button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">'+position+' <span class="caret"></span></button><ul class="dropdown-menu interval '+position+'" role="menu">';
+	    for(var i = 0; i <= 1410; i += 30){
+	        hours = Math.floor(i / 60);
+	        minutes = i % 60;
+	        if (minutes < 10){
+	            minutes = '0' + minutes; // adding leading zero
+	        }
+	        ampm = hours % 24 < 12 ? 'AM' : 'PM';
+	        hours = hours % 12;
+	        if (hours === 0){
+	            hours = 12;
+	        }
+	        html+='<li role="presentation"><a href="#">'+hours + ':' + minutes + ' ' + ampm+'</a></li>';
+	    }
+	    html+='</ul></div></div>';
+	   	selector.append(html);
+
+	}
 </script>
 {% endblock %}
