@@ -166,18 +166,46 @@
 	$(".container").on( "click", "#send", function(){
 		var numberRules=$(".rule").size();
 		var rules=new Array(numberRules);
+		console.log(numberRules);
 		for(var i=0;i<rules.length;i++){
 			rules[i]=new Array(2);
 			rules[i][0]=new Array();
 			rules[i][1]=new Array();
 		}
-		$(".conditions").each(function() {
+		$("#conditions").each(function() {
     		var rule_id=$(this).closest(".rule").attr('id');
-    		rules[rule_id][0].push($(this).val());
+    		var sensor_id=$(this).find(".sensors").parent().find(".btn").attr("value");
+    		console.log(sensor_id);
+    		var rule_type=$(this).find(".rules_types").parent().find(".btn").attr("value");
+    		console.log(rule_type);
+    		var condition={};
+    		condition.sensor_id=sensor_id;
+    		condition.condition_type=rule_type;
+    		if(rule_type=="Time interval"){
+    			var start_time=$(this).find(".start").parent().find(".btn").attr("value");
+    			var end_time=$(this).find(".end").parent().find(".btn").attr("value");
+    			console.log(start_time);
+    			console.log(end_time);
+    			condition.start_time=start_time;
+    			condition.end_time=end_time;
+    		}
+    		rules[rule_id][0].push(condition);
 		});	
-		$(".consequences").each(function() {
+		$("#consequences").each(function() {
     		var rule_id=$(this).closest(".rule").attr('id');
-    		rules[rule_id][1].push($(this).val());
+    		var rule_type=$(this).find(".consequences_types").parent().find(".btn").attr("value");
+    		var consequence={};
+    		consequence.consequence_type=rule_type;
+    		if(rule_type=="Message"){
+    			var message=$(this).find(".consequence").children(".form-control").val();
+    			console.log(message);
+    			consequence.message=message;
+    		}else if(rule_type=="State"){
+    			var state=$(this).find(".states").parent().find(".btn").attr("value");
+    			console.log(state);
+    			consequence.state=state;
+    		}
+    		rules[rule_id][1].push(consequence);
 		});	
 		console.log(rules);
 	} );
@@ -202,7 +230,7 @@
 	  if ($(this).parents(".btn-group").find('.btn').children().length == 0){
 	  		  $(this).parents(".btn-group").find('.btn').append('<span class="caret"></span>');
 	  }
-	  $(this).closest('.col-md-4').parent().find(".consequence").remove();
+	  $(this).closest('.col-md-4').parent().find(".consequence").empty();
 	  var text=$(this).text();
 	  if(text == "Message"){
 	  	$(this).closest('.col-md-4').parent().find(".consequence").append('<input class="form-control"  type="text" >');
@@ -212,7 +240,13 @@
 	  }
 	 });
 	$(".container").on( "click", ".interval li a", function(){
-		console.log("asdsa");
+	  $(this).parents(".btn-group").find('.btn').text($(this).text());
+	  $(this).parents(".btn-group").find('.btn').val($(this).text());
+	  if ($(this).parents(".btn-group").find('.btn').children().length == 0){
+	  		  $(this).parents(".btn-group").find('.btn').append('<span class="caret"></span>');
+	  }
+	 });
+	$(".container").on( "click", ".states li a", function(){
 	  $(this).parents(".btn-group").find('.btn').text($(this).text());
 	  $(this).parents(".btn-group").find('.btn').val($(this).text());
 	  if ($(this).parents(".btn-group").find('.btn').children().length == 0){
