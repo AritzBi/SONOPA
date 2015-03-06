@@ -700,7 +700,9 @@ def rules():
     sensors=models.Sensor.query.all()
     sensor_types=db.session.query(models.Sensor.type).distinct()
     activity_types=db.session.query(models.ActivityModel.name).distinct()
-    return render_template('rules.html',sensors=sensors, sensors_types=sensor_types, activity_types=activity_types, title='Rule system')
+    with open('rules.json', 'r') as f:
+        rules = json.load(f)
+    return render_template('rules.html',rules=rules, sensors=sensors, sensors_types=sensor_types, activity_types=activity_types, title='Rule system')
 
 @app.route('/get_sensors_by_type', methods=['GET'])
 def get_sensors_by_type():

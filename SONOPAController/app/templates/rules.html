@@ -31,69 +31,75 @@
 </div>
 <div class="row ">
 	<ul id="rules" class="list-group ">
-		<li class="list-group-item rule" id="0" > 
-			<div class="row">
-				<div class="col-md-5" id="conditions" >
-					<div class="row" id="conditions0">
-						<div class="col-md-1">
-							<button class="btn btn-twitter addCondition" id="0"> + </button>
-						</div>
-						<div class="col-md-3">
-							<div class="btn-group">
-								<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-			    					Sensors <span class="caret"></span>
-								</button>
-								<ul class="dropdown-menu sensors" role="menu">
-									{% for sensor in sensors %}
-									<li class="sensor" role="presentation" id="{{sensor.id}}"><a href="#">{{ sensor.id  }}</a></li>
-									{% endfor %}
-								</ul>
-							</div>
-						</div>
-						<div class="col-md-3">
-							<div class="btn-group">
-								<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-			    					Rules <span class="caret"></span>
-								</button>
-								<ul class="dropdown-menu rules_types" role="menu">
-									<li role="presentation"><a href="#">Time interval</a></li>
-								</ul>
-							</div>
-						</div>
-						<div class="col-md-5 conditional">
-						</div>
-					</div>
-				</div>
-				<div class="col-md-5" id="consequences">
-					<div class="row"  id="consequences0">
-						<div class="col-md-1">
-							<button class="btn btn-twitter addConsequence" id="0"> + </button>
-						</div>
-						<div class="col-md-11">
-							<div class="row">
-								<div class="col-md-4">
+		{% for rule in rules%}
+			<li class="list-group-item rule" id="{{loop.index0}}" > 
+				<div class="row">
+					<div class="col-md-5" id="conditions" >
+						{% for condition in rule[0]%}
+							<div class="row" id="conditions0">
+								<div class="col-md-1">
+									<button class="btn btn-twitter addCondition" id="0"> + </button>
+								</div>
+								<div class="col-md-3">
 									<div class="btn-group">
 										<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-			    							Rules <span class="caret"></span>
+					    					Sensors <span class="caret"></span>
 										</button>
-										<ul class="dropdown-menu consequences_types" role="menu">
-											<li role="presentation"><a href="#">Message</a></li>
-											<li role="presentation"><a href="#">State</a></li>
+										<ul class="dropdown-menu sensors" role="menu">
+											{% for sensor in sensors %}
+											<li class="sensor" role="presentation" id="{{sensor.id}}"><a href="#">{{ sensor.id  }}</a></li>
+											{% endfor %}
 										</ul>
 									</div>
 								</div>
-								<div class="col-md-8 consequence">
-									
+								<div class="col-md-3">
+									<div class="btn-group">
+										<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+					    					Rules <span class="caret"></span>
+										</button>
+										<ul class="dropdown-menu rules_types" role="menu">
+											<li role="presentation"><a href="#">Time interval</a></li>
+										</ul>
+									</div>
+								</div>
+								<div class="col-md-5 conditional">
 								</div>
 							</div>
-						</div>
+						{% endfor %}
+					</div>
+					<div class="col-md-5" id="consequences">
+						{% for condition in rule[0]%}
+							<div class="row"  id="consequences0">
+								<div class="col-md-1">
+									<button class="btn btn-twitter addConsequence" id="0"> + </button>
+								</div>
+								<div class="col-md-11">
+									<div class="row">
+										<div class="col-md-4">
+											<div class="btn-group">
+												<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+					    							Rules <span class="caret"></span>
+												</button>
+												<ul class="dropdown-menu consequences_types" role="menu">
+													<li role="presentation"><a href="#">Message</a></li>
+													<li role="presentation"><a href="#">State</a></li>
+												</ul>
+											</div>
+										</div>
+										<div class="col-md-8 consequence">
+											
+										</div>
+									</div>
+								</div>
+							</div>
+						{% endfor %}
+					</div>
+					<div class="col-md-2">
+						<button id="addRule" class="btn btn-twitter"> Add rule </button>
 					</div>
 				</div>
-				<div class="col-md-2">
-					<button id="addRule" class="btn btn-twitter"> Add rule </button>
-				</div>
-			</div>
-		</li>
+			</li>
+		{% endfor %}
 	</ul>
 </div>
 <div class="row">
