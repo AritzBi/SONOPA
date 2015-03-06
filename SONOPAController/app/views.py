@@ -718,6 +718,13 @@ def get_sensor_data():
     print s.type
     data=dbToJSon(s)
     return json.dumps(data)
+@app.route('/set_rules', methods=['POST'])
+def set_rules():
+    data = json.loads(request.data)
+    print data
+    with open('rules.json', 'w') as outfile:
+        json.dump(data, outfile)
+    return "OK"
 
 def dbToJSon(sensor):
     sensor_type=sensor.type

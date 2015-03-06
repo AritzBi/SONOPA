@@ -208,6 +208,18 @@
     		rules[rule_id][1].push(consequence);
 		});	
 		console.log(rules);
+		$.ajax({
+		    url: $SCRIPT_ROOT + '/set_rules',
+		    type: 'POST',
+		    data: JSON.stringify(rules),
+		    contentType: 'application/json; charset=utf-8',
+		    dataType: 'json',
+		    async: false,
+		    success: function(msg) {
+		        alert(msg);
+		    }
+		});
+
 	} );
 
 	$(".container").on("click", ".rules_types li a",function(){
