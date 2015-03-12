@@ -51,13 +51,17 @@ with open('SensorDataSurrey.csv','rb') as csvfile:
 			cursor.execute(SQLInsert, (data[1]))
 			cursor.execute(lastID)	
 			location_id=cursor.fetchone()[0]
+			print location_id
 			SQLInsert="INSERT INTO sensor (location) VALUES (%s);"
 			cursor.execute(SQLInsert, (location_id))
+			cursor.execute(lastID)
 			sensor_id=cursor.fetchone()[0]
-			
 		else:
-			SQLSelect="SELECT s.id FROM sensor s, location l WHERE l.name=%s, l.id=s.location;"
+			SQLSelect="SELECT s.id FROM sensor s, location l WHERE l.name=%s and l.id=s.location;"
+			cursor.execute(SQLSelect,(data[1],))
 			sensor_id=cursor.fetchone()[0]
+		SQLInsert="INSERT INTO event (timestamp,sensor, value) VALUES (%s,%s,%s);"
+		cursor.execute(SQLInsert,(datetime.now(),sensor_id,'{"status":"activated"}'))
 
 
 
