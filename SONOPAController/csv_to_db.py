@@ -48,7 +48,7 @@ with open('SensorDataSurrey.csv','rb') as csvfile:
 		cursor.execute(SQLSelect,(data[1],))
 		if cursor.rowcount==0:
 			SQLInsert="INSERT INTO location (name) VALUES (%s);"
-			cursor.execute(SQLInsert, (data[1]))
+			cursor.execute(SQLInsert, (data[1],))
 			cursor.execute(lastID)	
 			location_id=cursor.fetchone()[0]
 			print location_id

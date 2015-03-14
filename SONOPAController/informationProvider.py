@@ -1,6 +1,11 @@
 from datetime import datetime,timedelta
 import MySQLdb
-from config import DB, DB_USER,DB_PASS
+from config import DB, DB_USER,DB_PASS,MAXPEOPLE_WEIGHT,SNINTERACTIONS_WEIGHT
+import json
+import random
+json_data=open("houseConfiguration.json")
+houseConfiguration=json.load(json_data)
+json_data.close()
 
 def concurrentDifferentRooms(values):
 	concurrentActivations=[]
@@ -104,13 +109,37 @@ def getDataFromDB(date):
 	nextday=nextday.strftime('%Y-%m-%d')
 	conn =  MySQLdb.connect(host="localhost", user=DB_USER, passwd=DB_PASS,db=DB)
 	cursor = conn.cursor()
-	SQLSelect="SELECT e.timestamp,l.name FROM location l, sensor s, event e WHERE l.id=s.location and s.id=e.sensor and e.timestamp >= %s and e.timestamp < %s;"
+	SQLSelect="SELECT UNIX_TIMESTAMP(e.timestamp),l.name FROM location l, sensor s, event e WHERE l.id=s.location and s.id=e.sensor and e.timestamp >= %s and e.timestamp < %s;"
 	cursor.execute(SQLSelect,(date,nextday))
-	#TODO: get timeStamp in seconds fron the DB if possible
-	"""for row in cursor:
-		print row[0]"""
-	data_json['number_persons']=concurrentDifferentRooms(cursor)
-	print data_json
 	conn.commit()
+	return cursor.fetchall()
 
-getDataFromDB(datetime(2014, 8, 12))
+"""Retrieves the activeness in a precise day"""
+def getActiveness(date):
+	data=getDataFromDB(date)
+	return calculateRoomChanges(data)
+"""Retrieves the socialization level in a precise day"""
+def getSocializationLevel(date):
+	#TODO: query the social network's API in order to get the number of interactions
+	interactions_sn=random.randrange(1,101)
+	data=getDataFromDB(date)
+	max_people=concurrentDifferentRooms(data)
+	return MAXPEOPLE_WEIGHT*max_people+SNINTERACTIONS_WEIGHT*interactions_sn
+"""Retrieves the occupation level of each of the rooms in a precise day"""
+def getOccupationLevel(date):
+	data=getDataFromDB(date)
+	return occupation_level(data)
+"""Retrieves the maximum number of people in the house in a precise day"""
+def getPresence(date):
+	data=getDataFromDB(date)
+	return concurrentDifferentRooms(data)
+
+
+
+"""print getOccupationLevel(datetime(2014, 8, 12))
+
+print getPresence(datetime(2014, 8, 12))
+
+print getSocializationLevel(datetime(2014, 8, 12))
+
+print getActiveness(datetime(2014, 8, 12))"""
