@@ -174,6 +174,7 @@ def _fake_sensors_cron():
     with open('./examples/sensor2_example', 'r') as f:
         j = json.load(f)
     r = requests.post('http://localhost:5000/register', data=json.dumps(j), headers=headers)
+    keep_alive_id = int(r.text)
     with open('./examples/sensor3_example', 'r') as f:
         j = json.load(f)
     r = requests.post('http://localhost:5000/register', data=json.dumps(j), headers=headers)
@@ -196,6 +197,10 @@ def _fake_sensors_cron():
             print 'New humidity sensor event, value: ' + str(hum)
             print 'Response: ' + requests.post('http://localhost:5000/event', data=json.dumps(send),
                                                headers=headers).text
+        if random()<0.3:
+            print 'New keep alive message for sensor' + str(keep_alive_id)
+            send={'id':keep_alive_id}
+            print 'Response: '+requests.post("http://localhost:5000/keep_alive", data=json.dumps(send),headers=headers).text
 
 
 """@async
