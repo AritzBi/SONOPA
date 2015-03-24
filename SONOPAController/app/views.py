@@ -715,7 +715,9 @@ def get_sensors_by_type():
     sensors = models.Sensor.query.filter_by(type=sensor_type)
     data=[]
     for sensor in sensors:
-        data.append(dbToJSon(sensor))
+        data_sensor=dbToJSon(sensor)
+        if data_sensor != -1: 
+            data.append(data_sensor)
     return json.dumps(data)
 
 @app.route('/get_sensor_data', methods=['GET'])
@@ -735,6 +737,8 @@ def set_rules():
 
 def dbToJSon(sensor):
     sensor_type=sensor.type
+    print sensor_type
+    print sensor.id
     if sensor_type=="TMP36" or  sensor_type=="SHT21" :
         max=0
         min=sys.maxint
@@ -750,10 +754,12 @@ def dbToJSon(sensor):
                 min=data
             avg=avg+data
             i=i+1
-        avg=avg/i
-        avg="%.2f" % avg
-        return {'sensor_id': sensor.id, 'location':models.Location.query.get(sensor.location).name ,'max':max,'min':min,'avg':avg}
-        
+        if i!=0:
+            avg=avg/i
+            avg="%.2f" % avg
+            return {'sensor_id': sensor.id, 'location':models.Location.query.get(sensor.location).name ,'max':max,'min':min,'avg':avg}
+        else: 
+            return -1
          
 
 # @app.errorhandler(404)
