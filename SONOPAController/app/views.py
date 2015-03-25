@@ -702,12 +702,41 @@ def get_last_event():
 
 @app.route('/rules', methods=['GET'])
 def rules():
+
+    """sensors=models.Sensor.query.all()
+    sensor_types=db.session.query(models.Sensor.type).distinct()
+    activity_types=db.session.query(models.ActivityModel.name).distinct()"""
+    with open('rules.json', 'r') as f:
+        rules = json.load(f)
+    return render_template('rules2.html',title='Rule system')
+
+@app.route('/api/rules', methods=['GET'])
+def rules_json():
     sensors=models.Sensor.query.all()
     sensor_types=db.session.query(models.Sensor.type).distinct()
     activity_types=db.session.query(models.ActivityModel.name).distinct()
     with open('rules.json', 'r') as f:
         rules = json.load(f)
-    return render_template('rules.html',rules=rules, sensors=sensors, sensors_types=sensor_types, activity_types=activity_types, title='Rule system')
+    print rules
+    data={}
+    sensors_data=[]
+    for sensor in sensors:
+        s={}
+        s['id']=sensor.id
+        s['location']=sensor.location
+        s['type']=sensor.type
+        sensors_data.append(s)
+    s_types=[]
+    for type in sensor_types:
+        s_types.append(type[0])
+    a_types=[]
+    for type in activity_types:
+        a_types.append(type[0])
+    data['rules']=rules
+    data['sensor_types']=s_types
+    data['activity_types']=a_types
+    data['sensors']=sensors_data
+    return json.dumps(data)
 
 @app.route('/get_sensors_by_type', methods=['GET'])
 def get_sensors_by_type():
