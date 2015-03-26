@@ -741,6 +741,8 @@ def rules_json():
 @app.route('/get_sensors_by_type', methods=['GET'])
 def get_sensors_by_type():
     sensor_type = request.args.get('sensor_type', 0, type=str)
+    print 'hola'
+    print sensor_type
     sensors = models.Sensor.query.filter_by(type=sensor_type)
     data=[]
     for sensor in sensors:

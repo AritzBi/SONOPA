@@ -5,15 +5,15 @@
 		<div class="col-md-6">
 			<div class="btn-group">
 				<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-				    Sensors <span class="caret"></span>
+				    [[sensor_type]] <span class="caret"></span>
 				</button>
 				<ul class="dropdown-menu types" role="menu" >
-					<li class="sensor" role="presentation" ng-repeat="type in sensor_types" id="[[type]]"><a href="#"> [[type]]</a></li>
+					<li class="sensor" role="presentation" ng-repeat="type in sensor_types" id="[[type]]" ng-click="showSensorData($index)"><a href="#"> [[type]]</a></li>
 				</ul>
 			</div>
 		</div>
 		<div class="col-md-6">
-			<table class="table table-striped">
+			<table ng-if="sensors_data.length"class="table table-striped">
 				<thead>
 					<tr>
 						<th>Sensor ID</th>
@@ -24,18 +24,20 @@
 					</tr>
 				</thead>
 				<tbody id="tableBody">
+					<tr ng-repeat="data in sensors_data"><td>[[data.sensor_id]]</td><td>[[data.location]]</td><td>[[data.max]]</td><td>[[data.min]]</td><td>[[data.avg]]</td></tr>
 	            </tbody>
 			</table>
 		</div>	
 	</div>
 	<div class="row ">
 		<ul id="rules" class="list-group ">
-				<li class="list-group-item rule" ng-repeat="rule in rules" id="[[$index]]" > 
+				<li class="list-group-item rule" ng-repeat="rule in rules"  id="[[$index]]" > 
 					<div class="row">
-						<div class="col-md-5" id="conditions" >
+						<div class="col-md-5" id="conditions" ng-init="rulesIndex = $index">
 							<div class="row condition_counter" ng-repeat="condition in rule[0]">
 									<div class="col-md-1">
-										<button class="btn btn-twitter addCondition"> + </button>
+										<button ng-if="$last"class="btn btn-twitter addCondition" ng-click="addCondition([[rulesIndex]])"> + </button>
+										<button ng-if="!$last"class="btn btn-twitter" ng-click="removeCondition([[rulesIndex]])"> - </button>
 									</div>
 									<div class="col-md-3">
 										<div class="btn-group">
@@ -53,7 +55,7 @@
 						    					[[condition.condition_type]] <span class="caret"></span>
 											</button>
 											<ul class="dropdown-menu rules_types" role="menu">
-												<li role="presentation"><a href="#">Time interval</a></li>
+												<li role="presentation" ng-repeat="type in condition_types"><a href="#">[[type]]</a></li>
 											</ul>
 										</div>
 									</div>
@@ -62,7 +64,8 @@
 						<div class="col-md-5" id="consequences">
 							<div class="row consequence"  ng-repeat="consequence in rule[1]">
 								<div class="col-md-1">
-									<button class="btn btn-twitter addConsequence" > + </button>
+									<button class="btn btn-twitter addConsequence" ng-if="$last" ng-click="addConsequence([[rulesIndex]])"> + </button>
+									<button class="btn btn-twitter addConsequence" ng-if="!$last" ng-click="removeConsequence([[rulesIndex]])"> - </button>
 								</div>
 								<div class="col-md-11">
 									<div class="row">
@@ -72,8 +75,7 @@
 					    							[[consequence.consequence_type]] <span class="caret"></span>
 												</button>
 												<ul class="dropdown-menu consequences_types" role="menu">
-													<li role="presentation"><a href="#">Message</a></li>
-													<li role="presentation"><a href="#">State</a></li>
+													<li role="presentation" ng-repeat="type in consequence_types"><a href="#">[[type]]</a></li>
 												</ul>
 											</div>
 										</div>
@@ -86,7 +88,8 @@
 							</div>
 						</div>
 						<div class="col-md-2">
-							<button id="addRule" class="btn btn-twitter"> Add rule </button>
+							<button id="addRule" ng-if="$last" class="btn btn-twitter" ng-click="addRule()"> Add rule </button>
+							<button id="addRule" ng-if="!$last" class="btn btn-twitter" ng-click="removeRule($index)"> Remove rule </button>
 						</div>
 					</div>
 				</li>
@@ -94,7 +97,7 @@
 	</div>
 	<div class="row">
 		<div class="col-md-12">
-			<button type="button" id="send" class="btn btn-primary">
+			<button type="button" id="send" ng-click="sendData()" class="btn btn-primary">
 				Send
 			</button>		
 		</div>
