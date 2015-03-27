@@ -39,13 +39,13 @@
 										<button ng-if="$last"class="btn btn-twitter addCondition" ng-click="addCondition([[rulesIndex]])"> + </button>
 										<button ng-if="!$last"class="btn btn-twitter" ng-click="removeCondition([[rulesIndex]])"> - </button>
 									</div>
-									<div class="col-md-3">
+									<div class="col-md-3"  ng-init="conditionIndex = $index">
 										<div class="btn-group">
 											<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false" value="[[condition.sensor_id]]">
 						    					[[condition.sensor_id]] <span class="caret"></span>
 											</button>
 											<ul class="dropdown-menu sensors" role="menu">
-												<li class="sensor" role="presentation" ng-repeat="sensor in sensors"id="[[sensor.id]]"><a href="#">[[ sensor.id ]]</a></li>
+												<li class="sensor" role="presentation" ng-repeat="sensor in sensors" ng-click="setSensor(rulesIndex,conditionIndex,$index)" id="[[sensor.id]]"><a href="#">[[ sensor.id ]]</a></li>
 											</ul>
 										</div>
 									</div>
@@ -55,8 +55,31 @@
 						    					[[condition.condition_type]] <span class="caret"></span>
 											</button>
 											<ul class="dropdown-menu rules_types" role="menu">
-												<li role="presentation" ng-repeat="type in condition_types"><a href="#">[[type]]</a></li>
+												<li role="presentation" ng-repeat="type in condition_types" ng-click="setConditionType(rulesIndex,conditionIndex,$index)"><a href="#">[[type]]</a></li>
 											</ul>
+										</div>
+									</div>
+									<div class="col-md-5">
+										<div class="row" ng-if="condition.condition_type=='Time interval'">
+											<div class="col-md-6">
+												<div class="btn-group">
+													<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><span class="caret"></span>
+													</button>
+													<ul class="dropdown-menu interval start" role="menu">
+														<li role="presentation" ng-repeat="time in time_range"><a href="#">[[time]]</a></li>
+													</ul>
+												</div>
+											</div>
+											<div class="col-md-6">
+												<div class="btn-group">
+													<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><span class="caret"></span>
+													</button>
+													<ul class="dropdown-menu interval start" role="menu">
+														<li role="presentation" ng-repeat="time in time_range"><a href="#">[[time]]</a></li>
+													</ul>
+												</div>
+											</div>
+
 										</div>
 									</div>
 							</div>
@@ -69,19 +92,19 @@
 								</div>
 								<div class="col-md-11">
 									<div class="row">
-										<div class="col-md-4">
+										<div class="col-md-4" ng-init="consequenceIndex = $index">
 											<div class="btn-group">
 												<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false" value="[[consequence.consequence_type]]">
 					    							[[consequence.consequence_type]] <span class="caret"></span>
 												</button>
 												<ul class="dropdown-menu consequences_types" role="menu">
-													<li role="presentation" ng-repeat="type in consequence_types"><a href="#">[[type]]</a></li>
+													<li role="presentation" ng-repeat="type in consequence_types" ng-click="setConsequenceType(rulesIndex,consequenceIndex,$index)"><a href="#">[[type]]</a></li>
 												</ul>
 											</div>
 										</div>
 										<div class="col-md-8 consequence_conditional">
 											<input ng-if="consequence.consequence_type=='Message'"class="form-control" value="[[consequence.message]]" type="text" >
-											<div class="btn-group" ng-if="consequence.consequence_type=='State'"><button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false" value="[[consequence.state]]">[[consequence.state]]<span class="caret"></span></button><ul class="dropdown-menu states" role="menu"><li class="sensor" role="presentation" ng-repeat="activity in activity_types"><a href="#">[[ activity ]]</a></li></ul></div>
+											<div class="btn-group" ng-if="consequence.consequence_type=='State'"><button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false" value="[[consequence.state]]">[[consequence.state]]<span class="caret"></span></button><ul class="dropdown-menu states" role="menu"><li class="sensor" role="presentation" ng-repeat="activity in activity_types"  ng-click="setState(rulesIndex,consequenceIndex,$index)"  ><a href="#">[[ activity ]]</a></li></ul></div>
 										</div>
 									</div>
 								</div>

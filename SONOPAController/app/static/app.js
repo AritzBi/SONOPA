@@ -15,6 +15,7 @@ angular
 			console.log(data.sensor_types);
 			console.log($scope.rules);
 		});
+		populate();
 		$scope.sensor_type="Sensors"
 		$scope.addCondition=function(index){
 			$scope.rules[index][0].push({})
@@ -28,7 +29,7 @@ angular
 		$scope.removeConsequence=function(index){
 			$scope.rules[index][1].splice(index,1)
 		}
-		$scope.condition_types=['Time interval'] ;
+		$scope.condition_types=['Time interval','Test'] ;
 		$scope.consequence_types=['State','Message'] ;
 
 		$scope.addRule=function(){
@@ -51,5 +52,35 @@ angular
 			$http.post('/set_rules',$scope.rules).success(function(message){
 				console.log(message)
 			});
+		}
+		$scope.setSensor=function(ruleIndex,conditionIndex,sensorId){
+			$scope.rules[ruleIndex][0][conditionIndex].sensor_id=$scope.sensors[sensorId].id;
+		}
+		$scope.setConditionType=function(ruleIndex,conditionIndex,conditionId){
+			$scope.rules[ruleIndex][0][conditionIndex].condition_type=$scope.condition_types[conditionId];
+		}
+		$scope.setConsequenceType=function(ruleIndex,consequenceIndex,consequenceId){
+			$scope.rules[ruleIndex][1][consequenceIndex].consequence_type=$scope.consequence_types[consequenceId];
+		}
+		$scope.setState=function(ruleIndex,consequenceIndex,stateId){
+			$scope.rules[ruleIndex][1][consequenceIndex].state=$scope.activity_types[stateId];
+		}
+		function populate() {
+	    	var hours, minutes,ampm;
+	    	var array=new Array();
+		    for(var i = 0; i <= 1410; i += 30){
+		        hours = Math.floor(i / 60);
+	    	    minutes = i % 60;
+	        	if (minutes < 10){
+	            	minutes = '0' + minutes; // adding leading zero
+	        	}
+	        	ampm = hours % 24 < 12 ? 'AM' : 'PM';
+	        	hours = hours % 12;
+	        	if (hours === 0){
+	            	hours = 12;
+	        	}
+	        	array.push(hours + ':' + minutes + ' ' + ampm);
+	    	}
+	    	$scope.time_range=array;
 		}
 	});	
