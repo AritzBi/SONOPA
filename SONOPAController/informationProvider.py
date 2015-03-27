@@ -51,6 +51,7 @@ def isDifferentPlace(values, place):
 				return False
 	return True
 def calculateRoomChanges(values):
+	print values
 	numRoomChanges=0
 	lastRoom=values[0][1]
 	adjacentRooms=houseConfiguration[lastRoom]["adjacent"]
@@ -102,9 +103,14 @@ def occupation_level(values):
 	for key in rooms:
 		rooms[key]="%.2f" %(rooms[key]*100/float(total))
 	return rooms
-
-def getDataFromDB(date):
-	nextday = date + timedelta(days = 1)
+#Mode 1=day Mode 2=hour
+def getDataFromDB(date,mode=1):
+	nextday=0
+	print mode
+	if(mode == 1):
+		nextday = date + timedelta(days = 1)
+	if(mode == 2):
+		nextday = date + timedelta(hours = 1)
 	date=date.strftime('%Y-%m-%d')
 	nextday=nextday.strftime('%Y-%m-%d')
 	conn =  MySQLdb.connect(host="localhost", user=DB_USER, passwd=DB_PASS,db=DB)
@@ -115,23 +121,23 @@ def getDataFromDB(date):
 	return cursor.fetchall()
 
 """Retrieves the activeness in a precise day"""
-def getActiveness(date):
-	data=getDataFromDB(date)
+def getActiveness(date,mode):
+	data=getDataFromDB(date,mode)
 	return calculateRoomChanges(data)
 """Retrieves the socialization level in a precise day"""
-def getSocializationLevel(date):
+def getSocializationLevel(date,mode):
 	#TODO: query the social network's API in order to get the number of interactions
 	interactions_sn=random.randrange(1,101)
-	data=getDataFromDB(date)
+	data=getDataFromDB(date,mode)
 	max_people=concurrentDifferentRooms(data)
 	return MAXPEOPLE_WEIGHT*max_people+SNINTERACTIONS_WEIGHT*interactions_sn
 """Retrieves the occupation level of each of the rooms in a precise day"""
-def getOccupationLevel(date):
-	data=getDataFromDB(date)
+def getOccupationLevel(date,mode):
+	data=getDataFromDB(date,mode)
 	return occupation_level(data)
 """Retrieves the maximum number of people in the house in a precise day"""
-def getPresence(date):
-	data=getDataFromDB(date)
+def getPresence(date,mode):
+	data=getDataFromDB(date,mode)
 	return concurrentDifferentRooms(data)
 
 
