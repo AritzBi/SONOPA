@@ -16,8 +16,8 @@ def concurrentDifferentRooms(values):
 		if(lastTimeStamp+2>=value[0]) and isDifferentPlace(concurrentActivations,value[1]):
 			counter=counter+1
 			concurrentActivations.append(value)
-			if(counter == 4):
-				print concurrentActivations
+			#if(counter == 4):
+				#print concurrentActivations
 			if counter > biggestCounter:
 				biggestCounter=counter
 		else:
@@ -51,7 +51,6 @@ def isDifferentPlace(values, place):
 				return False
 	return True
 def calculateRoomChanges(values):
-	print values
 	numRoomChanges=0
 	lastRoom=values[0][1]
 	adjacentRooms=houseConfiguration[lastRoom]["adjacent"]
@@ -94,25 +93,38 @@ def calculate_room(values):
 	return [[mostFrecuentActivation,biggestValue], [secondMostFrecuentActivation,secondBiggestValue]]
 def occupation_level(values):
 	rooms={}
+	lastActivation=values[0]
 	total=0
 	for value in values:
 		rooms[value[1]]=0
 	for value in values:
 		rooms[value[1]]=rooms[value[1]]+1
 		total=total+1
+		print value[1]
+		print lastActivation[1]
+		if value[1]==lastActivation[1]:
+			minutes=(value[0]-lastActivation[0])/60
+			if minutes>2:
+				print minutes
+				print value[1]
+				print value[0]
+				total=total+minutes
+				rooms[value[1]]=rooms[value[1]]+minutes
+		lastActivation=value
 	for key in rooms:
 		rooms[key]="%.2f" %(rooms[key]*100/float(total))
 	return rooms
 #Mode 1=day Mode 2=hour
 def getDataFromDB(date,mode=1):
 	nextday=0
-	print mode
 	if(mode == 1):
 		nextday = date + timedelta(days = 1)
+		date=date.strftime('%Y-%m-%d')
+		nextday=nextday.strftime('%Y-%m-%d')
 	if(mode == 2):
 		nextday = date + timedelta(hours = 1)
-	date=date.strftime('%Y-%m-%d')
-	nextday=nextday.strftime('%Y-%m-%d')
+		date=date.strftime('%Y-%m-%d %H:%M:%S')
+		nextday=nextday.strftime('%Y-%m-%d %H:%M:%S')
 	conn =  MySQLdb.connect(host="localhost", user=DB_USER, passwd=DB_PASS,db=DB)
 	cursor = conn.cursor()
 	SQLSelect="SELECT UNIX_TIMESTAMP(e.timestamp),l.name FROM location l, sensor s, event e WHERE l.id=s.location and s.id=e.sensor and e.timestamp >= %s and e.timestamp < %s;"
@@ -123,28 +135,36 @@ def getDataFromDB(date,mode=1):
 """Retrieves the activeness in a precise day"""
 def getActiveness(date,mode):
 	data=getDataFromDB(date,mode)
+	if len(data)==0:
+		return 0
 	return calculateRoomChanges(data)
 """Retrieves the socialization level in a precise day"""
 def getSocializationLevel(date,mode):
 	#TODO: query the social network's API in order to get the number of interactions
 	interactions_sn=random.randrange(1,101)
 	data=getDataFromDB(date,mode)
+	if len(data)==0:
+		return 0
 	max_people=concurrentDifferentRooms(data)
 	return MAXPEOPLE_WEIGHT*max_people+SNINTERACTIONS_WEIGHT*interactions_sn
 """Retrieves the occupation level of each of the rooms in a precise day"""
 def getOccupationLevel(date,mode):
 	data=getDataFromDB(date,mode)
+	if len(data)==0:
+		return 0
 	return occupation_level(data)
 """Retrieves the maximum number of people in the house in a precise day"""
 def getPresence(date,mode):
 	data=getDataFromDB(date,mode)
+	if len(data)==0:
+		return 0
 	return concurrentDifferentRooms(data)
 
 
 
-"""print getOccupationLevel(datetime(2014, 8, 12))
+print getOccupationLevel(datetime(2014, 8, 12),1)
 
-print getPresence(datetime(2014, 8, 12))
+"""print getPresence(datetime(2014, 8, 12))
 
 print getSocializationLevel(datetime(2014, 8, 12))
 

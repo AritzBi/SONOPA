@@ -12,12 +12,12 @@ elif mode  ==2:
 	interval=timedelta(hours = 1)
 while startDate < endDate:
 	data={}
-	data['date']=startDate
+	data['date']=str(startDate)
 	data['activeness']= getActiveness(startDate,mode)
 	data['socialization']=getSocializationLevel(startDate,mode)
 	data['occupation_level']=getOccupationLevel(startDate,mode)
 	data['presence']=getPresence(startDate,mode)
 	startDate=startDate+interval
 	array.append(data)
-with open('data.json','a') as thefile:
+with open('data_hourly.json','a') as thefile:
 	thefile.write(json.dumps(array))
