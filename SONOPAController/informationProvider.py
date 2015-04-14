@@ -13,12 +13,13 @@ def concurrentDifferentRooms(values):
 	counter=1
 	biggestCounter=1
 	for value in values:
-		if(lastTimeStamp+2>=value[0]) and isDifferentPlace(concurrentActivations,value[1]):
+		if(lastTimeStamp+1>=value[0]) and isDifferentPlace(concurrentActivations,value[1]):
 			counter=counter+1
 			concurrentActivations.append(value)
 			#if(counter == 4):
 				#print concurrentActivations
 			if counter > biggestCounter:
+				print concurrentActivations
 				biggestCounter=counter
 		else:
 			counter=1
@@ -100,14 +101,9 @@ def occupation_level(values):
 	for value in values:
 		rooms[value[1]]=rooms[value[1]]+1
 		total=total+1
-		print value[1]
-		print lastActivation[1]
 		if value[1]==lastActivation[1]:
 			minutes=(value[0]-lastActivation[0])/60
 			if minutes>2:
-				print minutes
-				print value[1]
-				print value[0]
 				total=total+minutes
 				rooms[value[1]]=rooms[value[1]]+minutes
 		lastActivation=value
@@ -127,7 +123,7 @@ def getDataFromDB(date,mode=1):
 		nextday=nextday.strftime('%Y-%m-%d %H:%M:%S')
 	conn =  MySQLdb.connect(host="localhost", user=DB_USER, passwd=DB_PASS,db=DB)
 	cursor = conn.cursor()
-	SQLSelect="SELECT UNIX_TIMESTAMP(e.timestamp),l.name FROM location l, sensor s, event e WHERE l.id=s.location and s.id=e.sensor and e.timestamp >= %s and e.timestamp < %s;"
+	SQLSelect="SELECT UNIX_TIMESTAMP(e.timestamp),l.name FROM location l, sensor s, event e WHERE l.id=s.location and s.id=e.sensor and e.timestamp >= %s and e.timestamp < %s order by timestamp asc;"
 	cursor.execute(SQLSelect,(date,nextday))
 	conn.commit()
 	return cursor.fetchall()
