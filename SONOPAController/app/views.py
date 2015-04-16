@@ -791,8 +791,6 @@ def dbToJSon(sensor):
             return {'sensor_id': sensor.id, 'location':models.Location.query.get(sensor.location).name ,'max':max,'min':min,'avg':avg}
         else: 
             return -1
-         
-
 # @app.errorhandler(404)
 # def internal_error(error):
 #     return render_template('404.html'), 404
