@@ -25,6 +25,7 @@ from flask_principal import identity_changed, Identity, AnonymousIdentity, ident
 from activity_inference import Reasoner
 from json import JSONEncoder
 import requests
+from informationProvider import getActiveness
 
 
 schema_prefix = './app/schemas/'
