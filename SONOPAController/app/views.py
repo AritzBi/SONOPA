@@ -25,8 +25,8 @@ from flask_principal import identity_changed, Identity, AnonymousIdentity, ident
 from activity_inference import Reasoner
 from json import JSONEncoder
 import requests
-from informationProvider import getActiveness
-
+from informationProvider import getActiveness,getSocializationLevel,getPresence,getOccupationLevel
+import time
 
 schema_prefix = './app/schemas/'
 schema_suffix = '_schema'
@@ -792,6 +792,62 @@ def dbToJSon(sensor):
             return {'sensor_id': sensor.id, 'location':models.Location.query.get(sensor.location).name ,'max':max,'min':min,'avg':avg}
         else: 
             return -1
+def makeCalculation(date,type,mode,calculations):
+    yesterday=date-timedelta(days=1)
+    previous_hour=date-timedelta(hours=1)
+    if type=="activeness":
+        value=getActiveness(yesterday,mode)
+    elif type=="socialization":
+        value=getSocializationLevel(yesterday,mode)
+    elif type=="occupancy":
+        value=getOccupationLevel(yesterday,mode)
+    elif type=="minPeople":
+        value=getPresence(previous_hour,mode)
+    calculations[type]['value']=value
+    calculations[type]['timestamp']=time.mktime(date.timetuple())
+    with open('calculations.json', 'w') as outfile:
+        json.dump(calculations, outfile)
+    return json.dumps(calculations[type])
+#Mode=1 daily, mode=2 hourly
+def isCalculationMade(type,mode):
+    if isfile('calculations.json'):
+        with open('calculations.json', 'r') as f:
+            calculations=json.load(f)
+    else:
+        with open('calculations_base.json', 'r') as f:
+           calculations=json.load(f)
+    data=calculations[type]
+    date=datetime.fromtimestamp(data['timestamp'])
+    stamp= time.time()
+    today=datetime.fromtimestamp(stamp)
+    print today
+    print date.hour
+    print today.hour
+    if date.day ==today.day and date.month == today.month and date.year==today.year:
+        if mode==1:
+            return json.dumps(data)
+        elif  mode==2 and date.hour == today.hour:
+            return json.dumps(data)
+        elif mode==2:
+            return makeCalculation(today,type,mode,calculations)
+    else:
+        return makeCalculation(today,type,mode,calculations)
+
+@app.route('/api/getActiveness', methods=['GET'])
+def getActivenessAPI():
+    print "hola"
+    return isCalculationMade("activeness",1)    
+@app.route('/api/getSocialization', methods=['GET'])
+def getSocializationAPI():
+    return isCalculationMade("socialization",1)
+
+@app.route('/api/getOccupancy', methods=['GET'])
+def getoccupancyAPI():
+    return isCalculationMade("occupancy",1)
+@app.route('/api/getMinPeople', methods=['GET'])
+def getMinPeopleAPI():
+    return isCalculationMade("minPeople",2)
+
 # @app.errorhandler(404)
 # def internal_error(error):
 #     return render_template('404.html'), 404
