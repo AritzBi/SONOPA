@@ -155,13 +155,3 @@ def getPresence(date,mode):
 	if len(data)==0:
 		return 0
 	return concurrentDifferentRooms(data)
-
-
-
-print getOccupationLevel(datetime(2014, 8, 12),1)
-
-"""print getPresence(datetime(2014, 8, 12))
-
-print getSocializationLevel(datetime(2014, 8, 12))
-
-print getActiveness(datetime(2014, 8, 12))"""

@@ -429,7 +429,7 @@ def keep_alive_list():
         for sensor_id in sensor_list:
             s = models.Sensor.query.get(sensor_id)
             if s is None:
-                return_message=return_message+'Invalid sensor id: {0}'.format(sensor_id)
+                return_message=return_message+'Invalid sensor id: {0}<br />'.format(sensor_id)
             else:
                 s.last_alive = datetime.now()
                 db.session.commit()
@@ -742,8 +742,6 @@ def rules_json():
 @app.route('/get_sensors_by_type', methods=['GET'])
 def get_sensors_by_type():
     sensor_type = request.args.get('sensor_type', 0, type=str)
-    print 'hola'
-    print sensor_type
     sensors = models.Sensor.query.filter_by(type=sensor_type)
     data=[]
     for sensor in sensors:
@@ -756,21 +754,17 @@ def get_sensors_by_type():
 def get_sensor_data():
     sensor_id = request.args.get('sensor_id', 0, type=int)
     s = models.Sensor.query.get(sensor_id)
-    print s.type
     data=dbToJSon(s)
     return json.dumps(data)
 @app.route('/set_rules', methods=['POST'])
 def set_rules():
     data = json.loads(request.data)
-    print data
     with open('rules.json', 'w') as outfile:
         json.dump(data, outfile)
     return "OK"
 
 def dbToJSon(sensor):
     sensor_type=sensor.type
-    print sensor_type
-    print sensor.id
     if sensor_type=="TMP36" or  sensor_type=="SHT21" :
         max=0
         min=sys.maxint
@@ -820,6 +814,7 @@ def isCalculationMade(type,mode):
     date=datetime.fromtimestamp(data['timestamp'])
     stamp= time.time()
     today=datetime.fromtimestamp(stamp)
+    #today=datetime(2014,8,13,17,11,18)
     print today
     print date.hour
     print today.hour
@@ -834,17 +829,24 @@ def isCalculationMade(type,mode):
         return makeCalculation(today,type,mode,calculations)
 
 @app.route('/api/getActiveness', methods=['GET'])
+@login_required
+@models.Role.user_permission.require(http_exception=401)
 def getActivenessAPI():
-    print "hola"
     return isCalculationMade("activeness",1)    
 @app.route('/api/getSocialization', methods=['GET'])
+@login_required
+@models.Role.user_permission.require(http_exception=401)
 def getSocializationAPI():
     return isCalculationMade("socialization",1)
 
 @app.route('/api/getOccupancy', methods=['GET'])
+@login_required
+@models.Role.user_permission.require(http_exception=401)
 def getoccupancyAPI():
     return isCalculationMade("occupancy",1)
 @app.route('/api/getMinPeople', methods=['GET'])
+@login_required
+@models.Role.user_permission.require(http_exception=401)
 def getMinPeopleAPI():
     return isCalculationMade("minPeople",2)
 
