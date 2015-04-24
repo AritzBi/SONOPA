@@ -397,15 +397,15 @@ def keep_alive():
         with open(keep_alive_schema, 'r') as f:
             validate(sensor, json.load(f))
     except ValueError as e:
-        return 'JSON data is malformed: {0}'.format(e.message)
+        return 'JSON data is malformed: {0}'.format(e.message),400
     except ValidationError as e:
-        return 'JSON does not comply with schema: {0}'.format(e.message)
+        return 'JSON does not comply with schema: {0}'.format(e.message),400
     else:
         sensor_id = sensor['id']
 
         s = models.Sensor.query.get(sensor_id)
         if s is None:
-            return 'Invalid sensor id: {0}'.format(sensor_id)
+            return 'Invalid sensor id: {0}'.format(sensor_id),404
         else:
             s.last_alive = datetime.now()
             db.session.commit()
@@ -421,20 +421,22 @@ def keep_alive_list():
         with open(keep_alive_list_schema, 'r') as f:
             validate(sensor_list, json.load(f))
     except ValueError as e:
-        return 'JSON data is malformed: {0}'.format(e.message)
+        return 'JSON data is malformed: {0}'.format(e.message),400
     except ValidationError as e:
-        return 'JSON does not comply with schema: {0}'.format(e.message)
+        return 'JSON does not comply with schema: {0}'.format(e.message),400
     else:
         return_message=""
+        return_code=200
         for sensor_id in sensor_list:
             s = models.Sensor.query.get(sensor_id)
             if s is None:
                 return_message=return_message+'Invalid sensor id: {0}<br />'.format(sensor_id)
+                return_code=404
             else:
                 s.last_alive = datetime.now()
                 db.session.commit()
                 return_message=return_message+  " Sensor alive: {0}<br />".format(sensor_id)
-        return return_message
+        return return_message,return_code
 
 @app.route('/register', methods=['POST'])
 @login_required
@@ -849,7 +851,15 @@ def getoccupancyAPI():
 @models.Role.user_permission.require(http_exception=401)
 def getMinPeopleAPI():
     return isCalculationMade("minPeople",2)
-
+@app.route('/api/getLastState', methods=['GET'])
+@login_required
+@models.Role.user_permission.require(http_exception=401)
+def getLastStateAPI():
+    #TODO: Compute the data accodording to the rules and get from the database the state.
+    value={}
+    value['timestamp']=time.time()
+    value['state']="Cooking"
+    return json.dumps(value)
 # @app.errorhandler(404)
 # def internal_error(error):
 #     return render_template('404.html'), 404

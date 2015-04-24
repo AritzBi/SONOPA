@@ -1,0 +1,1 @@
+{"description": "Sound qualifier validation", "title": "Sound qualifier", "required": ["sound_type"], "$schema": "http://json-schema.org/schema#", "type": "object", "properties": {"sound_type": {"type": "string", "description": "Type of sound detected"}}}
