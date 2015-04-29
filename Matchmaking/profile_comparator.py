@@ -7,7 +7,8 @@ Created on Wed Apr 29 15:22:53 2015
 import operator
 import similarity
 
-def compare_profiles(profiles):
+# These profiles have to be recovered from the social network
+def matchmaking(profiles):
     users = {}
     total_socialization = 0
     for profile in profiles:
@@ -42,7 +43,9 @@ def compare_profiles(profiles):
             # if there are recommendations add it to the dict
             if len(recs) > 0:
                 recommendations[u] = recs
-            
+                
+    return recommendations        
+   
             
 def _find_connections(id1, user1, users):
     connections = {} # {'aitor' : 10, 'aritz' : 30}
