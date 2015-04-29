@@ -5,12 +5,15 @@ Created on Wed Apr 29 15:22:53 2015
 @author: aitor
 """
 import operator
+import numpy as np
+
 import similarity
 
 # These profiles have to be recovered from the social network
+# These profiles are all from the same location
 def matchmaking(profiles):
     users = {}
-    total_socialization = 0
+    total_socialization = []
     for profile in profiles:
         # ver como nos devuelve el profile la SN y crear el diccionario de users
         # Diccionario seria:
@@ -21,9 +24,12 @@ def matchmaking(profiles):
         #    'connections' : ['aitor', 'aritz'],}}
         
         socialization = profile['socialization']
-        total_socialization += socialization * 1.0
-        
-    min_socialization = total_socialization * 0.1
+        # the socialization levels from all the users
+        total_socialization.append(socialization)
+    
+    # The min socialization level is the 10% of the socilizations  
+    a = np.array(total_socialization)    
+    min_socialization = np.percentile(a, 10)
     
     recommendations = {}
     for u in users:
