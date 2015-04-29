@@ -5,6 +5,11 @@ Created on Wed Apr 29 15:10:50 2015
 @author: aitor
 """
 
+ #{'pepito' : {
+        #    'activeness' : 23.2,
+        #    'socialization' :  12.1,
+        #    'hobbies' : ['a', 'b'],
+        #    'connections' : ['aitor', 'aritz'],}}
 
 def _get_activeness_similarity(activeness1, activeness2):
     HA = 0
@@ -23,10 +28,12 @@ def _get_activeness_similarity(activeness1, activeness2):
     return SA
 
 def _get_hobby_similarity(hobby_set1, hobby_set2):
+    # jaccard
     SH = len(hobby_set1 & hobby_set2) * 1.0 / len(hobby_set1 | hobby_set2) * 1.0 
     return SH
     
 def _get_connections_similarity(conns1, conns2):
+    # jaccard
     SC = len(conns1 & conns2) * 1.0 / len(conns1 | conns2) * 1.0 
     return SC
     
