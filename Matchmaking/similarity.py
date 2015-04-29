@@ -53,7 +53,7 @@ def get_similarity(user1, user2):
     conns2 = user2['connections']
     SC =  _get_connections_similarity(conns1, conns2)
     
-    S = (SA + SH + SC) / 3
+    S = (SA + SH + SC) / 3.0
     
     return S
     
