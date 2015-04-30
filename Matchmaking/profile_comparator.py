@@ -58,10 +58,35 @@ def _find_connections(id1, user1, users):
     for id2 in users:
         user2 = users[id2]
         if id2 != id1:
-            S = similarity.get_similarity(user1, user2)
-            connections[id2] = S
+            # Already a connection
+            if id1 not in user2['connections']:
+                S = similarity.get_similarity(user1, user2)
+                connections[id2] = S
             
     return connections
+    
+    
+if __name__ == '__main__':
+    test_profiles = {  'aritz' : {    'socialization' : 13.1,
+                                      'activeness' : 223,
+                                      'hobbies' : ['fishing', 'painting', 'movies'],
+                                      'connections' : ['mikel', 'juan', 'oscar']    
+                        },
+                       'aitor' : {    'socialization' : 0.1,
+                                      'activeness' : 222,
+                                      'hobbies' : ['fishing', 'painting'],
+                                       'connections' : ['mikel', 'juan', 'oscar']    
+                        }, 
+                        
+                        'oscar' : {    'socialization' : 8.1,
+                                      'activeness' : 112,
+                                      'hobbies' : ['fishing', 'theater'],
+                                       'connections' : ['mikel', 'aritz', 'aitor']    
+                        },
+    
+                    }
+                    
+    print test_profiles
         
     
     
