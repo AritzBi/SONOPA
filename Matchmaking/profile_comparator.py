@@ -123,6 +123,12 @@ if __name__ == '__main__':
                                       'hobbies' : ['sports', 'painting'],
                                       'connections' : []    
                         },
+                        
+                        'meh' : {     'socialization' : 10,
+                                      'activeness' : 0,
+                                      'hobbies' : [],
+                                      'connections' : []    
+                        },
     
                     }
                     
