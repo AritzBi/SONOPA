@@ -23,8 +23,13 @@ def _get_activeness_similarity(activeness1, activeness2):
         LA = activeness1
     
     HA = HA * 1.0
-    LA = LA * 1.0    
-    SA = 1 - ((HA - LA) / HA)
+    LA = LA * 1.0   
+    
+    try:
+        SA = 1 - ((HA - LA) / HA)
+    except ZeroDivisionError:
+        SA = 0
+        
     return SA
 
 def _get_hobby_similarity(hobby_set1, hobby_set2):
