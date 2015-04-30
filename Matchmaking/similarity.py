@@ -55,6 +55,8 @@ def get_similarity(user1, user2):
     
     S = (SA + SH + SC) / 3.0
     
+    #print 'SA: %s, SH: %s, SC: %s, S: %s' % (SA, SH, SC, S)
+    
     return S
     
     

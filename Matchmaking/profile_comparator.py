@@ -14,7 +14,7 @@ import similarity
 def matchmaking(profiles):
     users = {}
     total_socialization = []
-    for profile in profiles:
+    for current_user in profiles:
         # ver como nos devuelve el profile la SN y crear el diccionario de users
         # Diccionario seria:
         #{'pepito' : {
@@ -22,6 +22,14 @@ def matchmaking(profiles):
         #    'socialization' :  12.1,
         #    'hobbies' : ['a', 'b'],
         #    'connections' : ['aitor', 'aritz'],}}
+        
+        profile = profiles[current_user]
+        users[current_user] = {
+            'socialization' : profile['socialization'],
+            'activeness' : profile['activeness'],
+            'hobbies' : set(profile['hobbies']),
+            'connections' : set(profile['connections'])           
+        }
         
         socialization = profile['socialization']
         # the socialization levels from all the users
@@ -38,7 +46,8 @@ def matchmaking(profiles):
         if user['socialization'] <= min_socialization:
             # find connections for the user
             connections = _find_connections(u, user, users)
-            sorted_conns = sorted(connections.items(), key=operator.itemgetter(1))
+            sorted_conns = sorted(connections.items(), key=operator.itemgetter(1), reverse=True)
+            #print sorted_conns
             # get top 3 recommendations
             cont = 0
             recs = []
@@ -59,7 +68,8 @@ def _find_connections(id1, user1, users):
         user2 = users[id2]
         if id2 != id1:
             # Already a connection
-            if id1 not in user2['connections']:
+            if id2 not in user1['connections']:
+                #print id1, 'with', id2
                 S = similarity.get_similarity(user1, user2)
                 connections[id2] = S
             
@@ -83,10 +93,25 @@ if __name__ == '__main__':
                                       'hobbies' : ['fishing', 'theater'],
                                        'connections' : ['mikel', 'aritz', 'aitor']    
                         },
+                        
+                        'luis' : {    'socialization' : 2.1,
+                                      'activeness' : 400,
+                                      'hobbies' : ['movies', 'sports'],
+                                       'connections' : []    
+                        },
+                        
+                        'juan' : {    'socialization' : 8,
+                                      'activeness' : 100,
+                                      'hobbies' : ['movies', 'sports'],
+                                       'connections' : ['aritz', 'aitor']    
+                        },
     
                     }
                     
-    print test_profiles
+    results = matchmaking(test_profiles)
+    print results
+                    
+    
         
     
     
