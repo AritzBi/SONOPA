@@ -80,18 +80,18 @@ if __name__ == '__main__':
     test_profiles = {  'aritz' : {    'socialization' : 13.1,
                                       'activeness' : 223,
                                       'hobbies' : ['fishing', 'painting', 'movies'],
-                                      'connections' : ['mikel', 'juan', 'oscar']    
+                                      'connections' : ['mikel', 'juan', 'oscar', 'pablo']    
                         },
                        'aitor' : {    'socialization' : 0.1,
-                                      'activeness' : 222,
+                                      'activeness' : 12,
                                       'hobbies' : ['fishing', 'painting'],
-                                       'connections' : ['mikel', 'juan', 'oscar']    
+                                      'connections' : ['mikel', 'juan', 'oscar']    
                         }, 
                         
-                        'oscar' : {    'socialization' : 8.1,
+                        'oscar' : {   'socialization' : 8.1,
                                       'activeness' : 112,
                                       'hobbies' : ['fishing', 'theater'],
-                                       'connections' : ['mikel', 'aritz', 'aitor']    
+                                      'connections' : ['mikel', 'aritz', 'aitor', 'pablo']    
                         },
                         
                         'luis' : {    'socialization' : 2.1,
@@ -103,7 +103,19 @@ if __name__ == '__main__':
                         'juan' : {    'socialization' : 8,
                                       'activeness' : 100,
                                       'hobbies' : ['movies', 'sports'],
-                                       'connections' : ['aritz', 'aitor']    
+                                      'connections' : ['aritz', 'aitor', 'pablo']    
+                        },
+                        
+                        'pablo' : {   'socialization' : 20,
+                                      'activeness' : 600,
+                                      'hobbies' : ['fishing', 'sports', 'painting'],
+                                      'connections' : ['juan', 'oscar', 'aritz']    
+                        },
+                        
+                        'mikel' : {   'socialization' : 1,
+                                      'activeness' : 12,
+                                      'hobbies' : ['fishing', 'painting'],
+                                      'connections' : ['aritz', 'aitor', 'oscar']    
                         },
     
                     }
