@@ -29,12 +29,18 @@ def _get_activeness_similarity(activeness1, activeness2):
 
 def _get_hobby_similarity(hobby_set1, hobby_set2):
     # jaccard
-    SH = len(hobby_set1 & hobby_set2) * 1.0 / len(hobby_set1 | hobby_set2) * 1.0 
+    try:
+        SH = len(hobby_set1 & hobby_set2) * 1.0 / len(hobby_set1 | hobby_set2) * 1.0 
+    except ZeroDivisionError:
+        SH = 0
     return SH
     
 def _get_connections_similarity(conns1, conns2):
     # jaccard
-    SC = len(conns1 & conns2) * 1.0 / len(conns1 | conns2) * 1.0 
+    try:
+        SC = len(conns1 & conns2) * 1.0 / len(conns1 | conns2) * 1.0 
+    except ZeroDivisionError:
+        SC = 0
     return SC
     
 def get_similarity(user1, user2):

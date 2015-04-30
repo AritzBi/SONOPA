@@ -91,7 +91,7 @@ if __name__ == '__main__':
                         'oscar' : {   'socialization' : 8.1,
                                       'activeness' : 112,
                                       'hobbies' : ['fishing', 'theater'],
-                                      'connections' : ['mikel', 'aritz', 'aitor', 'pablo']    
+                                      'connections' : ['aritz', 'aitor', 'pablo']    
                         },
                         
                         'luis' : {    'socialization' : 2.1,
@@ -115,7 +115,13 @@ if __name__ == '__main__':
                         'mikel' : {   'socialization' : 1,
                                       'activeness' : 12,
                                       'hobbies' : ['fishing', 'painting'],
-                                      'connections' : ['aritz', 'aitor', 'oscar']    
+                                      'connections' : ['aritz', 'aitor']    
+                        },
+                        
+                        'unai' : {   'socialization' : 12,
+                                      'activeness' : 300,
+                                      'hobbies' : ['sports', 'painting'],
+                                      'connections' : []    
                         },
     
                     }
