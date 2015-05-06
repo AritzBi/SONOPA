@@ -13,8 +13,8 @@
 			</div>
 		</div>
 		<div class="col-md-6">
-			<table ng-if="sensors_data.length"class="table table-striped">
-				<thead>
+			<div class="bodycontainer">
+				<table class="table table-striped table-scrollable" ng-if="sensor_type=='TMP36' || sensor_type=='SHT21'">
 					<tr>
 						<th>Sensor ID</th>
 						<th>Location</th>
@@ -22,11 +22,25 @@
 						<th>Min</th>
 						<th>Avg</th>
 					</tr>
-				</thead>
-				<tbody id="tableBody">
-					<tr ng-repeat="data in sensors_data"><td>[[data.sensor_id]]</td><td>[[data.location]]</td><td>[[data.max]]</td><td>[[data.min]]</td><td>[[data.avg]]</td></tr>
-	            </tbody>
-			</table>
+					<div >
+						<tr ng-repeat="data in sensors_data ">
+							<td>[[data.sensor_id]]</td><td>[[data.location]]</td><td>[[data.max]]</td><td>[[data.min]]</td><td>[[data.avg]]</td>
+						</tr>
+					</div>
+				</table>
+				<table class="table table-striped table-scrollable" ng-if="sensor_type === 'PIR sensor'">
+					<tr>
+						<th>Sensor ID</th>
+						<th>Location</th>
+						<th>Activations</th>
+					</tr>
+					<div >
+						<tr ng-repeat="data in sensors_data">
+							<td>[[data.sensor_id]]</td><td>[[data.location]]</td><td>[[data.activations]]</td>
+						</tr>
+					</div>
+				</table>
+			</div>
 		</div>	
 	</div>
 	<div class="row ">
@@ -36,17 +50,24 @@
 						<div class="col-md-5" id="conditions" ng-init="rulesIndex = $index">
 							<div class="row condition_counter" ng-repeat="condition in rule[0]">
 									<div class="col-md-1">
-										<button ng-if="$last"class="btn btn-twitter addCondition" ng-click="addCondition([[rulesIndex]])"> + </button>
-										<button ng-if="!$last"class="btn btn-twitter" ng-click="removeCondition([[rulesIndex]])"> - </button>
+										<button class="btn btn-twitter" ng-click="removeCondition([[rulesIndex]],$index)"> - </button>
 									</div>
 									<div class="col-md-3"  ng-init="conditionIndex = $index">
-										<div class="btn-group">
-											<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false" value="[[condition.sensor_id]]">
-						    					[[condition.sensor_id]] <span class="caret"></span>
-											</button>
-											<ul class="dropdown-menu sensors" role="menu">
-												<li class="sensor" role="presentation" ng-repeat="sensor in sensors" ng-click="setSensor(rulesIndex,conditionIndex,$index)" id="[[sensor.id]]"><a href="#">[[ sensor.id ]]</a></li>
-											</ul>
+										<div class="row">
+											<div class="col-md-6">
+												<div class="btn-group">
+													<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false" value="[[condition.sensor_id]]">
+								    					[[condition.sensor_id]] <span class="caret"></span>
+													</button>
+													<ul class="dropdown-menu sensors" role="menu">
+														<li class="sensor" role="presentation" ng-repeat="sensor in sensors" ng-click="setSensor(rulesIndex,conditionIndex,$index)" id="[[sensor.id]]"><a href="#">[[ sensor.id ]]</a></li>
+													</ul>
+												</div>
+											</div>
+											<div class="col-md-6">
+												Active
+												<input type="checkbox" ng-model="condition.active"ng-click="setActivated(rulesIndex,conditionIndex,$event)">
+											</div>
 										</div>
 									</div>
 									<div class="col-md-3">
@@ -63,19 +84,19 @@
 										<div class="row" ng-if="condition.condition_type=='Time interval'">
 											<div class="col-md-6">
 												<div class="btn-group">
-													<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><span class="caret"></span>
+													<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false" value="[[condition.start_time]]"><span class="caret"></span>[[condition.start_time]]
 													</button>
 													<ul class="dropdown-menu interval start" role="menu">
-														<li role="presentation" ng-repeat="time in time_range"><a href="#">[[time]]</a></li>
+														<li role="presentation" ng-repeat="time in time_range" ng-click="setIntervalStart(rulesIndex,conditionIndex,$index)"><a href="#">[[time]]</a></li>
 													</ul>
 												</div>
 											</div>
 											<div class="col-md-6">
 												<div class="btn-group">
-													<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><span class="caret"></span>
+													<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false" value="[[condition.end_time]]"><span class="caret"></span>[[condition.end_time]]
 													</button>
 													<ul class="dropdown-menu interval start" role="menu">
-														<li role="presentation" ng-repeat="time in time_range"><a href="#">[[time]]</a></li>
+														<li role="presentation" ng-repeat="time in time_range" ng-click="setIntervalEnd(rulesIndex,conditionIndex,$index)"><a href="#">[[time]]</a></li>
 													</ul>
 												</div>
 											</div>
@@ -83,12 +104,16 @@
 										</div>
 									</div>
 							</div>
+							<div class="row">
+								<div class="col-md-12">
+								<button class="btn btn-twitter addCondition" ng-click="addCondition([[rulesIndex]])"> + </button>
+								</div>
+							</div>
 						</div>
 						<div class="col-md-5" id="consequences">
 							<div class="row consequence"  ng-repeat="consequence in rule[1]">
 								<div class="col-md-1">
-									<button class="btn btn-twitter addConsequence" ng-if="$last" ng-click="addConsequence([[rulesIndex]])"> + </button>
-									<button class="btn btn-twitter addConsequence" ng-if="!$last" ng-click="removeConsequence([[rulesIndex]])"> - </button>
+									<button class="btn btn-twitter addConsequence" ng-click="removeConsequence([[rulesIndex]],$index)"> - </button>
 								</div>
 								<div class="col-md-11">
 									<div class="row">
@@ -109,10 +134,22 @@
 									</div>
 								</div>
 							</div>
+							<div class="row">
+								<div class="col-md-12">
+								<button class="btn btn-twitter consequence" ng-click="addConsequence([[rulesIndex]])"> + </button>
+								</div>
+							</div>
 						</div>
 						<div class="col-md-2">
-							<button id="addRule" ng-if="$last" class="btn btn-twitter" ng-click="addRule()"> Add rule </button>
-							<button id="addRule" ng-if="!$last" class="btn btn-twitter" ng-click="removeRule($index)"> Remove rule </button>
+							<div class="row">
+								<div >
+									<button id="addRule" ng-if="$last" class="btn btn-success" ng-click="addRule()"> Add rule </button>
+									<button id="addRule"  class="btn btn-danger" ng-click="removeRule($index)"> Remove rule </button>
+								</div>
+								<div >
+									<h3 ><span class="glyphicon glyphicon-info-sign" aria-hidden="true" ng-attr-title="[[title]]" ng-mouseover="calculateTitle($index)"></span></h3>
+								</div>
+							</div>
 						</div>
 					</div>
 				</li>

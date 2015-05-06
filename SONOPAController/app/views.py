@@ -788,6 +788,8 @@ def dbToJSon(sensor):
             return {'sensor_id': sensor.id, 'location':models.Location.query.get(sensor.location).name ,'max':max,'min':min,'avg':avg}
         else: 
             return -1
+    elif sensor_type=="PIR sensor":
+        return {'sensor_id':sensor.id, 'location':models.Location.query.get(sensor.location).name, 'activations':sensor.events.count()}
 def makeCalculation(date,type,mode,calculations):
     yesterday=date-timedelta(days=1)
     previous_hour=date-timedelta(hours=1)
