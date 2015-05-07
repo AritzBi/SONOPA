@@ -3,6 +3,7 @@ import MySQLdb
 from config import DB, DB_USER,DB_PASS,MAXPEOPLE_WEIGHT,SNINTERACTIONS_WEIGHT
 import json
 import random
+from snRequester import getNumberActivities
 json_data=open("houseConfiguration.json")
 houseConfiguration=json.load(json_data)
 json_data.close()
@@ -137,7 +138,7 @@ def getActiveness(date,mode):
 """Retrieves the socialization level in a precise day"""
 def getSocializationLevel(date,mode):
 	#TODO: query the social network's API in order to get the number of interactions
-	interactions_sn=random.randrange(1,101)
+	interactions_sn=getNumberActivities(1)
 	data=getDataFromDB(date,mode)
 	if len(data)==0:
 		return 0
@@ -155,3 +156,4 @@ def getPresence(date,mode):
 	if len(data)==0:
 		return 0
 	return concurrentDifferentRooms(data)
+
