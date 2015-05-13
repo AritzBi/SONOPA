@@ -34,7 +34,7 @@ def matchmaking(profiles):
         socialization = profile['socialization']
         # the socialization levels from all the users
         total_socialization.append(socialization)
-    
+    print "Calculating the minimun socialization level for the user",current_user
     # The min socialization level is the 30th percentile  
     a = np.array(total_socialization)    
     min_socialization = np.percentile(a, 30)

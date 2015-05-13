@@ -53,7 +53,10 @@ def getConnections(username):
 	params=OrderedDict([('username', username)])
 	r=requests.get(url, params=urlencode(params))
 	html=r.json()
-	friends=html['friends']
+	try: 
+		friends=html['friends']
+	except:
+		friends=[]
 	friendNames=[]
 	for i in friends:
 		friendNames.append(friends[i]['username'])
@@ -106,8 +109,19 @@ def getProfile(username):
 			'activeness' : int(activeness),
 			'hobbies' : finalHobbies,
 			'connections' : friends,
-			'location':location}
-	print profile
+			'location':location.lower()}
+	return profile
 def getUsers():
-	users=[]
-	return ['sergi','administrator','StefanBu']
+	url=base+'/cust/getallusers/?'+sn_key+"=json"
+	r=requests.get(url)
+	users=r.json()['users']
+	users=users.split(',')
+	users[0:2]=[]
+	users[len(users)-1:]=[]
+	i=0
+	usersFinal=[]
+	while i<len(users):
+		usersFinal.append({'username':users[i],'id':int(users[i+1])})
+		i=i+2
+	return usersFinal
+getUsers()
