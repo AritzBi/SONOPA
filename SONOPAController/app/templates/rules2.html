@@ -52,25 +52,7 @@
 									<div class="col-md-1">
 										<button class="btn btn-twitter" ng-click="removeCondition([[rulesIndex]],$index)"> - </button>
 									</div>
-									<div class="col-md-3"  ng-init="conditionIndex = $index">
-										<div class="row">
-											<div class="col-md-6">
-												<div class="btn-group">
-													<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false" value="[[condition.sensor_id]]">
-								    					[[condition.sensor_id]] <span class="caret"></span>
-													</button>
-													<ul class="dropdown-menu sensors" role="menu">
-														<li class="sensor" role="presentation" ng-repeat="sensor in sensors" ng-click="setSensor(rulesIndex,conditionIndex,$index)" id="[[sensor.id]]"><a href="#">[[ sensor.id ]]</a></li>
-													</ul>
-												</div>
-											</div>
-											<div class="col-md-6">
-												Active
-												<input type="checkbox" ng-model="condition.active"ng-click="setActivated(rulesIndex,conditionIndex,$event)">
-											</div>
-										</div>
-									</div>
-									<div class="col-md-3">
+									<div class="col-md-3" ng-init="conditionIndex = $index">
 										<div class="btn-group">
 											<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false" value="[[condition.condition_type]]">
 						    					[[condition.condition_type]] <span class="caret"></span>
@@ -80,29 +62,83 @@
 											</ul>
 										</div>
 									</div>
-									<div class="col-md-5">
-										<div class="row" ng-if="condition.condition_type=='Time interval'">
-											<div class="col-md-6">
-												<div class="btn-group">
-													<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false" value="[[condition.start_time]]"><span class="caret"></span>[[condition.start_time]]
-													</button>
-													<ul class="dropdown-menu interval start" role="menu">
-														<li role="presentation" ng-repeat="time in time_range" ng-click="setIntervalStart(rulesIndex,conditionIndex,$index)"><a href="#">[[time]]</a></li>
-													</ul>
+									<div ng-if="condition.condition_type=='PIR rule'">
+										<div class="col-md-3">
+											<div class="row">
+												<div class="col-md-6">
+													<div class="btn-group">
+														<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false" value="[[condition.sensor_id]]">
+									    					[[condition.sensor_id]] <span class="caret"></span>
+														</button>
+														<ul class="dropdown-menu sensors" role="menu">
+															<li class="sensor" role="presentation" ng-repeat="sensor in sensors" ng-click="setSensor(rulesIndex,conditionIndex,$index)" id="[[sensor.id]]"><a href="#">[[ sensor.id ]]</a></li>
+														</ul>
+													</div>
+												</div>
+												<div class="col-md-6">
+													Active
+													<input type="checkbox" ng-click="setActivated(rulesIndex,conditionIndex,$event)">
 												</div>
 											</div>
-											<div class="col-md-6">
-												<div class="btn-group">
-													<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false" value="[[condition.end_time]]"><span class="caret"></span>[[condition.end_time]]
-													</button>
-													<ul class="dropdown-menu interval start" role="menu">
-														<li role="presentation" ng-repeat="time in time_range" ng-click="setIntervalEnd(rulesIndex,conditionIndex,$index)"><a href="#">[[time]]</a></li>
-													</ul>
+										</div>
+										<div class="col-md-2 ">
+											<div class="input-group input-group-sm">
+												<div class="row">
+												<input type="number" placeholder="%"class="form-control"min="0" max="100"step="1" ng-model="rules[rulesIndex][conditionIndex][0].percentage" />
+												</div>
+											</div>	
+										</div>
+										<div class="col-md-3">
+											<div class="row">
+												<div class="col-md-12">
+													<div class="input-group">
+														<div class="row">
+															<input type="number" placeholder="Check interval"class="form-control"min="0" step="1" ng-model="rules[rulesIndex][conditionIndex][0].check_interval" />
+														</div>
+														<div class="row">
+															<input type="number" placeholder="Data interval"class="form-control"min="0" step="1" ng-model="rules[rulesIndex][conditionIndex][0].data_interval" />
+														</div>
+													</div>
 												</div>
 											</div>
-
 										</div>
 									</div>
+									<div ng-if="condition.condition_type=='Time interval'">
+										<div class="col-md-3"  >
+											<div class="row">
+
+											</div>
+										</div>
+										<div class="col-md-5 margin-condition">
+											<div class="row" >
+												<div class="col-md-5">
+													<div class="btn-group">
+														<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false" value="[[condition.start_time]]"><span class="caret"></span>[[condition.start_time]]
+														</button>
+														<ul class="dropdown-menu interval start" role="menu">
+															<li role="presentation" ng-repeat="time in time_range" ng-click="setIntervalStart(rulesIndex,conditionIndex,$index)"><a href="#">[[time]]</a></li>
+														</ul>
+													</div>
+												</div>
+												<div class="col-md-5">
+													<div class="btn-group">
+														<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false" value="[[condition.end_time]]"><span class="caret"></span>[[condition.end_time]]
+														</button>
+														<ul class="dropdown-menu interval start" role="menu">
+															<li role="presentation" ng-repeat="time in time_range" ng-click="setIntervalEnd(rulesIndex,conditionIndex,$index)"><a href="#">[[time]]</a></li>
+														</ul>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+									<!--<div class="col-md-1">
+										<div class="row">
+											<div  >
+												<input type="number" class="form-control" min="0" max="100"step="1" ng-model="rules[rulesIndex][conditionIndex].percentage" />
+											</div>
+										</div>
+									</div>-->
 							</div>
 							<div class="row">
 								<div class="col-md-12">
@@ -154,6 +190,11 @@
 					</div>
 				</li>
 		</ul>
+	</div>
+	<div class="row" ng-if="!error">
+		<div class="col-md-12">
+			<div class="alert alert-danger" role="alert">The rules are not properly formed.</div>
+		</div>
 	</div>
 	<div class="row">
 		<div class="col-md-12">

@@ -5,6 +5,7 @@ angular
 	])
 	.config(['$interpolateProvider', function ($interpolateProvider) { $interpolateProvider.startSymbol('[['); $interpolateProvider.endSymbol(']]'); }])
 	.controller('RulesCtrl',function($scope,$http,$location){
+		$scope.error=true;
 		//var base=$location.host()+":"+$location.port();
 		$http.get('/api/rules').success(function(data){
 			$scope.rules=data.rules;
@@ -26,8 +27,10 @@ angular
 		$scope.removeConsequence=function(index, indexConsequence){
 			$scope.rules[index][1].splice(indexConsequence,1)
 		}
-		$scope.condition_types=['Time interval','Test'] ;
+		$scope.condition_types=['Time interval','PIR rule'] ;
+		$scope.condition_models=[{"condition_type":undefined,"start_time":undefined,"end_time":undefined},{"condition_type":undefined,"percentage":undefined,"data_interval":undefined,"check_interval":undefined,"sensor_id":undefined,"active":undefined}]
 		$scope.consequence_types=['State','Message'] ;
+		$scope.consequence_models=[{"consequence_type":undefined,"state":undefined},{"consequence_type":undefined,"message":undefined}]
 
 		$scope.addRule=function(){
 			$scope.rules.push([[{}],[{}]]);
@@ -43,9 +46,14 @@ angular
 			});
 		}
 		$scope.sendData=function(){
-			$http.post('/set_rules',$scope.rules).success(function(message){
-				console.log(message)
-			});
+			console.log(checkInputs());
+			$scope.error=checkInputs();
+			if (!$scope.error){
+				console.log($scope.rules);
+				/*$http.post('/set_rules',$scope.rules).success(function(message){
+					console.log(message)
+				});*/
+			}
 		}
 		$scope.setSensor=function(ruleIndex,conditionIndex,sensorId){
 			$scope.rules[ruleIndex][0][conditionIndex].sensor_id=$scope.sensors[sensorId].id;
@@ -54,6 +62,7 @@ angular
 			$scope.rules[ruleIndex][0][conditionIndex].active=active.target.checked;
 		}
 		$scope.setConditionType=function(ruleIndex,conditionIndex,conditionId){
+			$scope.rules[ruleIndex][0][conditionIndex]=$scope.condition_models[conditionId];
 			$scope.rules[ruleIndex][0][conditionIndex].condition_type=$scope.condition_types[conditionId];
 		}
 		$scope.setIntervalStart=function(ruleIndex,conditionIndex,value){
@@ -63,6 +72,7 @@ angular
 			$scope.rules[ruleIndex][0][conditionIndex].end_time=$scope.time_range[value];
 		}
 		$scope.setConsequenceType=function(ruleIndex,consequenceIndex,consequenceId){
+			$scope.rules[ruleIndex][1][consequenceIndex]={};
 			$scope.rules[ruleIndex][1][consequenceIndex].consequence_type=$scope.consequence_types[consequenceId];
 		}
 		$scope.setState=function(ruleIndex,consequenceIndex,stateId){
@@ -130,5 +140,21 @@ angular
 	    	$scope.time_range=array;
 	    	$scope.time_intervals=intervals;
 
+		}
+		function checkInputs(){
+			for (var i=0;i<$scope.rules.length;i++){
+				var rule=$scope.rules[i];
+				for (var j=0;j<rule[0].length;j++){
+					for (var name in rule[0][j]){
+						if (rule[0][j][name]==undefined)
+							return false;
+					}
+				}
+				for (j=0;j<rule[1].length;j++){
+					if (rule[0][j][name]==undefined)
+						return false;
+				}
+			}
+			return true;
 		}
 	});	

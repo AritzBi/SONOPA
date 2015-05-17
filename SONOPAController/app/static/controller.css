@@ -8,3 +8,30 @@
 
 .bodycontainer { max-height: 200px; width: 100%; margin: 0; overflow-y: auto; }
 .table-scrollable { margin: 0; padding: 0; }
+
+::-webkit-input-placeholder { /* WebKit browsers */
+    font-size: 12px;
+}
+:-moz-placeholder { /* Mozilla Firefox 4 to 18 */
+	font-size: 12px;
+}
+::-moz-placeholder { /* Mozilla Firefox 19+ */
+	font-size: 12px;
+}
+:-ms-input-placeholder { /* Internet Explorer 10+ */
+   font-size: 12px;
+}
+
+.margin-condition{
+	margin-bottom: 5px;
+}
+.rounded-input{
+	border-bottom-right-radius:10%;
+	border-bottom-left-radius:10%;
+	border-top-right-radius:10%;
+	border-top-left-radius:10%;
+}
+
+.input-group .form-control:last-child:first-child {
+    border-radius: 4px;
+}
