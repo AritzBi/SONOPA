@@ -77,14 +77,14 @@
 												</div>
 												<div class="col-md-6">
 													Active
-													<input type="checkbox" ng-click="setActivated(rulesIndex,conditionIndex,$event)">
+													<input type="checkbox" ng-model="rules[rulesIndex][0][conditionIndex].active"ng-click="setActivated(rulesIndex,conditionIndex,$event)">
 												</div>
 											</div>
 										</div>
 										<div class="col-md-2 ">
 											<div class="input-group input-group-sm">
 												<div class="row">
-												<input type="number" placeholder="%"class="form-control"min="0" max="100"step="1" ng-model="rules[rulesIndex][conditionIndex][0].percentage" />
+												<input type="number" placeholder="%"class="form-control"min="0" max="100"step="1" ng-model="rules[rulesIndex][0][conditionIndex].percentage" />
 												</div>
 											</div>	
 										</div>
@@ -93,10 +93,10 @@
 												<div class="col-md-12">
 													<div class="input-group">
 														<div class="row">
-															<input type="number" placeholder="Check interval"class="form-control"min="0" step="1" ng-model="rules[rulesIndex][conditionIndex][0].check_interval" />
+															<input type="number" placeholder="Check interval"class="form-control"min="0" step="1" ng-model="rules[rulesIndex][0][conditionIndex].check_interval" />
 														</div>
 														<div class="row">
-															<input type="number" placeholder="Data interval"class="form-control"min="0" step="1" ng-model="rules[rulesIndex][conditionIndex][0].data_interval" />
+															<input type="number" placeholder="Data interval"class="form-control"min="0" step="1" ng-model="rules[rulesIndex][0][conditionIndex].data_interval" />
 														</div>
 													</div>
 												</div>
@@ -164,7 +164,7 @@
 											</div>
 										</div>
 										<div class="col-md-8 consequence_conditional">
-											<input ng-if="consequence.consequence_type=='Message'"class="form-control" value="[[consequence.message]]" type="text" >
+											<input ng-if="consequence.consequence_type=='Message'"class="form-control" ng-model="rules[rulesIndex][1][consequenceIndex].message" type="text" >
 											<div class="btn-group" ng-if="consequence.consequence_type=='State'"><button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false" value="[[consequence.state]]">[[consequence.state]]<span class="caret"></span></button><ul class="dropdown-menu states" role="menu"><li class="sensor" role="presentation" ng-repeat="activity in activity_types"  ng-click="setState(rulesIndex,consequenceIndex,$index)"  ><a href="#">[[ activity ]]</a></li></ul></div>
 										</div>
 									</div>
@@ -194,6 +194,11 @@
 	<div class="row" ng-if="!error">
 		<div class="col-md-12">
 			<div class="alert alert-danger" role="alert">The rules are not properly formed.</div>
+		</div>
+	</div>
+		<div class="row" ng-if="sent">
+		<div class="col-md-12">
+			<div class="alert alert-success" role="alert">The rules have been saved</div>
 		</div>
 	</div>
 	<div class="row">

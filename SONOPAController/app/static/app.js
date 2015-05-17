@@ -6,6 +6,7 @@ angular
 	.config(['$interpolateProvider', function ($interpolateProvider) { $interpolateProvider.startSymbol('[['); $interpolateProvider.endSymbol(']]'); }])
 	.controller('RulesCtrl',function($scope,$http,$location){
 		$scope.error=true;
+		$scope.sent=false;
 		//var base=$location.host()+":"+$location.port();
 		$http.get('/api/rules').success(function(data){
 			$scope.rules=data.rules;
@@ -46,13 +47,16 @@ angular
 			});
 		}
 		$scope.sendData=function(){
+			$scope.sent=false;
+			console.log($scope.rules);
 			console.log(checkInputs());
 			$scope.error=checkInputs();
-			if (!$scope.error){
+			if ($scope.error){
 				console.log($scope.rules);
-				/*$http.post('/set_rules',$scope.rules).success(function(message){
-					console.log(message)
-				});*/
+				$http.post('/set_rules',$scope.rules).success(function(message){
+					console.log(message);
+					$scope.sent=true;
+				});
 			}
 		}
 		$scope.setSensor=function(ruleIndex,conditionIndex,sensorId){
@@ -80,30 +84,35 @@ angular
 		}
 		$scope.calculateTitle=function(index){
 			var rule=$scope.rules[index];
-			var conditions="The conditios of the rule are: ";
+			var conditions="The conditios of the rule are:\n ";
 			var condition;
 			for(var i=0;i<rule[0].length;i++){
 				condition=rule[0][i];
-				if(condition.condition_type="Time interval"){
-					if (condition.active)
-						condition="the sensor "+condition.sensor_id+" must be activated between "+condition.start_time+"-"+condition.end_time;
-					else
-						condition="the sensor "+condition.sensor_id+" must be deactivated between "+condition.start_time+"-"+condition.end_time;
+				if(condition.condition_type=="Time interval"){
+					condition="the rule must be processed between "+condition.start_time+"-"+condition.end_time;
 					conditions+=condition;
 					if(rule[0].length-1!=i){
 						conditions+=" and "
 					}
+				}else{
+					if(condition.condition_type=="PIR rule"){
+						condition="the "+condition.percentage+"% of the activations must be of the sensor "+condition.sensor_id + " and has to be checked every "+condition.check_interval+" seconds with the data of the last "+condition.data_interval+" seconds";
+						conditions+=condition;
+						if(rule[0].length-1!=i){
+							conditions+=" and "
+						}
+					}
 				}
 			}
 			conditions+=".\n"
-			var consequences="The consequences of the rule are: ";
+			var consequences="The consequences of the rule are:\n ";
 			var consequence;
 			for(var i=0;i<rule[1].length;i++){
 				consequence=rule[1][i];
-				if(consequence.consequence_type="Message"){
+				if(consequence.consequence_type=="Message"){
 					consequence="send the following message: "+consequence.message;
 					consequences+=consequence;
-				}else if(consequence.consequence_type="State"){
+				}else if(consequence.consequence_type=="State"){
 					consequence="set the following state: "+consequence.state;
 					consequences+=consequence;
 				}
@@ -151,7 +160,7 @@ angular
 					}
 				}
 				for (j=0;j<rule[1].length;j++){
-					if (rule[0][j][name]==undefined)
+					if (rule[1][j][name]==undefined)
 						return false;
 				}
 			}
