@@ -1,1 +1,1 @@
-[[[{"active": true, "start_time": "17:00", "sensor_id": 10, "condition_type": "Time interval", "end_time": "18:00"}], [{"message": "asdasda", "consequence_type": "Message"}]]]
+[[[{"active": true, "start_time": "5:00", "sensor_id": 10, "condition_type": "Time interval", "end_time": "18:00"}], [{"message": "asdasda", "consequence_type": "Message"}]]]

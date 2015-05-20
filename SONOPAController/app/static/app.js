@@ -29,7 +29,7 @@ angular
 			$scope.rules[index][1].splice(indexConsequence,1)
 		}
 		$scope.condition_types=['Time interval','PIR rule'] ;
-		$scope.condition_models=[{"condition_type":undefined,"start_time":undefined,"end_time":undefined},{"condition_type":undefined,"percentage":undefined,"data_interval":undefined,"check_interval":undefined,"sensor_id":undefined,"active":undefined}]
+		$scope.condition_models=[{"condition_type":undefined,"start_time":undefined,"end_time":undefined},{"condition_type":undefined,"percentage":undefined,"data_interval":undefined,"check_interval":undefined,"sensor_id":undefined,"active":undefined, "last_checked":0}]
 		$scope.consequence_types=['State','Message'] ;
 		$scope.consequence_models=[{"consequence_type":undefined,"state":undefined},{"consequence_type":undefined,"message":undefined}]
 

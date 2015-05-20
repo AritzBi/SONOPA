@@ -1,9 +1,6 @@
 __author__ = 'hasier'
 
 import sys,os
-#sys.path.insert(0, os.path.realpath('..'))
-#sys.path.insert(0, os.path.join( os.path.realpath('..'),'TimeMarkov'))
-#sys.path.insert(0, os.path.join( os.path.realpath('..'),'TimeMarkov/controller_api.py'))
 from jsonschema.exceptions import ValidationError
 from app import db, models, app, login_manager
 from flask import request, g, redirect, url_for, render_template, flash
@@ -15,18 +12,19 @@ import json
 from jsonschema import validate
 from os import remove
 from os.path import isfile
-from utils import format_filename, check_pass, hash_pass, get_timestamp
+from utils.utils import format_filename, check_pass, hash_pass, get_timestamp
 import socket
 from time import sleep, mktime
 from app.decorators import async
 from flask_login import login_user, logout_user, session, current_user, login_required
 from flask_principal import identity_changed, Identity, AnonymousIdentity, identity_loaded, RoleNeed, UserNeed
-#import TimeMarkov.controller_api
 from activity_inference import Reasoner
 from json import JSONEncoder
 import requests
 from informationProvider import getActiveness,getSocializationLevel,getPresence,getOccupationLevel
 import time
+from rules import RuleThread
+
 
 schema_prefix = './app/schemas/'
 schema_suffix = '_schema'
@@ -36,8 +34,6 @@ event_schema = schema_prefix + 'event_schema'
 keep_alive_schema = schema_prefix + 'keep_alive_sensor_schema'
 keep_alive_list_schema = schema_prefix + 'keep_alive_list_schema'
 configuration_file = './app/configuration/config.json'
-
-#model_backup_file = './model_backup/model.bak'
 
 sensor_cleanup_rounds = 3
 sensor_cleanup_round_time = 600
@@ -50,6 +46,7 @@ config = None
 model = None
 reasoner = Reasoner()
 started = False
+rules_thread=None
 
 
 @app.route('/')
@@ -147,6 +144,10 @@ def _cron():
         #_send_model_update_cron()
     #_exit_training_cron()
     #_backup_cron()
+    global rules_thread
+    print "Here"
+    rules_thread=RuleThread()
+    rules_thread.start()
     if app.config['FAKE-SENSORS']:
         _fake_sensors_cron()
 
@@ -702,8 +703,8 @@ def get_last_event():
                                                                                       e.fired_by.name,
                                                                                       e.fired_by.located_in.name,
                                                                                       e.value)
-
 @app.route('/rules', methods=['GET'])
+@login_required
 def rules():
 
     """sensors=models.Sensor.query.all()
@@ -763,6 +764,7 @@ def set_rules():
     data = json.loads(request.data)
     with open('rules.json', 'w') as outfile:
         json.dump(data, outfile)
+        rules_thread.read_json=True
     return "OK"
 
 def dbToJSon(sensor):

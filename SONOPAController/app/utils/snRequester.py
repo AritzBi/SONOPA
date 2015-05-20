@@ -3,50 +3,44 @@ import requests
 from collections import OrderedDict
 from urllib import urlencode
 from lxml import html
-configuration_file = './configuration/config.json'
+from config import UID, sn_key
 base='http://sonopa.springtechno.eu/api/'
-sn_key=None
-with open(configuration_file, 'r') as f:
-	global sn_key
-	config = json.load(f)
-	sn_key = config['sn_api']
-	userId = config['UID']
 #Gets the absolute number of activities of a user so far
-def getNumberActivities(userId):
+def getNumberActivities():
 	url=base+'cust/activitycount/?'+sn_key+"=json"
-	params = OrderedDict([('UID', userId)])
+	params = OrderedDict([('UID', UID)])
 	r=requests.get(url, params=urlencode(params))
 	message=r.json()['message']
 	id_index=message.index('is ')
 	return int(message[id_index+3:])
 #Gets a list of activities of a user
-def getActivities(userId):
+def getActivities():
 	url=base+'BuddyPressRead/activity_get_activities/?'+sn_key+'=json'
-	params = OrderedDict([('UID', userId)])
+	params = OrderedDict([('UID', UID)])
 	r=requests.get(url, params=urlencode(params))
 	print r.json()
 #Sends a reccomendation for a user to the social network
-def sendRecommendation(userId, message):
+def sendRecommendation(message):
 	url=base+'cust/recommendation/?'+sn_key+'=json'
-	params = OrderedDict([('UID', userId),('recommendation', message)])
+	params = OrderedDict([('UID', UID),('recommendation', message)])
 	r=requests.get(url, params=urlencode(params))
 	print r.json()
 #Sends the socialization level of a user to the SN
-def sendSocializationLevel(userId, socialisation):
+def sendSocializationLevel(socialisation):
 	url=base+'cust/socializationLevel/?'+sn_key+"=json"
-	params = OrderedDict([('UID', userId),('socialization',socialisation)])
+	params = OrderedDict([('UID', UID),('socialization',socialisation)])
 	r=requests.get(url, params=urlencode(params))
 	print r.json()
 #Sends the activeness of a user to the SN
-def sendActiveness(userId, activeness):
+def sendActiveness(activeness):
 	url=base+'cust/activeness/?'+sn_key+"=json"
-	params = OrderedDict([('UID', userId),('activeness',activeness)])
+	params = OrderedDict([('UID', UID),('activeness',activeness)])
 	r=requests.get(url, params=urlencode(params))
 	print r.json()
 #Seds the statistics about the diary occupation level for a user of eachf od the rooms
-def sendOccupationLevel(userId, occupation, location):
+def sendOccupationLevel(occupation, location):
 	url=base+'cust/occupationLevel/?'+sn_key+"=json"
-	params = OrderedDict([('UID', userId),('occupation',occupation),('location',location)])
+	params = OrderedDict([('UID', UID),('occupation',occupation),('location',location)])
 	r=requests.get(url, params=urlencode(params))
 	print r.json()
 def getConnections(username):
