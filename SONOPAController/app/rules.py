@@ -35,9 +35,10 @@ def insertState(state):
     conn.commit()
 
 def calculatePercentaje(data, data_total, active,percentaje):
-    print data_total
-    print data
-    print active
+    if data_total == 0 and percentaje == 0:
+        return True
+    else:
+        return False
     if active and ((data/data_total)*100)>percentaje:
          return True
     elif not active and ((data/data_total)*100)<percentaje:
@@ -56,20 +57,18 @@ class RuleThread(Thread):
             if self.read_json == True:
                 with open('./rules.json') as rules_file:
                     rules_json=json.load(rules_file)
-                    print rules_json
+                    #print rules_json
                     self.read_json=False
-            #stamp= time.time()
-            #today=datetime.fromtimestamp(stamp)
-            now=datetime(2014,8,13,17,11,18)
-            print now
+            stamp= time.time()
+            now=datetime.fromtimestamp(stamp)
+            #now=datetime(2014,8,13,17,11,18)
+            #print "Now",now
             rules=[]
             for rule_json in rules_json:
                 for condition in rule_json[0]:
                     if condition['condition_type']=="Time interval":
                         start_time=now.replace(hour=int(condition['start_time'].split(":")[0]),minute=int(condition['start_time'].split(":")[1]),second=0)
                         end_time=now.replace(hour=int(condition['end_time'].split(":")[0]),minute=int(condition['end_time'].split(":")[1]),second=0)
-                        print start_time
-                        print end_time
                         #now=datetime.now()
                         if(start_time<now<end_time):
                             continue_loop=True
@@ -82,20 +81,30 @@ class RuleThread(Thread):
                 if continue_loop:
                     for condition in rule_json[0]:
                         if condition['condition_type'] == "PIR rule":
-                            checking_interval=now-timedelta(seconds=condition['check-interval'])
-                            if(condition['last_check'] == 0 or condition['last_check']>=checking_interval):
+                            checking_interval=now-timedelta(seconds=condition['check_interval'])
+                            #print 'Checking interval',checking_interval
+                            #print 'Last time checked',datetime.fromtimestamp(condition['last_checked'])
+                            #print 'Difference ', datetime.fromtimestamp(condition['last_checked'])-checking_interval
+                            #print 'Result',datetime.fromtimestamp(condition['last_checked'])-checking_interval > timedelta(seconds=condition['check_interval'])
+                            if(condition['last_checked'] == 0 or datetime.fromtimestamp(condition['last_checked'])<checking_interval ):
                                 data_interval=now-timedelta(seconds=condition['data_interval'])
                                 data=getTimeIntervalBySensor(condition['sensor_id'],data_interval,now)
                                 data_total=getTimeInterval(data_interval,now)
                                 continue_loop=calculatePercentaje(data[0][0],data_total[0][0],condition['active'],condition['percentage'])
-                                condition['last_check'] = now
-                                if not continue_loop:
-                                    break;
-                    for consequence in rule_json[1]:
-                        print consequence
-                        if consequence['consequence_type']=='State':
-                            insertState(consequence['state'])
-                        elif consequence['consequence_type']=='Message':
-                            sendRecommendation(consequence['message'])
-                            print "Message: "+consequence['message']
+                                #print 'Continue',continue_loop
+                                #print 'Setting last_checked', datetime.fromtimestamp(stamp)
+                                condition['last_checked'] = stamp
+                            else:
+                                continue_loop=False
+                            if not continue_loop:
+                                break;
+
+                    if continue_loop:
+                        for consequence in rule_json[1]:
+                            #print 'The conseuconsequence
+                            if consequence['consequence_type']=='State':
+                                insertState(consequence['state'])
+                            elif consequence['consequence_type']=='Message':
+                                sendRecommendation(consequence['message'])
+                                #print "Message: "+consequence['message']
         print "Finishing the rules thread"

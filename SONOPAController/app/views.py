@@ -14,7 +14,7 @@ from os import remove
 from os.path import isfile
 from utils.utils import format_filename, check_pass, hash_pass, get_timestamp
 import socket
-from time import sleep, mktime
+from time import sleep, mktime, time as gererate_timestamp
 from app.decorators import async
 from flask_login import login_user, logout_user, session, current_user, login_required
 from flask_principal import identity_changed, Identity, AnonymousIdentity, identity_loaded, RoleNeed, UserNeed
@@ -22,9 +22,9 @@ from activity_inference import Reasoner
 from json import JSONEncoder
 import requests
 from informationProvider import getActiveness,getSocializationLevel,getPresence,getOccupationLevel
-import time
 from rules import RuleThread
-
+from recommendations_PIR import *
+from config import computation_cron
 
 schema_prefix = './app/schemas/'
 schema_suffix = '_schema'
@@ -145,9 +145,9 @@ def _cron():
     #_exit_training_cron()
     #_backup_cron()
     global rules_thread
-    print "Here"
     rules_thread=RuleThread()
     rules_thread.start()
+    _recommendations_cron()
     if app.config['FAKE-SENSORS']:
         _fake_sensors_cron()
 
@@ -203,6 +203,50 @@ def _fake_sensors_cron():
             print 'New keep alive message for sensor' + str(keep_alive_id)
             send={'id':keep_alive_id}
             print 'Response: '+requests.post("http://localhost:5000/keep_alive", data=json.dumps(send),headers=headers).text
+@async
+def _recommendations_cron():
+    while True:
+        now = datetime.now()
+        next_computation = now
+        if now.hour < computation_cron:
+            next_computation = next_computation.replace(hour=computation_cron,minute=0)
+        else:
+            next_computation = now + timedelta(hours=24)
+            next_computation = next_computation.replace(hour=computation_cron,minute=0)
+        print "Recommendations crons sleeping for",((next_computation - now).total_seconds()),"seconds"
+        sleep((next_computation - now).total_seconds())
+        #sleep(10)
+        print "Making calculations of the hour",computation_cron
+        isCalculationMade("activeness",1)
+        isCalculationMade("socialization",1)
+        isCalculationMade("occupancy",1)
+
+        parser = argparse.ArgumentParser(description='Give recommendations', 
+                                         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+                                         conflict_handler='resolve')
+                                         
+        yesterday = datetime.now()
+        datestr = yesterday.strftime('%Y%m%d')
+
+        parser.add_argument('-d', '--date', type=str, default=datestr, help='the date to analyse')
+        parser.add_argument('-l', '--language', default='en', help='language of the messages (\'nl\' or \'en\')')
+        parser.add_argument('-u', '--user-id', default='0', help='id of the user to send messages to')
+        parser.add_argument('-p', '--push-ui', type=str, default='http://sonopa.c.smartsigns.nl/venuemaster-web-unified/sms/api', help='uri of the push ui')
+        args = parser.parse_args()
+        
+        day = datetime.strptime(args.date, "%Y%m%d").date() - timedelta(days=1)
+        
+        settings = {'language': args.language,
+                    'userId': args.user_id,
+                    'pushUI': {
+                        'uri': args.push_ui,
+                        'username': '',
+                        'password': ''
+                        }
+                    }
+
+        recom = IPIRecommendations(settings)
+        recom.run_once(day)
 
 
 """@async
@@ -548,7 +592,6 @@ def on_event():
     """Saves the given event from a sensor if the provided JSON POST message is correctly formed"""
     try:
         event = json.loads(request.data)
-        print event
         with open(event_schema, 'r') as f:
             validate(event, json.load(f))
     except ValueError as e:
@@ -721,7 +764,6 @@ def rules_json():
     activity_types=db.session.query(models.ActivityModel.name).distinct()
     with open('rules.json', 'r') as f:
         rules = json.load(f)
-    print rules
     data={}
     sensors_data=[]
     for sensor in sensors:
@@ -804,7 +846,7 @@ def makeCalculation(date,type,mode,calculations):
     elif type=="minPeople":
         value=getPresence(previous_hour,mode)
     calculations[type]['value']=value
-    calculations[type]['timestamp']=time.mktime(date.timetuple())
+    calculations[type]['timestamp']=mktime(date.timetuple())
     with open('calculations.json', 'w') as outfile:
         json.dump(calculations, outfile)
     return json.dumps(calculations[type])
@@ -816,20 +858,17 @@ def isCalculationMade(type,mode):
     else:
         with open('calculations_base.json', 'r') as f:
            calculations=json.load(f)
-    data=calculations[type]
-    date=datetime.fromtimestamp(data['timestamp'])
-    stamp= time.time()
-    today=datetime.fromtimestamp(stamp)
+    data = calculations[type]
+    date = datetime.fromtimestamp(data['timestamp'])
+    stamp = gererate_timestamp()
+    today = datetime.fromtimestamp(stamp)
     #today=datetime(2014,8,13,17,11,18)
-    print today
-    print date.hour
-    print today.hour
-    if date.day ==today.day and date.month == today.month and date.year==today.year:
-        if mode==1:
+    if date.day == today.day and date.month == today.month and date.year == today.year:
+        if mode == 1:
             return json.dumps(data)
-        elif  mode==2 and date.hour == today.hour:
+        elif  mode == 2 and date.hour == today.hour:
             return json.dumps(data)
-        elif mode==2:
+        elif mode == 2:
             return makeCalculation(today,type,mode,calculations)
     else:
         return makeCalculation(today,type,mode,calculations)
@@ -859,10 +898,17 @@ def getMinPeopleAPI():
 @login_required
 @models.Role.user_permission.require(http_exception=401)
 def getLastStateAPI():
-    #TODO: Compute the data accodording to the rules and get from the database the state.
     value={}
-    value['timestamp']=time.time()
-    value['state']="Cooking"
+    value['timestamp']=0
+    value['state']=""
+    activity = models.Activity.query.order_by(models.Activity.timestamp.desc()).limit(1)
+    if activity.count()>0:
+        activity_model_id=activity[0].activity_model_id
+        tt = datetime.timetuple(activity[0].timestamp)
+        sec_epoch_utc = calendar.timegm(tt)
+        value['timestamp']=int(sec_epoch_utc)
+        activity_model=models.ActivityModel.query.get(activity_model_id)
+        value['state']=activity_model.name
     return json.dumps(value)
 # @app.errorhandler(404)
 # def internal_error(error):

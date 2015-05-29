@@ -2,7 +2,6 @@ import json
 import requests
 from collections import OrderedDict
 from urllib import urlencode
-from lxml import html
 from config import UID, sn_key
 base='http://sonopa.springtechno.eu/api/'
 #Gets the absolute number of activities of a user so far

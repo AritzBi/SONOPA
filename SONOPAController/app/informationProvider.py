@@ -130,27 +130,27 @@ def getDataFromDB(date,mode=1):
 	return cursor.fetchall()
 
 """Retrieves the activeness in a precise day"""
-def getActiveness(date,mode):
+def getActiveness(date,mode = 1):
 	data=getDataFromDB(date,mode)
 	if len(data)==0:
 		return 0
 	return calculateRoomChanges(data)
 """Retrieves the socialization level in a precise day"""
-def getSocializationLevel(date,mode):
-	interactions_sn=getNumberActivities(1)
+def getSocializationLevel(date,mode = 1):
+	interactions_sn=getNumberActivities()
 	data=getDataFromDB(date,mode)
 	if len(data)==0:
 		return 0
 	max_people=concurrentDifferentRooms(data)
 	return MAXPEOPLE_WEIGHT*max_people+SNINTERACTIONS_WEIGHT*interactions_sn
 """Retrieves the occupation level of each of the rooms in a precise day"""
-def getOccupationLevel(date,mode):
+def getOccupationLevel(date,mode = 1):
 	data=getDataFromDB(date,mode)
 	if len(data)==0:
 		return 0
 	return occupation_level(data)
 """Retrieves the maximum number of people in the house in a precise day"""
-def getPresence(date,mode):
+def getPresence(date,mode = 1):
 	data=getDataFromDB(date,mode)
 	if len(data)==0:
 		return 0

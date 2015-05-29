@@ -19,3 +19,9 @@ SNINTERACTIONS_WEIGHT=0.8
 UID=1
 #Social network's
 sn_key= "dhT6pd3VGju476BS"
+# total number of past days from which threshold for different activities are computed
+num_days = 63
+# maximum allowed accumulative probability at each end of the distribution to be marked as outlier
+prob_sens = 0.1
+#Hour for they daily computation
+computation_cron = 12

@@ -1,1 +1,1 @@
-[[[{"active": true, "start_time": "5:00", "sensor_id": 10, "condition_type": "Time interval", "end_time": "18:00"}], [{"message": "asdasda", "consequence_type": "Message"}]]]
+[[[{"start_time": "10:00", "condition_type": "Time interval", "end_time": "16:00"}, {"sensor_id": 1, "last_checked": 0, "condition_type": "PIR rule", "data_interval": 12, "check_interval": 60, "active": true, "percentage": 12}], [{"state": "Wake", "consequence_type": "State"}]]]
