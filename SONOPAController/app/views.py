@@ -18,7 +18,7 @@ from time import sleep, mktime, time as gererate_timestamp
 from app.decorators import async
 from flask_login import login_user, logout_user, session, current_user, login_required
 from flask_principal import identity_changed, Identity, AnonymousIdentity, identity_loaded, RoleNeed, UserNeed
-from activity_inference import Reasoner
+#from activity_inference import Reasoner
 from json import JSONEncoder
 import requests
 from informationProvider import getActiveness,getSocializationLevel,getPresence,getOccupationLevel
@@ -44,7 +44,7 @@ MCAST_PORT = 10000
 
 config = None
 model = None
-reasoner = Reasoner()
+#reasoner = Reasoner()
 started = False
 rules_thread=None
 
