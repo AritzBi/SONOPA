@@ -746,6 +746,43 @@ def get_last_event():
                                                                                       e.fired_by.name,
                                                                                       e.fired_by.located_in.name,
                                                                                       e.value)
+@app.route('/api/get_last')
+@login_required
+@models.Role.user_permission.require(http_exception=401)
+def get_last_event_json():
+    """Returns the details of the last event in the system"""
+    e = db.session.query(models.Event).order_by(models.Event.id.desc()).first()
+    if e is None:
+        return 'No events stored'
+    else:
+        data = {}
+        tt = datetime.timetuple(e.timestamp)
+        sec_epoch_utc = calendar.timegm(tt)
+        data['timestamp'] = int(sec_epoch_utc)  
+        data['sensor_name'] = e.fired_by.name
+        data['location'] = e.fired_by.located_in.name
+        data['value'] = e.value
+        return json.dumps(data)
+
+@app.route('/api/process_number_people',methods=['POST'])
+@login_required
+@models.Role.user_permission.require(http_exception=401)
+def process_number_people():
+    data = request.json
+    value = data['value']
+    if isfile('calculations.json'):
+        with open('calculations.json', 'r') as f:
+            calculations=json.load(f)
+    else:
+        with open('calculations_base.json', 'r') as f:
+           calculations=json.load(f)
+    calculations['minPeople']['value']= calculations['minPeople']['value'] + value
+    calculations['minPeople']['timestamp'] = gererate_timestamp()
+    with open('calculations.json', 'w') as outfile:
+        json.dump(calculations, outfile)
+    return "Number of people correctly updated"
+
+
 @app.route('/rules', methods=['GET'])
 @login_required
 def rules():
