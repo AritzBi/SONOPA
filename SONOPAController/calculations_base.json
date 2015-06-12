@@ -1,10 +1,10 @@
 {"activeness":{
     "timestamp":953226600,
-    "value":""
+    "value":0
     },
 "socialization":{
     "timestamp":953226600,
-    "value":""
+    "value":0
     },
 "occupancy":{
     "timestamp":953226600,
@@ -12,6 +12,6 @@
     },
 "minPeople":{
 	"timestamp":953226600,
-	"value":""
+	"value":0
 	}
 }

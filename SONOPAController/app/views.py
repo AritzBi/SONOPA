@@ -24,7 +24,7 @@ import requests
 from informationProvider import getActiveness,getSocializationLevel,getPresence,getOccupationLevel
 from rules import RuleThread
 from recommendations_PIR import *
-from config import computation_cron
+from config import computation_cron, UID
 
 schema_prefix = './app/schemas/'
 schema_suffix = '_schema'
@@ -203,6 +203,33 @@ def _fake_sensors_cron():
             print 'New keep alive message for sensor' + str(keep_alive_id)
             send={'id':keep_alive_id}
             print 'Response: '+requests.post("http://localhost:5000/keep_alive", data=json.dumps(send),headers=headers).text
+@app.route('/test_push')
+def _call_push_api():
+    with open('calculations.json', 'r') as f:
+        calculations = json.load(f)
+        activeness = calculations['activeness']
+        print activeness
+        data = {}
+        data['activeness'] = activeness['value']
+        data['userId'] = UID
+        #date = datetime.fromtimestamp(activeness['timestamp'])
+        #date = date - timedelta(hours=24)
+        date = activeness['timestamp'] - 24*3600
+        data['date'] = date
+        print data
+        #requests.post('http://localhost:5000/activeness', data=json.dumps(data))
+        socialization = calculations['socialization']
+        data = {}
+        data['socialization'] = socialization['value']
+        data['userId'] = UID
+        #date = datetime.fromtimestamp(activeness['timestamp'])
+        #date = date - timedelta(hours=24)
+        date = activeness['timestamp'] - 24*3600
+        data['date'] = date
+        print data
+        return "OK"
+        #requests.post('http://localhost:5000/socializationLevel', data=json.dumps(data))
+    
 @async
 def _recommendations_cron():
     while True:
@@ -776,11 +803,13 @@ def process_number_people():
     else:
         with open('calculations_base.json', 'r') as f:
            calculations=json.load(f)
-    calculations['minPeople']['value']= calculations['minPeople']['value'] + value
+    calculations['minPeople']['value'] = calculations['minPeople']['value'] + value
+    if calculations['minPeople']['value'] < 0 :
+        calculations['minPeople']['value'] = 0
     calculations['minPeople']['timestamp'] = gererate_timestamp()
     with open('calculations.json', 'w') as outfile:
         json.dump(calculations, outfile)
-    return "Number of people correctly updated"
+    return "Number of people correctly updated",200
 
 
 @app.route('/rules', methods=['GET'])
@@ -930,7 +959,14 @@ def getoccupancyAPI():
 @login_required
 @models.Role.user_permission.require(http_exception=401)
 def getMinPeopleAPI():
-    return isCalculationMade("minPeople",2)
+    #return isCalculationMade("minPeople",2)
+    if isfile('calculations.json'):
+        with open('calculations.json', 'r') as f:
+            calculations = json.load(f)
+    else:
+        with open('calculations_base.json', 'r') as f:
+           calculations = json.load(f)
+    return json.dumps(calculations['minPeople']),200
 @app.route('/api/getLastState', methods=['GET'])
 @login_required
 @models.Role.user_permission.require(http_exception=401)
@@ -939,13 +975,13 @@ def getLastStateAPI():
     value['timestamp']=0
     value['state']=""
     activity = models.Activity.query.order_by(models.Activity.timestamp.desc()).limit(1)
-    if activity.count()>0:
-        activity_model_id=activity[0].activity_model_id
+    if activity.count() > 0:
+        activity_model_id = activity[0].activity_model_id
         tt = datetime.timetuple(activity[0].timestamp)
         sec_epoch_utc = calendar.timegm(tt)
-        value['timestamp']=int(sec_epoch_utc)
-        activity_model=models.ActivityModel.query.get(activity_model_id)
-        value['state']=activity_model.name
+        value['timestamp'] = int(sec_epoch_utc)
+        activity_model = models.ActivityModel.query.get(activity_model_id)
+        value['state'] = activity_model.name
     return json.dumps(value)
 # @app.errorhandler(404)
 # def internal_error(error):
