@@ -6,6 +6,6 @@ AAL Project Reference: AAL-2012-5-187 and AAL-010000- 2013-13
 
 Funded by the European Comision, the AAL Programme and the Spanish Ministerio de Industria, Energia y Turismo.
 
-![alt text](https://github.com/AritzBi/SONOPA/tree/master/logos/european_commission.jpg "Logo European Comision")
-![alt text](https://github.com/AritzBi/SONOPA/tree/master/logos/aal.png "Logo AAL Programme")
-![alt text](https://github.com/AritzBi/SONOPA/tree/master/logos/mityc.png "Logo Ministerio de Industria, Energia y Turismo")
+![alt text](/logos/european_commission.jpg "Logo European Comision")
+![alt text](/logos/aal.png "Logo AAL Programme")
+![alt text](/logos/mityc.png "Logo Ministerio de Industria, Energia y Turismo")
