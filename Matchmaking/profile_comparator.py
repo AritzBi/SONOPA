@@ -1,8 +1,27 @@
 # -*- coding: utf-8 -*-
 """
-Created on Wed Apr 29 15:22:53 2015
+Copyright (c) 2015 Aitor Almeida, Aritz Bilbao
 
-@author: aitor
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+
+@author: "Aitor Almeida, Aritz Bilbao"
+@contact: aitor.almeida@deusto.es, aritzbilbao@deusto.es
 """
 import operator
 import numpy as np
@@ -74,68 +93,5 @@ def _find_connections(id1, user1, users):
                 connections[id2] = S
             
     return connections
-    
-    
-if __name__ == '__main__':
-    test_profiles = {  'aritz' : {    'socialization' : 13.1,
-                                      'activeness' : 223,
-                                      'hobbies' : ['fishing', 'painting', 'movies'],
-                                      'connections' : ['mikel', 'juan', 'oscar', 'pablo']    
-                        },
-                       'aitor' : {    'socialization' : 0.1,
-                                      'activeness' : 12,
-                                      'hobbies' : ['fishing', 'painting'],
-                                      'connections' : ['mikel', 'juan', 'oscar']    
-                        }, 
-                        
-                        'oscar' : {   'socialization' : 8.1,
-                                      'activeness' : 112,
-                                      'hobbies' : ['fishing', 'theater'],
-                                      'connections' : ['aritz', 'aitor', 'pablo']    
-                        },
-                        
-                        'luis' : {    'socialization' : 2.1,
-                                      'activeness' : 400,
-                                      'hobbies' : ['movies', 'sports'],
-                                       'connections' : []    
-                        },
-                        
-                        'juan' : {    'socialization' : 8,
-                                      'activeness' : 100,
-                                      'hobbies' : ['movies', 'sports'],
-                                      'connections' : ['aritz', 'aitor', 'pablo']    
-                        },
-                        
-                        'pablo' : {   'socialization' : 20,
-                                      'activeness' : 600,
-                                      'hobbies' : ['fishing', 'sports', 'painting'],
-                                      'connections' : ['juan', 'oscar', 'aritz']    
-                        },
-                        
-                        'mikel' : {   'socialization' : 1,
-                                      'activeness' : 12,
-                                      'hobbies' : ['fishing', 'painting'],
-                                      'connections' : ['aritz', 'aitor']    
-                        },
-                        
-                        'unai' : {   'socialization' : 12,
-                                      'activeness' : 300,
-                                      'hobbies' : ['sports', 'painting'],
-                                      'connections' : []    
-                        },
-                        
-                        'meh' : {     'socialization' : 10,
-                                      'activeness' : 0,
-                                      'hobbies' : [],
-                                      'connections' : []    
-                        },
-    
-                    }
-                    
-    results = matchmaking(test_profiles)
-    print results
-                    
-    
-        
-    
+
     
