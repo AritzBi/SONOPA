@@ -225,12 +225,14 @@ def _recommendations_cron():
         data['title'] = 'The activeness'
         data['description'] = 'The last day\'s activeness is '+ str(activeness['value'])
         data['userId'] = UID
+        data['topic'] = 'Activity'
         print "Sending the last day\s activeness level to PUSH UI",data
         #print "Respone of PUSH UI",requests.post('http://sonopa.c.smartsigns.nl/venuemaster-web-unified/sms/api/message.sms', data=json.dumps(data),headers=headers).json
         data = {}
         data['title'] = 'The socialization level'
         data['description'] = 'The last day\'s socialization level is '+str(socialization['value'])
         data['userId'] = UID
+        data['topic'] = 'Activity'
         print "Sending socialization level to the PUSH UI",data
         #print "Respone of PUSH UI",requests.post('http://sonopa.c.smartsigns.nl/venuemaster-web-unified/sms/api/message.sms', data=json.dumps(data),headers=headers).json
         parser = argparse.ArgumentParser(description='Give recommendations', 
