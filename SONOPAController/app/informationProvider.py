@@ -55,24 +55,28 @@ def isDifferentPlace(values, place):
 def calculateRoomChanges(values):
 	numRoomChanges=0
 	lastRoom=values[0][1]
-	adjacentRooms=houseConfiguration[lastRoom]["adjacent"]
-	noAdjacentRooms=houseConfiguration[lastRoom]["noAdjacent"]
-	adjacent=False
-	for value in values:
-		if(lastRoom!=value[1]):
-			for adjacentRoom in adjacentRooms:
-				if value[1]==adjacentRoom:
-					numRoomChanges=numRoomChanges+1	
-					adjacent=True	
-					break
-			if not adjacent:
-				for noAdjacentRoom in noAdjacentRooms:
-					if(value[1]==noAdjacentRoom['room']):
-						numRoomChanges=numRoomChanges+noAdjacentRoom['distance']
-						break
-		lastRoom=value[1]
+	if hasattr(houseConfiguration , lastRoom):
+		adjacentRooms=houseConfiguration[lastRoom]["adjacent"]
+		noAdjacentRooms=houseConfiguration[lastRoom]["noAdjacent"]
 		adjacent=False
-	return numRoomChanges
+		for value in values:
+			if(lastRoom!=value[1]):
+				for adjacentRoom in adjacentRooms:
+					if value[1]==adjacentRoom:
+						numRoomChanges=numRoomChanges+1	
+						adjacent=True	
+						break
+				if not adjacent:
+					for noAdjacentRoom in noAdjacentRooms:
+						if(value[1]==noAdjacentRoom['room']):
+							numRoomChanges=numRoomChanges+noAdjacentRoom['distance']
+							break
+			lastRoom=value[1]
+			adjacent=False
+		return numRoomChanges
+	else:
+		print "The house configuration is malformed"
+		return 0
 def calculate_room(values):
 	roomMap= {}
 	for value in values:

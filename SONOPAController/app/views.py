@@ -24,7 +24,7 @@ import requests
 from informationProvider import getActiveness,getSocializationLevel,getPresence,getOccupationLevel
 from rules import RuleThread
 from recommendations_PIR import *
-from config import computation_cron, UID
+from config import computation_cron, UID, sms_url
 
 schema_prefix = './app/schemas/'
 schema_suffix = '_schema'
@@ -203,33 +203,6 @@ def _fake_sensors_cron():
             print 'New keep alive message for sensor' + str(keep_alive_id)
             send={'id':keep_alive_id}
             print 'Response: '+requests.post("http://localhost:5000/keep_alive", data=json.dumps(send),headers=headers).text
-@app.route('/test_push')
-def _call_push_api():
-    with open('calculations.json', 'r') as f:
-        calculations = json.load(f)
-        activeness = calculations['activeness']
-        print activeness
-        data = {}
-        data['activeness'] = activeness['value']
-        data['userId'] = UID
-        #date = datetime.fromtimestamp(activeness['timestamp'])
-        #date = date - timedelta(hours=24)
-        date = activeness['timestamp'] - 24*3600
-        data['date'] = date
-        print data
-        #requests.post('http://localhost:5000/activeness', data=json.dumps(data))
-        socialization = calculations['socialization']
-        data = {}
-        data['socialization'] = socialization['value']
-        data['userId'] = UID
-        #date = datetime.fromtimestamp(activeness['timestamp'])
-        #date = date - timedelta(hours=24)
-        date = activeness['timestamp'] - 24*3600
-        data['date'] = date
-        print data
-        return "OK"
-        #requests.post('http://localhost:5000/socializationLevel', data=json.dumps(data))
-    
 @async
 def _recommendations_cron():
     while True:
@@ -241,13 +214,25 @@ def _recommendations_cron():
             next_computation = now + timedelta(hours=24)
             next_computation = next_computation.replace(hour=computation_cron,minute=0)
         print "Recommendations crons sleeping for",((next_computation - now).total_seconds()),"seconds"
-        sleep((next_computation - now).total_seconds())
-        #sleep(10)
+        #sleep((next_computation - now).total_seconds())
+        sleep(10)
         print "Making calculations of the hour",computation_cron
-        isCalculationMade("activeness",1)
-        isCalculationMade("socialization",1)
+        activeness = json.loads(isCalculationMade("activeness",1))
+        socialization = json.loads(isCalculationMade("socialization",1))
         isCalculationMade("occupancy",1)
-
+        data = {}
+        headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
+        data['title'] = 'The activeness'
+        data['description'] = 'The last day\'s activeness is '+ str(activeness['value'])
+        data['userId'] = UID
+        print "Sending the last day\s activeness level to PUSH UI",data
+        #print "Respone of PUSH UI",requests.post('http://sonopa.c.smartsigns.nl/venuemaster-web-unified/sms/api/message.sms', data=json.dumps(data),headers=headers).json
+        data = {}
+        data['title'] = 'The socialization level'
+        data['description'] = 'The last day\'s socialization level is '+str(socialization['value'])
+        data['userId'] = UID
+        print "Sending socialization level to the PUSH UI",data
+        #print "Respone of PUSH UI",requests.post('http://sonopa.c.smartsigns.nl/venuemaster-web-unified/sms/api/message.sms', data=json.dumps(data),headers=headers).json
         parser = argparse.ArgumentParser(description='Give recommendations', 
                                          formatter_class=argparse.ArgumentDefaultsHelpFormatter,
                                          conflict_handler='resolve')
@@ -909,7 +894,7 @@ def makeCalculation(date,type,mode,calculations):
         value=getSocializationLevel(yesterday,mode)
     elif type=="occupancy":
         value=getOccupationLevel(yesterday,mode)
-    elif type=="minPeople":
+    elif type=="minPeople_pir":
         value=getPresence(previous_hour,mode)
     calculations[type]['value']=value
     calculations[type]['timestamp']=mktime(date.timetuple())
@@ -959,7 +944,6 @@ def getoccupancyAPI():
 @login_required
 @models.Role.user_permission.require(http_exception=401)
 def getMinPeopleAPI():
-    #return isCalculationMade("minPeople",2)
     if isfile('calculations.json'):
         with open('calculations.json', 'r') as f:
             calculations = json.load(f)
@@ -967,6 +951,13 @@ def getMinPeopleAPI():
         with open('calculations_base.json', 'r') as f:
            calculations = json.load(f)
     return json.dumps(calculations['minPeople']),200
+
+@app.route('/api/getMinPeople_PIR', methods=['GET'])
+@login_required
+@models.Role.user_permission.require(http_exception=401)
+def getMinPeople_PIR_API():
+    return isCalculationMade("minPeople_pir",2)
+
 @app.route('/api/getLastState', methods=['GET'])
 @login_required
 @models.Role.user_permission.require(http_exception=401)

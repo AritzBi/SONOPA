@@ -13,5 +13,9 @@
 "minPeople":{
 	"timestamp":953226600,
 	"value":0
-	}
+	},
+"minPeople_pir":{
+    "timestamp":953226600,
+    "value":0
+    }
 }
