@@ -55,7 +55,7 @@ def isDifferentPlace(values, place):
 def calculateRoomChanges(values):
 	numRoomChanges=0
 	lastRoom=values[0][1]
-	if hasattr(houseConfiguration , lastRoom):
+	if lastRoom in houseConfiguration:
 		adjacentRooms=houseConfiguration[lastRoom]["adjacent"]
 		noAdjacentRooms=houseConfiguration[lastRoom]["noAdjacent"]
 		adjacent=False
@@ -136,6 +136,7 @@ def getDataFromDB(date,mode=1):
 """Retrieves the activeness in a precise day"""
 def getActiveness(date,mode = 1):
 	data=getDataFromDB(date,mode)
+	print len(data)
 	if len(data)==0:
 		return 0
 	return calculateRoomChanges(data)

@@ -28,7 +28,7 @@
 						</tr>
 					</div>
 				</table>
-				<table class="table table-striped table-scrollable" ng-if="sensor_type === 'PIR sensor'">
+				<table class="table table-striped table-scrollable" ng-if="sensor_type === 'PIR sensor' || isZBS(sensor_type)">
 					<tr>
 						<th>Sensor ID</th>
 						<th>Location</th>

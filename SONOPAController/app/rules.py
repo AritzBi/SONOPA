@@ -28,20 +28,23 @@ def insertState(state):
     cursor.execute(select_state, (state,))
     ids=cursor.fetchall()
     id=ids[0][0]
-    print id
     now=datetime.now()
     insert_state="INSERT INTO ACTIVITY (activity_model_id,timestamp) VALUES (%s,%s);"
     cursor.execute(insert_state,(int(id),now))
     conn.commit()
 
 def calculatePercentaje(data, data_total, active,percentaje):
-    if data_total == 0 and percentaje == 0:
-        return True
-    else:
+    try:
+        current_percent = ((float(data)/data_total)*100)
+    except:
         return False
-    if active and ((data/data_total)*100)>percentaje:
+    if data_total == 0 and percentaje == 0:
+        return False
+    else:
+        return True
+    if active and current_percent>percentaje:
          return True
-    elif not active and ((data/data_total)*100)<percentaje:
+    elif not active and current_percent<percentaje:
         return True
     return False
 
@@ -57,19 +60,19 @@ class RuleThread(Thread):
             if self.read_json == True:
                 with open('./rules.json') as rules_file:
                     rules_json=json.load(rules_file)
-                    #print rules_json
                     self.read_json=False
             stamp= time.time()
             now=datetime.fromtimestamp(stamp)
-            #now=datetime(2014,8,13,17,11,18)
-            #print "Now",now
+            #now=datetime(2015,6,28,23,30,0)
             rules=[]
             for rule_json in rules_json:
                 for condition in rule_json[0]:
                     if condition['condition_type']=="Time interval":
                         start_time=now.replace(hour=int(condition['start_time'].split(":")[0]),minute=int(condition['start_time'].split(":")[1]),second=0)
                         end_time=now.replace(hour=int(condition['end_time'].split(":")[0]),minute=int(condition['end_time'].split(":")[1]),second=0)
-                        #now=datetime.now()
+                        if end_time < start_time:
+                            end_time = end_time + timedelta(hours=24)
+                        now=datetime.now()
                         if(start_time<now<end_time):
                             continue_loop=True
                         else:

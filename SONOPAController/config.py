@@ -13,8 +13,8 @@ DB="sonopa"
 DB_USER="sonopa"
 DB_PASS="sonopa"
 #InformationProvider configuration
-MAXPEOPLE_WEIGHT=1
-SNINTERACTIONS_WEIGHT=0.8
+MAXPEOPLE_WEIGHT=0.5
+SNINTERACTIONS_WEIGHT=0.5
 #Controller's user ID for the social network
 UID=1
 #Social network's
@@ -25,3 +25,5 @@ num_days = 63
 prob_sens = 0.1
 #Hour for they daily computation
 computation_cron = 12
+
+sms_url = 'http://sonopa.c.smartsigns.nl/venuemaster-web-unified/sms/api/'

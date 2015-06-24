@@ -123,6 +123,12 @@ angular
 			consequences+=".\n";
 			$scope.title=conditions+consequences;
 		}
+		$scope.isZBS=function(type){
+			if (type.indexOf("ZBS") != -1){
+				return true;
+			}
+			return false;
+		}
 		function populate() {
 	    	var hours, minutes,ampm;
 	    	var array=new Array();

@@ -1,126 +1,27 @@
 {
-    "HS_Hallway_Downstairs":{
-    	"adjacent":["HS_Living_Room"],
+    "Kitchen":{
+    	"adjacent":["Bathroom","Living room"],
     	"noAdjacent":[
-	    	{"room":"HS_Winter_Garden","distance":100},
-	    	{"room":"HS_Kitchen","distance":200},
-	    	{"room":"HS_Bathroom","distance":100},
-	    	{"room":"HS_Drawing_Room","distance":100},
-	    	{"room":"HS_Dining_Room","distance":100},
-	    	{"room":"HS_Hallway_Upstairs","distance":100},
-	    	{"room":"HS_Bedroom","distance":100},
-	    	{"room":"HS_Box_Room","distance":100}
+	    	{"room":"Living room","distance":10}
     	]
     },
-    "HS_Kitchen":{
-    	"adjacent":["HS_Winter_Garden","HS_Dining_Room"],
+    "Bedroom":{
+    	"adjacent":["Bathroom","Living room"],
     	"noAdjacent":[
-	    	{"room":"HS_Hallway_Downstairs","distance":100},
-	    	{"room":"HS_Living_Room","distance":200},
-	    	{"room":"HS_Bathroom","distance":100},
-	    	{"room":"HS_Drawing_Room","distance":100},
-	    	{"room":"HS_Hallway_Upstairs","distance":100},
-	    	{"room":"HS_Bedroom","distance":100},
-	    	{"room":"HS_Box_Room","distance":100}
+	    	{"room":"Kitchen","distance":15}
     	]
     },
-    "HS_Winter_Garden":{
-    	"adjacent":["HS_Kitchen"],
+    "Bathroom":{
+    	"adjacent":["Bedroom"],
     	"noAdjacent":[
-	    	{"room":"HS_Hallway_Downstairs","distance":100},
-	    	{"room":"HS_Living_Room","distance":200},
-	    	{"room":"HS_Bathroom","distance":100},
-	    	{"room":"HS_Drawing_Room","distance":100},
-	    	{"room":"HS_Dining_Room","distance":100},
-	    	{"room":"HS_Hallway_Upstairs","distance":100},
-	    	{"room":"HS_Bedroom","distance":100},
-	    	{"room":"HS_Box_Room","distance":100}
+	    	{"room":"Kitchen","distance":25},
+	    	{"room":"Living room","distance":20}
     	]
     },
-    "HS_Living_Room":{
-    	"adjacent":["HS_Hallway_Downstairs","HS_Drawing_Room"],
+    "Living room":{
+    	"adjacent":["Bedroom","Kitchen"],
     	"noAdjacent":[
-	    	{"room":"HS_Kitchen","distance":100},
-	    	{"room":"HS_Winter_Garden","distance":200},
-	    	{"room":"HS_Bathroom","distance":100},
-	    	{"room":"HS_Dining_Room","distance":100},
-	    	{"room":"HS_Hallway_Upstairs","distance":100},
-	    	{"room":"HS_Bedroom","distance":100},
-	    	{"room":"HS_Box_Room","distance":100}	
-    	]
-    },
-    "HS_Bathroom":{
-    	"adjacent":["HS_Bedroom"],
-    	"noAdjacent":[
-    		{"room":"HS_Winter_Garden","distance":100},
-	    	{"room":"HS_Kitchen","distance":200},
-	    	{"room":"HS_Hallway_Downstairs","distance":100},
-	    	{"room":"HS_Living_Room","distance":200},
-	    	{"room":"HS_Drawing_Room","distance":100},
-	    	{"room":"HS_Dining_Room","distance":100},
-	    	{"room":"HS_Hallway_Upstairs","distance":100},
-	    	{"room":"HS_Box_Room","distance":100}
-    	]
-    },
-    "HS_Drawing_Room":{
-    	"adjacent":["HS_Living_Room", "HS_Dining_Room"],
-    	"noAdjacent":[
-	    	{"room":"HS_Hallway_Downstairs","distance":100},
-	    	{"room":"HS_Bathroom","distance":100},
-	    	{"room":"HS_Hallway_Upstairs","distance":100},
-	    	{"room":"HS_Bedroom","distance":100},
-	    	{"room":"HS_Box_Room","distance":100},
-	    	{"room":"HS_Winter_Garden","distance":100},
-	    	{"room":"HS_Kitchen","distance":200}	
-    	]
-    },
-    "HS_Dining_Room":{
-    	"adjacent":["HS_Drawing_Room","HS_Kitchen"],
-    	"noAdjacent":[
-    		{"room":"HS_Winter_Garden","distance":100},
-	    	{"room":"HS_Hallway_Downstairs","distance":100},
-	    	{"room":"HS_Living_Room","distance":200},
-	    	{"room":"HS_Hallway_Upstairs","distance":100},
-	    	{"room":"HS_Box_Room","distance":100},
-	    	{"room":"HS_Bathroom","distance":100},
-	    	{"room":"HS_Bedroom","distance":100}
-    	]
-    },
-    "HS_Hallway_Upstairs":{
-    	"adjacent":["HS_Bedroom"],
-    	"noAdjacent":[
-	    	{"room":"HS_Winter_Garden","distance":100},
-	    	{"room":"HS_Kitchen","distance":200},
-	    	{"room":"HS_Bathroom","distance":100},
-	    	{"room":"HS_Drawing_Room","distance":100},
-	    	{"room":"HS_Dining_Room","distance":100},
-	    	{"room":"HS_Box_Room","distance":100},
-	    	{"room":"HS_Living_Room","distance":200},
-	    	{"room":"HS_Hallway_Downstairs","distance":100}
-    	]
-    },
-    "HS_Bedroom":{
-    	"adjacent":["HS_Hallway_Upstairs","HS_Bathroom","HS_Box_Room"],
-    	"noAdjacent":[
-	    	{"room":"HS_Winter_Garden","distance":100},
-	    	{"room":"HS_Kitchen","distance":200},
-	    	{"room":"HS_Drawing_Room","distance":100},
-	    	{"room":"HS_Dining_Room","distance":100},
-	    	{"room":"HS_Living_Room","distance":200},
-	    	{"room":"HS_Hallway_Downstairs","distance":100}
-    	]
-    },
-    "HS_Box_Room":{
-    	"adjacent":["HS_Bedroom"],
-    	"noAdjacent":[
-	    	{"room":"HS_Winter_Garden","distance":100},
-	    	{"room":"HS_Kitchen","distance":200},
-	    	{"room":"HS_Bathroom","distance":100},
-	    	{"room":"HS_Drawing_Room","distance":100},
-	    	{"room":"HS_Dining_Room","distance":100},
-	    	{"room":"HS_Hallway_Upstairs","distance":100},
-	    	{"room":"HS_Living_Room","distance":200},
-	    	{"room":"HS_Hallway_Downstairs","distance":100}
+	    	{"room":"Bathroom","distance":30}
     	]
     }
 }

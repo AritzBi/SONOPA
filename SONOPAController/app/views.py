@@ -24,7 +24,8 @@ import requests
 from informationProvider import getActiveness,getSocializationLevel,getPresence,getOccupationLevel
 from rules import RuleThread
 from recommendations_PIR import *
-from config import computation_cron, UID, sms_url
+from config import computation_cron, UID, sms_url, DB, DB_USER, DB_PASS
+import csv
 
 schema_prefix = './app/schemas/'
 schema_suffix = '_schema'
@@ -214,27 +215,35 @@ def _recommendations_cron():
             next_computation = now + timedelta(hours=24)
             next_computation = next_computation.replace(hour=computation_cron,minute=0)
         print "Recommendations crons sleeping for",((next_computation - now).total_seconds()),"seconds"
-        #sleep((next_computation - now).total_seconds())
-        sleep(10)
+        sleep((next_computation - now).total_seconds())
+        #sleep(10)
         print "Making calculations of the hour",computation_cron
         activeness = json.loads(isCalculationMade("activeness",1))
         socialization = json.loads(isCalculationMade("socialization",1))
         isCalculationMade("occupancy",1)
+        date = datetime.now()
+        date = '%s-%s-%s'%(date.year,date.month,date.day)
         data = {}
         headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
+        data['date'] = date
+        data['startTime'] = '00:01'
+        data['endTime'] = '23:59'
         data['title'] = 'The activeness'
         data['description'] = 'The last day\'s activeness is '+ str(activeness['value'])
         data['userId'] = UID
         data['topic'] = 'Activity'
         print "Sending the last day\s activeness level to PUSH UI",data
-        #print "Respone of PUSH UI",requests.post('http://sonopa.c.smartsigns.nl/venuemaster-web-unified/sms/api/message.sms', data=json.dumps(data),headers=headers).json
+        print "Respone of PUSH UI",requests.post('http://sonopa.c.smartsigns.nl/venuemaster-web-unified/sms/api/message.sms', data=json.dumps(data),headers=headers).json
         data = {}
         data['title'] = 'The socialization level'
         data['description'] = 'The last day\'s socialization level is '+str(socialization['value'])
         data['userId'] = UID
         data['topic'] = 'Activity'
+        data['startTime'] = '00:01'
+        data['endTime'] = '23:59'
+        data['date'] = date
         print "Sending socialization level to the PUSH UI",data
-        #print "Respone of PUSH UI",requests.post('http://sonopa.c.smartsigns.nl/venuemaster-web-unified/sms/api/message.sms', data=json.dumps(data),headers=headers).json
+        print "Response of PUSH UI",requests.post('http://sonopa.c.smartsigns.nl/venuemaster-web-unified/sms/api/message.sms', data=json.dumps(data),headers=headers).json
         parser = argparse.ArgumentParser(description='Give recommendations', 
                                          formatter_class=argparse.ArgumentDefaultsHelpFormatter,
                                          conflict_handler='resolve')
@@ -400,8 +409,78 @@ def logout():
     if session['is_html']:
         return redirect(url_for('login'))
     return 'Bye!'
+@app.route('/load_csv')
+@login_required
+def load_csv():
+    lastID="SELECT LAST_INSERT_ID();"
+    conn =  MySQLdb.connect(host="localhost", user="sonopa", passwd="sonopa",db="sonopa")
+    cursor = conn.cursor()
+    SQLSelect="Select id from activity_model where NAME=%s;"
+    cursor.execute(SQLSelect,("Cook",))
+    if cursor.rowcount == 0:
+        SQLINSERT="INSERT INTO activity_model (name) values(%s)";
+        cursor.execute(SQLINSERT,("Wake",))
+        cursor.execute(SQLINSERT,("Cook",))
+        cursor.execute(SQLINSERT,("Relax",))
+        cursor.execute(SQLINSERT,("Eat",))
+        cursor.execute(SQLINSERT,("Sleep",))
+    else:
+        print "The activity_model table is already filled"
+    with open('sorted_4.csv','rb') as csvfile:
+        formatedData=[]
+        i=0;
+        data=csv.reader(csvfile)
+        numberOfActivations=0
+        for row in data:
+            row_date = row[0].split(' ')
+            date=row_date[0].split('-' );
+            year=int(date[0])
+            month=int(date[1])
+            day=int(date[2])
+            time=row_date[1].split(':')
+            hour=int(time[0])
+            minute=int(time[1])
+            second=int(time[2])
+            location=row[1]
+            dataArray=[]
+            completeDate=datetime(year,month,day,hour,minute,second)
+            dataArray.append(completeDate)
+            dataArray.append(location)
+            formatedData.append(dataArray)
+            numberOfActivations=numberOfActivations +1
+        for data in formatedData:
+            SQLSelect="SELECT id FROM location WHERE NAME=%s;"
+            cursor.execute(SQLSelect,(data[1],))
+            if cursor.rowcount==0:
+                print "The location is not in the database"
+            else:
+                SQLSelect="SELECT s.id FROM sensor s, location l WHERE l.name=%s and l.id=s.location;"
+                cursor.execute(SQLSelect,(data[1],))
+                sensor_id=cursor.fetchone()[0]
+            SQLInsert="INSERT INTO event (timestamp,sensor, value) VALUES (%s,%s,%s);"
+            cursor.execute(SQLInsert,(data[0],sensor_id,'{"status":"activated"}'))
+    SQLSelect =  "select s.id,l.name from sensor s , location l where l.id=s.location"
+    cursor.execute(SQLSelect)
+    sensors = cursor.fetchall()
+    sensor_locations = {19 : 'Living room', 20: 'Bathroom', 21: 'Kitchen', 22: 'Bedroom'}
+    s_dict = {}
+    for s in sensors:
+        s_dict[s[1]] = s[0]
+    with open('rules.json', 'r') as f:
+        rules = json.load(f)
+        for r in rules:
+            conds = r[0]
+            pir_cond = conds[1]
+            sensor_id = pir_cond['sensor_id']
+            sensor_location = sensor_locations[sensor_id]
+            new_sensor_id = s_dict[sensor_location]
+            pir_cond['sensor_id'] = new_sensor_id
+    json.dump(rules,open("rules.json","w"))
 
 
+
+    conn.commit()
+    return "Ok",200
 @identity_loaded.connect_via(app)
 def on_identity_loaded(sender, identity):
     """Assigns permissions to the current user according to its role.
@@ -885,7 +964,8 @@ def dbToJSon(sensor):
             return {'sensor_id': sensor.id, 'location':models.Location.query.get(sensor.location).name ,'max':max,'min':min,'avg':avg}
         else: 
             return -1
-    elif sensor_type=="PIR sensor":
+    elif sensor_type=="PIR sensor" or "ZBS-122" in sensor_type:
+        print "ok"
         return {'sensor_id':sensor.id, 'location':models.Location.query.get(sensor.location).name, 'activations':sensor.events.count()}
 def makeCalculation(date,type,mode,calculations):
     yesterday=date-timedelta(days=1)
