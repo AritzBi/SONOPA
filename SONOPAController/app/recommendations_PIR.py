@@ -5,7 +5,10 @@ import requests
 from datetime import datetime, timedelta, date, time
 from informationProvider import *
 import numpy as np
-import config 
+import config
+
+from messages import get_message
+
 
 """
 IPI recommendations module.
@@ -33,20 +36,6 @@ htactivity = 802
 htsocial = 406
 
 
-MESSAGES = { 'lowappetite': { 'en': ('Appetite', 'Having a nutrious breakfast is very healthy.'),
-                              'nl': ('Eetlust', 'Het is heel gezond om elke ochtend een voedzaam ontbijt te nemen.') },
-             'highappetite': { 'en': ('Appetite', 'Eating three meals a day and often vegetables keep you healthy.'),
-                               'nl': ('Eetlust', 'Drie maaltijden per dag en regelmatig groenten eten houden je gezond.') },
-             'health': { 'en': ('Health', 'It\'s a good idea to regularly consult a medical professional.'),
-                         'nl': ('Gezondheid', 'Het is een goed idee om regelmatig een medisch professional te raadplegen.') },
-             'lowsleep': { 'en': ('Sleep', 'Going early to bed gives a good night\'s sleep.'),
-                           'nl': ('Slapen', 'Vroeg naar bed gaan geeft je een goede nachtrust.') },
-             'highsleep': { 'en': ('Sleep', 'It is healthy to wake up early and be productive.'),
-                            'nl': ('Slapen', 'Het is gezond om vroeg op te staan en productief te zijn.') },
-             'active': { 'en': ('Active', 'Now and then going for a walk is good for health.'),
-                         'nl': ('Activiteit', 'Af en toe een wandeling maken is goed voor de gezondheid.') }
-           }
-
 
 
 class PushUI():
@@ -54,35 +43,35 @@ class PushUI():
         self.url = url
         self.username = username
         self.password = password
-        
+
         self.session = requests.session()
         self.headers = {'Content-type': 'application/json', 'Accept': 'application/json'}
-        
+
         self.user_id = '0'
-    
+
     def post_message(self, title, description, date=None, startTime=None, endTime=None, topic=None, img=None):
-    
+
         msg = {'title': title,
                'description' : description,
                'userId': self.user_id }
-        
+
         if date:
             msg['date'] = date.strftime('%Y-%m-%d')
-    
+
         if startTime:
             msg['startTime'] = startTime.strftime('%H:%M')
-        
+
         if endTime:
             msg['endTime'] = endTime.strftime('%H:%M')
-        
+
         if topic:
             msg['topic'] = topic
-        
+
         if img:
             msg['img'] = img.decode('utf-8')
-        
+
         r = self.session.post("%s/message.sms"%self.url, data=json.dumps(msg), headers=self.headers)
-        
+
         return r.status_code == requests.codes.ok
 
 def cal_low_threshold(counts, centers):
@@ -130,6 +119,7 @@ def get_thresholds(day):
         active_list.append(curactive)
 
         curroom = getOccupationLevel(single_date)
+
         curkitchen = 0
         curdinning = 0
         curbath = 0
@@ -222,47 +212,53 @@ def give_recommendation(pushui, curdate, lang='en'):
     cureat = curdinning + curkitchen
 
     if cureat < lteat:
-        pushui.post_message(MESSAGES['lowappetite'][lang][0],
-                            MESSAGES['lowappetite'][lang][1],
+        (title, msg) = get_message('lowappetite', lang)
+        pushui.post_message(title.encode('utf-8'),
+                            msg.encode('utf-8'),
                             date=date.today(),
                             startTime=time(8),
                             endTime=time(9,30),
                             topic='Activity')
 
     if cureat > hteat:
-        pushui.post_message(MESSAGES['highappetite'][lang][0],
-                            MESSAGES['highappetite'][lang][1],
+        (title, msg) = get_message('highappetite', lang)
+        pushui.post_message(title.encode('utf-8'),
+                            msg.encode('utf-8'),
                             date=date.today(),
                             startTime=time(8),
                             endTime=time(9,30),
                             topic='Activity')
 
     if curbath > htbath:
-        pushui.post_message(MESSAGES['health'][lang][0],
-                            MESSAGES['health'][lang][1],
+        (title, msg) = get_message('highbathroom', lang)
+        pushui.post_message(title.encode('utf-8'),
+                            msg.encode('utf-8'),
                             date=date.today(),
                             startTime=time(8),
                             endTime=time(10),
                             topic='Activity')
 
     if curbed < ltsleep:
-        pushui.post_message(MESSAGES['lowsleep'][lang][0],
-                            MESSAGES['lowsleep'][lang][1],
+        (title, msg) = get_message('lowbedroom', lang)
+        pushui.post_message(title.encode('utf-8'),
+                            msg.encode('utf-8'),
                             date=date.today(),
                             startTime=time(21),
                             endTime=time(23),
                             topic='Activity')
     if curbed > htsleep:
-        pushui.post_message(MESSAGES['highsleep'][lang][0],
-                            MESSAGES['highsleep'][lang][1],
+        (title, msg) = get_message('highbedroom', lang)
+        pushui.post_message(title.encode('utf-8'),
+                            msg.encode('utf-8'),
                             date=date.today(),
                             startTime=time(21),
                             endTime=time(23),
                             topic='Activity')
 
     if curactive < ltactivity:
-        pushui.post_message(MESSAGES['active'][lang][0],
-                            MESSAGES['active'][lang][1],
+        (title, msg) = get_message('lowactivity', lang)
+        pushui.post_message(title.encode('utf-8'),
+                            msg.encode('utf-8'),
                             date=date.today(),
                             startTime=time(12),
                             endTime=time(15),
@@ -277,13 +273,13 @@ class IPIRecommendations(object):
 
     def __init__(self, settings=None):
         """ Constructor for recommendations class
-        
+
         :param settings: the settings with which to generate recommendations.
                          should be fully filled in. See below for format.
         :type settings: dict
-        
+
         """
-        if not settings:            
+        if not settings:
             settings = {'language': 'en',
                         'userId': '0',
                         'pushUI': {
@@ -293,47 +289,47 @@ class IPIRecommendations(object):
                             }
                         }
         self.settings = settings
-        self.PushUI = PushUI(self.settings['pushUI']['uri'], 
+        self.pushui = PushUI(self.settings['pushUI']['uri'],
                              self.settings['pushUI']['username'],
                              self.settings['pushUI']['password'])
-        self.PushUI.user_id = self.settings['userId']
-        
+        self.pushui.user_id = self.settings['userId']
+
     def run_once(self, day=None):
         """ Generate recommendations for the given day, and post them to the sonopa
         Push UI.
-        This function should be run each night, somewhere after 00:00h, so that 
+        This function should be run each night, somewhere after 00:00h, so that
         recommendations will show up on the monitor throughout the day.
-        
+
         :param day: A datetime object specifying the day to generate
                     recommendations for. If not given, yesterday is picked.
         :type day: datetime or None
         """
-    
+
         if not day:
             day = datetime.now() - timedelta(days=1)
 
         get_thresholds(day)
-        give_recommendation(self.PushUI, day, self.settings['language'])
+        give_recommendation(self.pushui, day, self.settings['language'])
 
 
 
 if __name__ == "__main__":
 
-    parser = argparse.ArgumentParser(description='Give recommendations', 
+    parser = argparse.ArgumentParser(description='Give recommendations',
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter,
                                      conflict_handler='resolve')
-                                     
+
     yesterday = datetime.now()
     datestr = yesterday.strftime('%Y%m%d')
 
     parser.add_argument('-d', '--date', type=str, default=datestr, help='the date to analyse')
-    parser.add_argument('-l', '--language', default='en', help='language of the messages (\'nl\' or \'en\')')
+    parser.add_argument('-l', '--language', default='en', help='language of the messages (\'nl\', \'en\' or \'fr\')')
     parser.add_argument('-u', '--user-id', default='0', help='id of the user to send messages to')
     parser.add_argument('-p', '--push-ui', type=str, default='http://sonopa.c.smartsigns.nl/venuemaster-web-unified/sms/api', help='uri of the push ui')
     args = parser.parse_args()
-    
+
     day = datetime.strptime(args.date, "%Y%m%d").date() - timedelta(days=1)
-    
+
     settings = {'language': args.language,
                 'userId': args.user_id,
                 'pushUI': {
@@ -345,4 +341,3 @@ if __name__ == "__main__":
 
     recom = IPIRecommendations(settings)
     recom.run_once(day)
-
