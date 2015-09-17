@@ -1,6 +1,27 @@
-__author__ = 'hasier'
+"""
+Copyright (c) 2015 Aritz Bilbao, Aitor Almeida
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+@author: "Aritz Bilbao, Aitor Almeida"
+@contact: aritzbilbao@deusto.es, aitor.almeida@deusto.es
+"""
 
-import sys,os
+
+import sys
+import os
 from jsonschema.exceptions import ValidationError
 from app import db, models, app, login_manager
 from flask import request, g, redirect, url_for, render_template, flash
@@ -21,7 +42,7 @@ from flask_principal import identity_changed, Identity, AnonymousIdentity, ident
 #from activity_inference import Reasoner
 from json import JSONEncoder
 import requests
-from informationProvider import getActiveness,getSocializationLevel,getPresence,getOccupationLevel
+from informationProvider import getActiveness, getSocializationLevel, getPresence, getOccupationLevel
 from rules import RuleThread
 from recommendations_PIR import *
 from config import computation_cron, UID, sms_url, DB, DB_USER, DB_PASS
@@ -47,7 +68,7 @@ config = None
 model = None
 #reasoner = Reasoner()
 started = False
-rules_thread=None
+rules_thread = None
 
 
 @app.route('/')
@@ -73,6 +94,7 @@ def init():
         _cron()
 
     return message
+
 
 def init_db():
     """Initializes the database if needed"""
@@ -146,7 +168,7 @@ def _cron():
     #_exit_training_cron()
     #_backup_cron()
     global rules_thread
-    rules_thread=RuleThread()
+    rules_thread = RuleThread()
     rules_thread.start()
     _recommendations_cron()
     if app.config['FAKE-SENSORS']:
@@ -171,7 +193,7 @@ def _fake_sensors_cron():
     j['name'] = 'Humidity'
     j['type'] = 'SHT21'
     j['location'] = "Kitchen"
-    j['sensorRef']="cronGeneratedSensor"
+    j['sensorRef'] = "cronGeneratedSensor"
     r = requests.post('http://localhost:5000/register', data=json.dumps(j), headers=headers)
     hum_id = int(r.text)
     with open('./examples/sensor2_example', 'r') as f:
@@ -200,40 +222,42 @@ def _fake_sensors_cron():
             print 'New humidity sensor event, value: ' + str(hum)
             print 'Response: ' + requests.post('http://localhost:5000/event', data=json.dumps(send),
                                                headers=headers).text
-        if random()<0.3:
+        if random() < 0.3:
             print 'New keep alive message for sensor' + str(keep_alive_id)
-            send={'id':keep_alive_id}
-            print 'Response: '+requests.post("http://localhost:5000/keep_alive", data=json.dumps(send),headers=headers).text
+            send = {'id': keep_alive_id}
+            print 'Response: '+requests.post("http://localhost:5000/keep_alive", data=json.dumps(send), headers=headers).text
+
+
 @async
 def _recommendations_cron():
     while True:
         now = datetime.now()
         next_computation = now
         if now.hour < computation_cron:
-            next_computation = next_computation.replace(hour=computation_cron,minute=0)
+            next_computation = next_computation.replace(hour=computation_cron, minute=0)
         else:
             next_computation = now + timedelta(hours=24)
-            next_computation = next_computation.replace(hour=computation_cron,minute=0)
-        print "Recommendations crons sleeping for",((next_computation - now).total_seconds()),"seconds"
+            next_computation = next_computation.replace(hour=computation_cron, minute=0)
+        print "Recommendations crons sleeping for", ((next_computation - now).total_seconds()), "seconds"
         sleep((next_computation - now).total_seconds())
         #sleep(10)
-        print "Making calculations of the hour",computation_cron
-        activeness = json.loads(isCalculationMade("activeness",1))
-        socialization = json.loads(isCalculationMade("socialization",1))
-        isCalculationMade("occupancy",1)
+        print "Making calculations of the hour", computation_cron
+        activeness = json.loads(isCalculationMade("activeness", 1))
+        socialization = json.loads(isCalculationMade("socialization", 1))
+        isCalculationMade("occupancy", 1)
         date = datetime.now()
-        date = '%s-%s-%s'%(date.year,date.month,date.day)
+        date = '%s-%s-%s' % (date.year, date.month, date.day)
         data = {}
         headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
         data['date'] = date
         data['startTime'] = '00:01'
         data['endTime'] = '23:59'
         data['title'] = 'The activeness'
-        data['description'] = 'The last day\'s activeness is '+ str(activeness['value'])
+        data['description'] = 'The last day\'s activeness is ' + str(activeness['value'])
         data['userId'] = UID
         data['topic'] = 'Activity'
-        print "Sending the last day\s activeness level to PUSH UI",data
-        print "Respone of PUSH UI",requests.post('http://sonopa.c.smartsigns.nl/venuemaster-web-unified/sms/api/message.sms', data=json.dumps(data),headers=headers).json
+        print "Sending the last day\s activeness level to PUSH UI", data
+        #print "Respone of PUSH UI",requests.post('sms_url + '/message.sms', data=json.dumps(data),headers=headers).json
         data = {}
         data['title'] = 'The socialization level'
         data['description'] = 'The last day\'s socialization level is '+str(socialization['value'])
@@ -242,23 +266,23 @@ def _recommendations_cron():
         data['startTime'] = '00:01'
         data['endTime'] = '23:59'
         data['date'] = date
-        print "Sending socialization level to the PUSH UI",data
-        print "Response of PUSH UI",requests.post('http://sonopa.c.smartsigns.nl/venuemaster-web-unified/sms/api/message.sms', data=json.dumps(data),headers=headers).json
-        parser = argparse.ArgumentParser(description='Give recommendations', 
+        print "Sending socialization level to the PUSH UI", data
+        #print "Response of PUSH UI",requests.post(sms_url + '/message.sms', data=json.dumps(data),headers=headers).json
+        parser = argparse.ArgumentParser(description='Give recommendations',
                                          formatter_class=argparse.ArgumentDefaultsHelpFormatter,
                                          conflict_handler='resolve')
-                                         
+
         yesterday = datetime.now()
         datestr = yesterday.strftime('%Y%m%d')
 
         parser.add_argument('-d', '--date', type=str, default=datestr, help='the date to analyse')
         parser.add_argument('-l', '--language', default='en', help='language of the messages (\'nl\' or \'en\')')
         parser.add_argument('-u', '--user-id', default='0', help='id of the user to send messages to')
-        parser.add_argument('-p', '--push-ui', type=str, default='http://sonopa.c.smartsigns.nl/venuemaster-web-unified/sms/api', help='uri of the push ui')
+        parser.add_argument('-p', '--push-ui', type=str, default=sms_url, help='uri of the push ui')
         args = parser.parse_args()
-        
+
         day = datetime.strptime(args.date, "%Y%m%d").date() - timedelta(days=1)
-        
+
         settings = {'language': args.language,
                     'userId': args.user_id,
                     'pushUI': {
@@ -409,60 +433,62 @@ def logout():
     if session['is_html']:
         return redirect(url_for('login'))
     return 'Bye!'
+
+
 @app.route('/load_csv')
 @login_required
 def load_csv():
-    lastID="SELECT LAST_INSERT_ID();"
-    conn =  MySQLdb.connect(host="localhost", user="sonopa", passwd="sonopa",db="sonopa")
+    lastID = "SELECT LAST_INSERT_ID();"
+    conn = MySQLdb.connect(host="localhost", user="sonopa", passwd="sonopa", db="sonopa")
     cursor = conn.cursor()
-    SQLSelect="Select id from activity_model where NAME=%s;"
-    cursor.execute(SQLSelect,("Cook",))
+    SQLSelect = "Select id from activity_model where NAME=%s;"
+    cursor.execute(SQLSelect, ("Cook",))
     if cursor.rowcount == 0:
-        SQLINSERT="INSERT INTO activity_model (name) values(%s)";
-        cursor.execute(SQLINSERT,("Wake",))
-        cursor.execute(SQLINSERT,("Cook",))
-        cursor.execute(SQLINSERT,("Relax",))
-        cursor.execute(SQLINSERT,("Eat",))
-        cursor.execute(SQLINSERT,("Sleep",))
+        SQLINSERT = "INSERT INTO activity_model (name) values(%s)"
+        cursor.execute(SQLINSERT, ("Wake",))
+        cursor.execute(SQLINSERT, ("Cook",))
+        cursor.execute(SQLINSERT, ("Relax",))
+        cursor.execute(SQLINSERT, ("Eat",))
+        cursor.execute(SQLINSERT, ("Sleep",))
     else:
         print "The activity_model table is already filled"
-    with open('sorted_4.csv','rb') as csvfile:
-        formatedData=[]
-        i=0;
-        data=csv.reader(csvfile)
-        numberOfActivations=0
+    with open('sorted_4.csv', 'rb') as csvfile:
+        formatedData = []
+        i = 0
+        data = csv.reader(csvfile)
+        numberOfActivations = 0
         for row in data:
             row_date = row[0].split(' ')
-            date=row_date[0].split('-' );
-            year=int(date[0])
-            month=int(date[1])
-            day=int(date[2])
-            time=row_date[1].split(':')
-            hour=int(time[0])
-            minute=int(time[1])
-            second=int(time[2])
-            location=row[1]
-            dataArray=[]
-            completeDate=datetime(year,month,day,hour,minute,second)
+            date = row_date[0].split('-')
+            year = int(date[0])
+            month = int(date[1])
+            day = int(date[2])
+            time = row_date[1].split(':')
+            hour = int(time[0])
+            minute = int(time[1])
+            second = int(time[2])
+            location = row[1]
+            dataArray = []
+            completeDate = datetime(year, month, day, hour, minute, second)
             dataArray.append(completeDate)
             dataArray.append(location)
             formatedData.append(dataArray)
-            numberOfActivations=numberOfActivations +1
+            numberOfActivations = numberOfActivations + 1
         for data in formatedData:
-            SQLSelect="SELECT id FROM location WHERE NAME=%s;"
-            cursor.execute(SQLSelect,(data[1],))
-            if cursor.rowcount==0:
+            SQLSelect = "SELECT id FROM location WHERE NAME=%s;"
+            cursor.execute(SQLSelect, (data[1],))
+            if cursor.rowcount == 0:
                 print "The location is not in the database"
             else:
-                SQLSelect="SELECT s.id FROM sensor s, location l WHERE l.name=%s and l.id=s.location;"
-                cursor.execute(SQLSelect,(data[1],))
-                sensor_id=cursor.fetchone()[0]
-            SQLInsert="INSERT INTO event (timestamp,sensor, value) VALUES (%s,%s,%s);"
-            cursor.execute(SQLInsert,(data[0],sensor_id,'{"status":"activated"}'))
-    SQLSelect =  "select s.id,l.name from sensor s , location l where l.id=s.location"
+                SQLSelect = "SELECT s.id FROM sensor s, location l WHERE l.name=%s and l.id=s.location;"
+                cursor.execute(SQLSelect, (data[1],))
+                sensor_id = cursor.fetchone()[0]
+            SQLInsert = "INSERT INTO event (timestamp,sensor, value) VALUES (%s,%s,%s);"
+            cursor.execute(SQLInsert, (data[0], sensor_id, '{"status":"activated"}'))
+    SQLSelect = "select s.id,l.name from sensor s , location l where l.id=s.location"
     cursor.execute(SQLSelect)
     sensors = cursor.fetchall()
-    sensor_locations = {19 : 'Living room', 20: 'Bathroom', 21: 'Kitchen', 22: 'Bedroom'}
+    sensor_locations = {19: 'Living room', 20: 'Bathroom', 21: 'Kitchen', 22: 'Bedroom'}
     s_dict = {}
     for s in sensors:
         s_dict[s[1]] = s[0]
@@ -475,12 +501,11 @@ def load_csv():
             sensor_location = sensor_locations[sensor_id]
             new_sensor_id = s_dict[sensor_location]
             pir_cond['sensor_id'] = new_sensor_id
-    json.dump(rules,open("rules.json","w"))
-
-
-
+    json.dump(rules, open("rules.json", "w"))
     conn.commit()
-    return "Ok",200
+    return "Ok", 200
+
+
 @identity_loaded.connect_via(app)
 def on_identity_loaded(sender, identity):
     """Assigns permissions to the current user according to its role.
@@ -513,16 +538,16 @@ def get_sensors():
 def get_events(sensor):
     """Displays all the events registered in the system for the given sensor"""
     s = models.Sensor.query.get(sensor)
-    list=s.events.all()
+    list = s.events.all()
     cols = ['id', 'timestamp', 'value']
     #Get only the information of the column specified in cols
     list = [{col: getattr(d, col) for col in cols} for d in list]
     current_time = datetime.utcnow()
     #Get the events of the last 24 hours
     week_ago = current_time - timedelta(days=1)
-    lastWeekEvents = s.events.filter(models.Event.timestamp >week_ago).all()
+    lastWeekEvents = s.events.filter(models.Event.timestamp > week_ago).all()
     lastWeekEvents = [{col: getattr(d, col) for col in cols} for d in lastWeekEvents]
-    return render_template('events.html', events=s.events.all(), sensor=s,eventsJS=json.dumps(list,cls=MyEncoder),lastWeekEventsJS=json.dumps(lastWeekEvents,cls=MyEncoder))
+    return render_template('events.html', events=s.events.all(), sensor=s, eventsJS=json.dumps(list, cls=MyEncoder), lastWeekEventsJS=json.dumps(lastWeekEvents, cls=MyEncoder))
 
 
 @app.route('/keep_alive', methods=['POST'])
@@ -535,20 +560,22 @@ def keep_alive():
         with open(keep_alive_schema, 'r') as f:
             validate(sensor, json.load(f))
     except ValueError as e:
-        return 'JSON data is malformed: {0}'.format(e.message),400
+        return 'JSON data is malformed: {0}'.format(e.message), 400
     except ValidationError as e:
-        return 'JSON does not comply with schema: {0}'.format(e.message),400
+        return 'JSON does not comply with schema: {0}'.format(e.message), 400
     else:
         sensor_id = sensor['id']
 
         s = models.Sensor.query.get(sensor_id)
         if s is None:
-            return 'Invalid sensor id: {0}'.format(sensor_id),404
+            return 'Invalid sensor id: {0}'.format(sensor_id), 404
         else:
             s.last_alive = datetime.now()
             db.session.commit()
 
             return "Sensor alive: {0}<br />".format(sensor_id)
+
+
 @app.route('/keep_alive_list', methods=['POST'])
 @login_required
 @models.Role.user_permission.require(http_exception=401)
@@ -559,22 +586,23 @@ def keep_alive_list():
         with open(keep_alive_list_schema, 'r') as f:
             validate(sensor_list, json.load(f))
     except ValueError as e:
-        return 'JSON data is malformed: {0}'.format(e.message),400
+        return 'JSON data is malformed: {0}'.format(e.message), 400
     except ValidationError as e:
-        return 'JSON does not comply with schema: {0}'.format(e.message),400
+        return 'JSON does not comply with schema: {0}'.format(e.message), 400
     else:
-        return_message=""
-        return_code=200
+        return_message = ""
+        return_code = 200
         for sensor_id in sensor_list:
             s = models.Sensor.query.get(sensor_id)
             if s is None:
-                return_message=return_message+'Invalid sensor id: {0}<br />'.format(sensor_id)
-                return_code=404
+                return_message = return_message+'Invalid sensor id: {0}<br />'.format(sensor_id)
+                return_code = 404
             else:
                 s.last_alive = datetime.now()
                 db.session.commit()
-                return_message=return_message+  " Sensor alive: {0}<br />".format(sensor_id)
-        return return_message,return_code
+                return_message = return_message + " Sensor alive: {0}<br />".format(sensor_id)
+        return return_message, return_code
+
 
 @app.route('/register', methods=['POST'])
 @login_required
@@ -594,15 +622,15 @@ def register_sensor():
         name = sensor['name']
         sensor_type = sensor['type']
         #location_id = sensor['location']
-        location_name=sensor['location']
+        location_name = sensor['location']
         #l = models.Location.query.get(location_id)
-        l=models.Location.query.filter_by(name=location_name).all()
+        l = models.Location.query.filter_by(name=location_name).all()
         if len(l) == 0:
-            l=models.Location(name=location_name)
+            l = models.Location(name=location_name)
             db.session.add(l)
             db.session.commit()
             if 'sensorRef' in sensor:
-                s = models.Sensor(name=name, type=sensor_type, located_in=l,sensorRef=sensor['sensorRef'])
+                s = models.Sensor(name=name, type=sensor_type, located_in=l, sensorRef=sensor['sensorRef'])
             else:
                 s = models.Sensor(name=name, type=sensor_type, located_in=l)
             db.session.add(s)
@@ -615,7 +643,7 @@ def register_sensor():
 
         else:
             if 'sensorRef' in sensor:
-                s = models.Sensor(name=name, type=sensor_type, located_in=l[0],sensorRef=sensor['sensorRef'])
+                s = models.Sensor(name=name, type=sensor_type, located_in=l[0], sensorRef=sensor['sensorRef'])
             else:
                 s = models.Sensor(name=name, type=sensor_type, located_in=l[0])
             db.session.add(s)
@@ -694,7 +722,7 @@ def on_event():
     else:
         timestamp = int(event['timestamp'] / 1000)
         value = event['value']
-        value=json.dumps(value)
+        value = json.dumps(value)
         sensor_id = event['sensor_id']
         s = models.Sensor.query.get(sensor_id)
         if s is None:
@@ -714,24 +742,27 @@ def on_event():
                 #_append_sensor_event(e)
 
                 return "{0}".format(e.id)
-@app.route('/api/list_sensors',methods=['GET'])
+
+
+@app.route('/api/list_sensors', methods=['GET'])
 @login_required
 @models.Role.user_permission.require(http_exception=401)
 def on_api_list_sensors():
     """Returns the list of all the sensors in the system: type, location_name, sensor_id"""
-    sensors=models.Sensor.query.all()
-    json_str='['
-    i=0
+    sensors = models.Sensor.query.all()
+    json_str = '['
+    i = 0
     for sensor in sensors:
-        if i==0:
-            json_str+='{"sensor_id": "%s", "name": "%s", "type": "%s", "location": "%s","sensorRef":"%s"}' % (sensor.id,sensor.name,sensor.type,models.Location.query.get(sensor.location).name,sensor.sensorRef)
+        if i == 0:
+            json_str += '{"sensor_id": "%s", "name": "%s", "type": "%s", "location": "%s","sensorRef":"%s"}' % (sensor.id, sensor.name, sensor.type, models.Location.query.get(sensor.location).name, sensor.sensorRef)
         else:
-            json_str+=',{"sensor_id": "%s", "name": "%s", "type": "%s", "location": "%s","sensorRef":"%s"}' % (sensor.id,sensor.name,sensor.type,models.Location.query.get(sensor.location).name,sensor.sensorRef)
-        i+=1
-    json_str+=']'
+            json_str += ',{"sensor_id": "%s", "name": "%s", "type": "%s", "location": "%s","sensorRef":"%s"}' % (sensor.id, sensor.name, sensor.type, models.Location.query.get(sensor.location).name, sensor.sensorRef)
+        i += 1
+    json_str += ']'
     return json_str
 
-@app.route('/api/sensors/<int:sensor>',methods=['GET'])
+
+@app.route('/api/sensors/<int:sensor>', methods=['GET'])
 @login_required
 @models.Role.user_permission.require(http_exception=401)
 def on_api_sensor(sensor):
@@ -739,36 +770,39 @@ def on_api_sensor(sensor):
     if s is None:
             return 'Invalid sensor id: {0}'.format(sensor)
     else:
-        list=s.events.all()
+        list = s.events.all()
         for l in list:
             tt = datetime.timetuple(l.timestamp)
             sec_epoch_utc = calendar.timegm(tt)
-            l.timestamp=int(sec_epoch_utc)
+            l.timestamp = int(sec_epoch_utc)
         cols = ['id', 'timestamp', 'value']
         #Get only the information of the column specified in cols
         list = [{col: getattr(d, col) for col in cols} for d in list]
-        eventsJS=json.dumps(list,cls=MyEncoder)
+        eventsJS = json.dumps(list, cls=MyEncoder)
         return eventsJS
 
-@app.route('/api/sensors/<int:sensor>/<int:start>/<int:end>',methods=['GET'])
+
+@app.route('/api/sensors/<int:sensor>/<int:start>/<int:end>', methods=['GET'])
 @login_required
 @models.Role.user_permission.require(http_exception=401)
-def on_api_sensor_interval(sensor,start=1,end=1):
+def on_api_sensor_interval(sensor, start=1, end=1):
     s = models.Sensor.query.get(sensor)
     if s is None:
         return 'Invalid sensor id: {0}'.format(sensor)
     else:
-        start=datetime.fromtimestamp(start)
-        end=datetime.fromtimestamp(end)
+        start = datetime.fromtimestamp(start)
+        end = datetime.fromtimestamp(end)
         cols = ['id', 'timestamp', 'value']
-        events = s.events.filter(models.Event.timestamp >start).filter(models.Event.timestamp<end).all()
+        events = s.events.filter(models.Event.timestamp > start).filter(models.Event.timestamp < end).all()
         for event in events:
             tt = datetime.timetuple(event.timestamp)
             sec_epoch_utc = calendar.timegm(tt)
-            event.timestamp=int(sec_epoch_utc)            
+            event.timestamp = int(sec_epoch_utc)
         events = [{col: getattr(d, col) for col in cols} for d in events]
-        eventsJS=json.dumps(events,cls=MyEncoder)
+        eventsJS = json.dumps(events, cls=MyEncoder)
         return eventsJS
+
+
 @async
 def _append_sensor_event(event):
     """Collects the given sensor event. Then, if an activity is inferred,
@@ -839,6 +873,8 @@ def get_last_event():
                                                                                       e.fired_by.name,
                                                                                       e.fired_by.located_in.name,
                                                                                       e.value)
+
+
 @app.route('/api/get_last')
 @login_required
 @models.Role.user_permission.require(http_exception=401)
@@ -851,13 +887,14 @@ def get_last_event_json():
         data = {}
         tt = datetime.timetuple(e.timestamp)
         sec_epoch_utc = calendar.timegm(tt)
-        data['timestamp'] = int(sec_epoch_utc)  
+        data['timestamp'] = int(sec_epoch_utc)
         data['sensor_name'] = e.fired_by.name
         data['location'] = e.fired_by.located_in.name
         data['value'] = e.value
         return json.dumps(data)
 
-@app.route('/api/process_number_people',methods=['POST'])
+
+@app.route('/api/process_number_people', methods=['POST'])
 @login_required
 @models.Role.user_permission.require(http_exception=401)
 def process_number_people():
@@ -865,17 +902,17 @@ def process_number_people():
     value = data['value']
     if isfile('calculations.json'):
         with open('calculations.json', 'r') as f:
-            calculations=json.load(f)
+            calculations = json.load(f)
     else:
         with open('calculations_base.json', 'r') as f:
-           calculations=json.load(f)
+            calculations = json.load(f)
     calculations['minPeople']['value'] = calculations['minPeople']['value'] + value
-    if calculations['minPeople']['value'] < 0 :
+    if calculations['minPeople']['value'] < 0:
         calculations['minPeople']['value'] = 0
     calculations['minPeople']['timestamp'] = gererate_timestamp()
     with open('calculations.json', 'w') as outfile:
         json.dump(calculations, outfile)
-    return "Number of people correctly updated",200
+    return "Number of people correctly updated", 200
 
 
 @app.route('/rules', methods=['GET'])
@@ -887,110 +924,120 @@ def rules():
     activity_types=db.session.query(models.ActivityModel.name).distinct()"""
     with open('rules.json', 'r') as f:
         rules = json.load(f)
-    return render_template('rules2.html',title='Rule system')
+    return render_template('rules2.html', title='Rule system')
+
 
 @app.route('/api/rules', methods=['GET'])
 def rules_json():
-    sensors=models.Sensor.query.all()
-    sensor_types=db.session.query(models.Sensor.type).distinct()
-    activity_types=db.session.query(models.ActivityModel.name).distinct()
+    sensors = models.Sensor.query.all()
+    sensor_types = db.session.query(models.Sensor.type).distinct()
+    activity_types = db.session.query(models.ActivityModel.name).distinct()
     with open('rules.json', 'r') as f:
         rules = json.load(f)
-    data={}
-    sensors_data=[]
+    data = {}
+    sensors_data = []
     for sensor in sensors:
-        s={}
-        s['id']=sensor.id
-        s['location']=sensor.location
-        s['type']=sensor.type
+        s = {}
+        s['id'] = sensor.id
+        s['location'] = sensor.location
+        s['type'] = sensor.type
         sensors_data.append(s)
-    s_types=[]
+    s_types = []
     for type in sensor_types:
         s_types.append(type[0])
-    a_types=[]
+    a_types = []
     for type in activity_types:
         a_types.append(type[0])
-    data['rules']=rules
-    data['sensor_types']=s_types
-    data['activity_types']=a_types
-    data['sensors']=sensors_data
+    data['rules'] = rules
+    data['sensor_types'] = s_types
+    data['activity_types'] = a_types
+    data['sensors'] = sensors_data
     return json.dumps(data)
+
 
 @app.route('/get_sensors_by_type', methods=['GET'])
 def get_sensors_by_type():
     sensor_type = request.args.get('sensor_type', 0, type=str)
     sensors = models.Sensor.query.filter_by(type=sensor_type)
-    data=[]
+    data = []
     for sensor in sensors:
-        data_sensor=dbToJSon(sensor)
-        if data_sensor != -1: 
+        data_sensor = dbToJSon(sensor)
+        if data_sensor != -1:
             data.append(data_sensor)
     return json.dumps(data)
+
 
 @app.route('/get_sensor_data', methods=['GET'])
 def get_sensor_data():
     sensor_id = request.args.get('sensor_id', 0, type=int)
     s = models.Sensor.query.get(sensor_id)
-    data=dbToJSon(s)
+    data = dbToJSon(s)
     return json.dumps(data)
+
+
 @app.route('/set_rules', methods=['POST'])
 def set_rules():
     data = json.loads(request.data)
     with open('rules.json', 'w') as outfile:
         json.dump(data, outfile)
-        rules_thread.read_json=True
+        rules_thread.read_json = True
     return "OK"
 
+
 def dbToJSon(sensor):
-    sensor_type=sensor.type
-    if sensor_type=="TMP36" or  sensor_type=="SHT21" :
-        max=0
-        min=sys.maxint
-        avg=0
-        i=0
+    sensor_type = sensor.type
+    if sensor_type == "TMP36" or sensor_type == "SHT21":
+        max = 0
+        min = sys.maxint
+        avg = 0
+        i = 0
         for event in sensor.events:
-            data=event.value
-            data=json.loads(data)
-            data=float(data['value'])
-            if max<data:
-                max=data
-            if min>data:
-                min=data
-            avg=avg+data
-            i=i+1
-        if i!=0:
-            avg=avg/i
-            avg="%.2f" % avg
-            return {'sensor_id': sensor.id, 'location':models.Location.query.get(sensor.location).name ,'max':max,'min':min,'avg':avg}
-        else: 
+            data = event.value
+            data = json.loads(data)
+            data = float(data['value'])
+            if max < data:
+                max = data
+            if min > data:
+                min = data
+            avg = avg+data
+            i = i+1
+        if i != 0:
+            avg = avg/i
+            avg = "%.2f" % avg
+            return {'sensor_id': sensor.id, 'location': models.Location.query.get(sensor.location).name, 'max': max, 'min': min, 'avg': avg}
+        else:
             return -1
-    elif sensor_type=="PIR sensor" or "ZBS-122" in sensor_type:
+    elif sensor_type == "PIR sensor" or "ZBS-122" in sensor_type:
         print "ok"
-        return {'sensor_id':sensor.id, 'location':models.Location.query.get(sensor.location).name, 'activations':sensor.events.count()}
-def makeCalculation(date,type,mode,calculations):
-    yesterday=date-timedelta(days=1)
-    previous_hour=date-timedelta(hours=1)
-    if type=="activeness":
-        value=getActiveness(yesterday,mode)
-    elif type=="socialization":
-        value=getSocializationLevel(yesterday,mode)
-    elif type=="occupancy":
-        value=getOccupationLevel(yesterday,mode)
-    elif type=="minPeople_pir":
-        value=getPresence(previous_hour,mode)
-    calculations[type]['value']=value
-    calculations[type]['timestamp']=mktime(date.timetuple())
+        return {'sensor_id': sensor.id, 'location': models.Location.query.get(sensor.location).name, 'activations': sensor.events.count()}
+
+
+def makeCalculation(date, type, mode, calculations):
+    yesterday = date-timedelta(days=1)
+    previous_hour = date-timedelta(hours=1)
+    if type == "activeness":
+        value = getActiveness(yesterday, mode)
+    elif type == "socialization":
+        value = getSocializationLevel(yesterday, mode)
+    elif type == "occupancy":
+        value = getOccupationLevel(yesterday, mode)
+    elif type == "minPeople_pir":
+        value = getPresence(previous_hour, mode)
+    calculations[type]['value'] = value
+    calculations[type]['timestamp'] = mktime(date.timetuple())
     with open('calculations.json', 'w') as outfile:
         json.dump(calculations, outfile)
     return json.dumps(calculations[type])
+
+
 #Mode=1 daily, mode=2 hourly
-def isCalculationMade(type,mode):
+def isCalculationMade(type, mode):
     if isfile('calculations.json'):
         with open('calculations.json', 'r') as f:
-            calculations=json.load(f)
+            calculations = json.load(f)
     else:
         with open('calculations_base.json', 'r') as f:
-           calculations=json.load(f)
+            calculations = json.load(f)
     data = calculations[type]
     date = datetime.fromtimestamp(data['timestamp'])
     stamp = gererate_timestamp()
@@ -999,29 +1046,35 @@ def isCalculationMade(type,mode):
     if date.day == today.day and date.month == today.month and date.year == today.year:
         if mode == 1:
             return json.dumps(data)
-        elif  mode == 2 and date.hour == today.hour:
+        elif mode == 2 and date.hour == today.hour:
             return json.dumps(data)
         elif mode == 2:
-            return makeCalculation(today,type,mode,calculations)
+            return makeCalculation(today, type, mode, calculations)
     else:
-        return makeCalculation(today,type,mode,calculations)
+        return makeCalculation(today, type, mode, calculations)
+
 
 @app.route('/api/getActiveness', methods=['GET'])
 @login_required
 @models.Role.user_permission.require(http_exception=401)
 def getActivenessAPI():
-    return isCalculationMade("activeness",1)    
+    return isCalculationMade("activeness", 1)
+
+
 @app.route('/api/getSocialization', methods=['GET'])
 @login_required
 @models.Role.user_permission.require(http_exception=401)
 def getSocializationAPI():
-    return isCalculationMade("socialization",1)
+    return isCalculationMade("socialization", 1)
+
 
 @app.route('/api/getOccupancy', methods=['GET'])
 @login_required
 @models.Role.user_permission.require(http_exception=401)
 def getoccupancyAPI():
-    return isCalculationMade("occupancy",1)
+    return isCalculationMade("occupancy", 1)
+
+
 @app.route('/api/getMinPeople', methods=['GET'])
 @login_required
 @models.Role.user_permission.require(http_exception=401)
@@ -1031,22 +1084,24 @@ def getMinPeopleAPI():
             calculations = json.load(f)
     else:
         with open('calculations_base.json', 'r') as f:
-           calculations = json.load(f)
-    return json.dumps(calculations['minPeople']),200
+            calculations = json.load(f)
+    return json.dumps(calculations['minPeople']), 200
+
 
 @app.route('/api/getMinPeople_PIR', methods=['GET'])
 @login_required
 @models.Role.user_permission.require(http_exception=401)
 def getMinPeople_PIR_API():
-    return isCalculationMade("minPeople_pir",2)
+    return isCalculationMade("minPeople_pir", 2)
+
 
 @app.route('/api/getLastState', methods=['GET'])
 @login_required
 @models.Role.user_permission.require(http_exception=401)
 def getLastStateAPI():
-    value={}
-    value['timestamp']=0
-    value['state']=""
+    value = {}
+    value['timestamp'] = 0
+    value['state'] = ""
     activity = models.Activity.query.order_by(models.Activity.timestamp.desc()).limit(1)
     if activity.count() > 0:
         activity_model_id = activity[0].activity_model_id
@@ -1065,11 +1120,12 @@ def getLastStateAPI():
 #     db.session.rollback()
 #     return render_template('500.html'), 500
 
+
 #Encoder to send events data in json
 class MyEncoder(JSONEncoder):
     def default(self, obj):
         if isinstance(obj, datetime):
             encoded_object = list(obj.timetuple())[0:6]
         else:
-            encoded_object =obj.__dict__
+            encoded_object = obj.__dict__
         return encoded_object

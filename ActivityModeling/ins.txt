@@ -1,3 +1,0 @@
-#Numero de lecturas de sensor--> nivel de activdad.
-#cuantas activaciones concurrentes, en un intervalo de 1 segundo
-#activdad--> 5 minutos, mirar en que habitación ha estado más tiempo en esos 5 minutos y mirar qué actividad estaba haciendo

@@ -1,3 +1,0 @@
-import driver
-
-driver.run()

@@ -51,3 +51,9 @@ coverage.xml
 
 # Sphinx documentation
 docs/_build/
+
+config.py
+messages.py
+recommendations_PIR.py
+
+ActivityModeling/
