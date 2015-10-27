@@ -54,11 +54,14 @@ def makeMatchmaking():
 		results = matchmaking(total_users[location])
 		if len(results)==0:
 			print "No matches found in:",location
+           
 		for user in results:
 			recommendations = results[user]
+                 user_connections = total_users[location][user]['connections']  
 			for rec in recommendations:
-				print user,rec
-				sendRecommendation(user, rec)
+                       if rec not in user_connections:
+        				print user,rec
+        				sendRecommendation(user, rec)
 
 
 if __name__ == '__main__':
