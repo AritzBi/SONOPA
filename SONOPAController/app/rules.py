@@ -51,12 +51,12 @@ def getTimeInterval(start_time, end_time):
 def insertState(state):
     conn = MySQLdb.connect(host="localhost", user=DB_USER, passwd=DB_PASS, db=DB)
     cursor = conn.cursor()
-    select_state = "SELECT ID FROM ACTIVITY_MODEL WHERE NAME=%s"
+    select_state = "SELECT ID FROM activity_model WHERE NAME=%s"
     cursor.execute(select_state, (state,))
     ids = cursor.fetchall()
     id = ids[0][0]
     now = datetime.now()
-    insert_state = "INSERT INTO ACTIVITY (activity_model_id,timestamp) VALUES (%s,%s);"
+    insert_state = "INSERT INTO activity (activity_model_id,timestamp) VALUES (%s,%s);"
     cursor.execute(insert_state, (int(id), now))
     conn.commit()
 
