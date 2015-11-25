@@ -23,6 +23,7 @@ from json import JSONEncoder
 import requests
 from informationProvider import getActiveness,getSocializationLevel,getPresence,getOccupationLevel
 from rules import RuleThread
+# These module uses propietary code from iMinds, please check the readme for instructions on how to get it
 from recommendations_PIR import *
 from config import computation_cron, UID, sms_url, DB, DB_USER, DB_PASS
 import csv
