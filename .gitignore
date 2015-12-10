@@ -57,3 +57,4 @@ messages.py
 recommendations_PIR.py
 
 ActivityModeling/
+.DS_Store

@@ -23,13 +23,12 @@ import json
 import requests
 from collections import OrderedDict
 from urllib import urlencode
-from config import UID, sn_key
-base = 'http://sonopa.springtechno.eu/api/'
+from config import UID, sn_key, sn_url
 
 
 #Gets the absolute number of activities of a user so far
 def getNumberActivities():
-    url = base+'cust/activitycount/?'+sn_key+"=json"
+    url = sn_url+'cust/activitycount/?'+sn_key+"=json"
     params = OrderedDict([('UID', UID)])
     r = requests.get(url, params=urlencode(params))
     message = r.json()['message']
@@ -39,7 +38,7 @@ def getNumberActivities():
 
 #Gets a list of activities of a user
 def getActivities():
-    url = base+'BuddyPressRead/activity_get_activities/?'+sn_key+'=json'
+    url = sn_url+'BuddyPressRead/activity_get_activities/?'+sn_key+'=json'
     params = OrderedDict([('UID', UID)])
     r = requests.get(url, params=urlencode(params))
     print r.json()
@@ -47,7 +46,7 @@ def getActivities():
 
 #Sends a reccomendation for a user to the social network
 def sendRecommendation(message):
-    url = base+'cust/recommendation/?'+sn_key+'=json'
+    url = sn_url+'cust/recommendation/?'+sn_key+'=json'
     params = OrderedDict([('UID', UID), ('recommendation', message)])
     r = requests.get(url, params=urlencode(params))
     print r.json()
@@ -55,7 +54,7 @@ def sendRecommendation(message):
 
 #Sends the socialization level of a user to the SN
 def sendSocializationLevel(socialisation):
-    url = base+'cust/socializationLevel/?'+sn_key+"=json"
+    url = sn_url+'cust/socializationLevel/?'+sn_key+"=json"
     params = OrderedDict([('UID', UID), ('socialization', socialisation)])
     r = requests.get(url, params=urlencode(params))
     print r.json()
@@ -63,7 +62,7 @@ def sendSocializationLevel(socialisation):
 
 #Sends the activeness of a user to the SN
 def sendActiveness(activeness):
-    url = base+'cust/activeness/?'+sn_key+"=json"
+    url = sn_url+'cust/activeness/?'+sn_key+"=json"
     params = OrderedDict([('UID', UID), ('activeness', activeness)])
     r = requests.get(url, params=urlencode(params))
     print r.json()
@@ -71,14 +70,14 @@ def sendActiveness(activeness):
 
 #Seds the statistics about the diary occupation level for a user of eachf od the rooms
 def sendOccupationLevel(occupation, location):
-    url = base+'cust/occupationLevel/?'+sn_key+"=json"
+    url = sn_url+'cust/occupationLevel/?'+sn_key+"=json"
     params = OrderedDict([('UID', UID), ('occupation', occupation), ('location', location)])
     r = requests.get(url, params=urlencode(params))
     print r.json()
 
 
 def getConnections(username):
-    url = base+'/BuddyPressRead/friends_get_friends/?'+sn_key+"=json"
+    url = sn_url+'/BuddyPressRead/friends_get_friends/?'+sn_key+"=json"
     params = OrderedDict([('username', username)])
     r = requests.get(url, params=urlencode(params))
     html = r.json()
@@ -93,7 +92,7 @@ def getConnections(username):
 
 
 def getProfile(username):
-    url = base+'/BuddyPressRead/profile_get_profile/?'+sn_key+"=json"
+    url = sn_url+'/BuddyPressRead/profile_get_profile/?'+sn_key+"=json"
     params = OrderedDict([('username', username)])
     r = requests.get(url, params=urlencode(params))
     html = r.json()
@@ -145,7 +144,7 @@ def getProfile(username):
 
 
 def getUsers():
-    url = base+'/cust/getallusers/?'+sn_key+"=json"
+    url = sn_url+'/cust/getallusers/?'+sn_key+"=json"
     r = requests.get(url)
     users = r.json()['users']
     users = users.split(',')

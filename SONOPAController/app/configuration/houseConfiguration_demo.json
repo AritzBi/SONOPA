@@ -1,0 +1,27 @@
+{
+    "Kitchen":{
+    	"adjacent":["Bathroom","Living room"],
+    	"noAdjacent":[
+	    	{"room":"Living room","distance":10}
+    	]
+    },
+    "Bedroom":{
+    	"adjacent":["Bathroom","Living room"],
+    	"noAdjacent":[
+	    	{"room":"Kitchen","distance":15}
+    	]
+    },
+    "Bathroom":{
+    	"adjacent":["Bedroom"],
+    	"noAdjacent":[
+	    	{"room":"Kitchen","distance":25},
+	    	{"room":"Living room","distance":20}
+    	]
+    },
+    "Living room":{
+    	"adjacent":["Bedroom","Kitchen"],
+    	"noAdjacent":[
+	    	{"room":"Bathroom","distance":30}
+    	]
+    }
+}

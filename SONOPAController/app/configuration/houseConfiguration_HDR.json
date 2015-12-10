@@ -1,0 +1,104 @@
+{
+"HDR_Bedroom":{
+"adjacent":["HDR_Attic"],
+"noAdjacent":[
+	{"room":"HDR_Cellar","distance":100},
+	{"room":"HDR_Front_Door","distance":100},
+	{"room":"HDR_Intermediate_Room","distance":100},
+	{"room":"HDR_Kitchen","distance":100},
+	{"room":"HDR_Living_Room","distance":100},
+	{"room":"HDR_Halllway_Bike","distance":100},
+	{"room":"HDR_Bathroom","distance":100}
+]
+},
+"HDR_Attic":{
+"adjacent":["HDR_Bedroom", "HDR_Intermediate_Room"],
+"noAdjacent":[
+	{"room":"HDR_Cellar","distance":100},
+	{"room":"HDR_Front_Door","distance":100},
+	{"room":"HDR_Kitchen","distance":100},
+	{"room":"HDR_Living_Room","distance":100},
+	{"room":"HDR_Halllway_Bike","distance":100},
+	{"room":"HDR_Bathroom","distance":100}
+]
+},
+"HDR_Cellar":{
+"adjacent":["HDR_Halllway_Bike", "HDR_Front_Door"],
+"noAdjacent":[
+	{"room":"HDR_Kitchen","distance":100},
+	{"room":"HDR_Living_Room","distance":100},
+	{"room":"HDR_Intermediate_Room","distance":100},
+	{"room":"HDR_Bedroom","distance":100},
+	{"room":"HDR_Attic","distance":100},
+	{"room":"HDR_Bathroom","distance":100}
+]
+},
+"HDR_Halllway_Bike":{
+"adjacent":["HDR_Cellar"],
+"noAdjacent":[
+	{"room":"HDR_Kitchen","distance":100},
+	{"room":"HDR_Living_Room","distance":100},
+	{"room":"HDR_Intermediate_Room","distance":100},
+	{"room":"HDR_Bedroom","distance":100},
+	{"room":"HDR_Attic","distance":100},
+	{"room":"HDR_Front_Door","distance":100},
+	{"room":"HDR_Bathroom","distance":100}
+]
+},
+"HDR_Front_Door":{
+"adjacent":["HDR_Cellar", "HDR_Living_Room"],
+"noAdjacent":[
+	{"room":"HDR_Kitchen","distance":100},
+	{"room":"HDR_Intermediate_Room","distance":100},
+	{"room":"HDR_Bedroom","distance":100},
+	{"room":"HDR_Attic","distance":100},
+	{"room":"HDR_Halllway_Bike","distance":100},
+	{"room":"HDR_Bathroom","distance":100}
+]
+},
+"HDR_Intermediate_Room":{
+"adjacent":["HDR_Attic", "HDR_Living_Room", "HDR_Bedroom", "HDR_Kitchen"],
+"noAdjacent":[
+	{"room":"HDR_Cellar","distance":100},
+	{"room":"HDR_Front_Door","distance":100},
+	{"room":"HDR_Halllway_Bike","distance":100},
+	{"room":"HDR_Bathroom","distance":100}
+
+]
+},
+"HDR_Living_Room":{
+"adjacent":["HDR_Intermediate_Room","HDR_Front_Door"],
+"noAdjacent":[
+	{"room":"HDR_Attic","distance":100},
+	{"room":"HDR_Bedroom","distance":100},
+	{"room":"HDR_Cellar","distance":100},
+	{"room":"HDR_Kitchen","distance":100},
+	{"room":"HDR_Halllway_Bike","distance":100},
+	{"room":"HDR_Bathroom","distance":100}
+
+]
+},
+"HDR_Kitchen":{
+"adjacent":["HDR_Bathroom","HDR_Intermediate_Room"],
+"noAdjacent":[
+	{"room":"HDR_Attic","distance":100},
+	{"room":"HDR_Bedroom","distance":100},
+	{"room":"HDR_Cellar","distance":100},
+	{"room":"HDR_Halllway_Bike","distance":100},
+	{"room":"HDR_Front_Door","distance":100},
+	{"room":"HDR_Living_Room","distance":100}
+]
+},
+"HDR_Bathroom":{
+"adjacent":["HDR_Kitchen"],
+"noAdjacent":[
+	{"room":"HDR_Attic","distance":100},
+	{"room":"HDR_Bedroom","distance":100},
+	{"room":"HDR_Cellar","distance":100},
+	{"room":"HDR_Halllway_Bike","distance":100},
+	{"room":"HDR_Front_Door","distance":100},
+	{"room":"HDR_Living_Room","distance":100},
+	{"room":"HDR_Intermediate_Room","distance":100}
+]
+}
+}

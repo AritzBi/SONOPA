@@ -1,0 +1,135 @@
+{
+"HST_Bathroom":{
+"adjacent":["HST_Bedroom","HST_Hallway_to_rooms"],
+"noAdjacent":[
+{"room":"HST_Dining_Room","distance":100},
+{"room":"HST_Living_Room","distance":100},
+{"room":"HST_Hallway","distance":100},
+{"room":"HST_Kitchen","distance":100},
+{"room":"HST_Study_Room","distance":100},
+{"room":"HST_Guest_Room","distance":100},
+{"room":"HST_Bathtub", "distance":100}
+]
+},
+"HST_Kitchen":{
+"adjacent":["HST_Hallway"],
+"noAdjacent":[
+{"room":"HST_Dining_Room","distance":100},
+{"room":"HST_Living_Room","distance":100},
+{"room":"HST_Study_Room","distance":100},
+{"room":"HST_Guest_Room","distance":100},
+{"room":"HST_Bathtub", "distance":100},
+{"room":"HST_Bedroom", "distance":100},
+{"room":"HST_Hallway_to_rooms", "distance":100},
+{"room":"HST_Bathroom", "distance":100}
+]
+},
+"HST_Bedroom":{
+"adjacent":["HST_Hallway_to_rooms", "HST_Bathroom"],
+"noAdjacent":[
+{"room":"HST_Dining_Room","distance":100},
+{"room":"HST_Living_Room","distance":100},
+{"room":"HST_Study_Room","distance":100},
+{"room":"HST_Guest_Room","distance":100},
+{"room":"HST_Bathtub", "distance":100},
+{"room":"HST_Hallway", "distance":100},
+{"room":"HST_Kitchen", "distance":100}
+]
+},
+"HST_Dining_Room":{
+"adjacent":["HST_Living_Room","HST_Hallway"],
+"noAdjacent":[
+{"room":"HST_Study_Room","distance":100},
+{"room":"HST_Guest_Room","distance":100},
+{"room":"HST_Bathtub", "distance":100},
+{"room":"HST_Kitchen", "distance":100},
+{"room":"HST_Hallway_to_rooms", "distance":100},
+{"room":"HST_Bathroom", "distance":100},
+{"room":"HST_Bedroom", "distance":100}
+]
+},
+"HST_Living_Room":{
+"adjacent":["HST_Dining_Room"],
+"noAdjacent":[
+{"room":"HST_Study_Room","distance":100},
+{"room":"HST_Guest_Room","distance":100},
+{"room":"HST_Bathtub", "distance":100},
+{"room":"HST_Kitchen", "distance":100},
+{"room":"HST_Hallway_to_rooms", "distance":100},
+{"room":"HST_Bathroom", "distance":100},
+{"room":"HST_Bedroom", "distance":100},
+{"room":"HST_Hallway", "distance":100}
+]
+},
+"HST_Hallway":{
+"adjacent":["HST_Kitchen", "HST_Dining_Room", "HST_Hallway_to_rooms"],
+"noAdjacent":[
+{"room":"HST_Study_Room","distance":100},
+{"room":"HST_Guest_Room","distance":100},
+{"room":"HST_Bathtub", "distance":100},
+{"room":"HST_Bathroom", "distance":100},
+{"room":"HST_Bedroom", "distance":100},
+{"room":"HST_Living_Room", "distance":100}
+]
+},
+"HST_Hallway_to_rooms":{
+"adjacent":["HST_Hallway","HST_Study_Room", "HST_Bedroom", "HST_Guest_Room", "HST_Bathtub"],
+"noAdjacent":[
+{"room":"HST_Bathroom", "distance":100},
+{"room":"HST_Living_Room", "distance":100},
+{"room":"HST_Kitchen", "distance":100},
+{"room":"HST_Dining_Room", "distance":100}
+]
+},
+"HST_Study_Room":{
+"adjacent":["HST_Hallway_to_rooms"],
+"noAdjacent":[
+{"room":"HST_Guest_Room","distance":100},
+{"room":"HST_Bathtub", "distance":100},
+{"room":"HST_Kitchen", "distance":100},
+{"room":"HST_Bathroom", "distance":100},
+{"room":"HST_Bedroom", "distance":100},
+{"room":"HST_Hallway", "distance":100},
+{"room":"HST_Living_Room", "distance":100},
+{"room":"HST_Dining_Room", "distance":100}
+]
+},
+"HST_Bedroom":{
+"adjacent":["HST_Bathroom", "HST_Hallway_to_rooms"],
+"noAdjacent":[
+{"room":"HST_Guest_Room","distance":100},
+{"room":"HST_Bathtub", "distance":100},
+{"room":"HST_Kitchen", "distance":100},
+{"room":"HST_Hallway", "distance":100},
+{"room":"HST_Living_Room", "distance":100},
+{"room":"HST_Study_Room", "distance":100},
+{"room":"HST_Dining_Room", "distance":100}
+]
+},
+"HST_Guest_Room":{
+"adjacent":["HST_Hallway_to_rooms"],
+"noAdjacent":[
+{"room":"HST_Study_Room","distance":100},
+{"room":"HST_Bathtub", "distance":100},
+{"room":"HST_Kitchen", "distance":100},
+{"room":"HST_Bathroom", "distance":100},
+{"room":"HST_Bedroom", "distance":100},
+{"room":"HST_Hallway", "distance":100},
+{"room":"HST_Living_Room", "distance":100},
+{"room":"HST_Dining_Room", "distance":100}
+]
+},
+"HST_Bathtub":{
+"adjacent":["HST_Hallway_to_rooms"],
+"noAdjacent":[
+{"room":"HST_Study_Room","distance":100},
+{"room":"HST_Guest_Room", "distance":100},
+{"room":"HST_Kitchen", "distance":100},
+{"room":"HST_Bathroom", "distance":100},
+{"room":"HST_Bedroom", "distance":100},
+{"room":"HST_Hallway", "distance":100},
+{"room":"HST_Living_Room", "distance":100},
+{"room":"HST_Dining_Room", "distance":100}
+]
+}
+}

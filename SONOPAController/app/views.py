@@ -18,14 +18,13 @@ from time import sleep, mktime, time as gererate_timestamp
 from app.decorators import async
 from flask_login import login_user, logout_user, session, current_user, login_required
 from flask_principal import identity_changed, Identity, AnonymousIdentity, identity_loaded, RoleNeed, UserNeed
-#from activity_inference import Reasoner
 from json import JSONEncoder
 import requests
 from informationProvider import getActiveness,getSocializationLevel,getPresence,getOccupationLevel
 from rules import RuleThread
 # This module uses propietary code from iMinds, please check the readme for instructions on how to get it
 from recommendations_PIR import *
-from config import computation_cron, UID, sms_url, DB, DB_USER, DB_PASS
+from config import computation_cron, UID, sms_url, DB, DB_USER, DB_PASS, language
 import csv
 from utils import snRequester
 
@@ -148,7 +147,7 @@ def _cron():
     #_exit_training_cron()
     #_backup_cron()
     global rules_thread
-    rules_thread=RuleThread()
+    rules_thread = RuleThread()
     rules_thread.start()
     _recommendations_cron()
     _communicasting_cron()
@@ -218,48 +217,28 @@ def _recommendations_cron():
             next_computation = now + timedelta(hours=24)
             next_computation = next_computation.replace(hour=computation_cron,minute=0)
         print "Recommendations crons sleeping for",((next_computation - now).total_seconds()),"seconds"
-        sleep((next_computation - now).total_seconds())
-        #sleep(10)
+        #sleep((next_computation - now).total_seconds())
+        sleep(10)
         print "Making calculations of the hour",computation_cron
         activeness = json.loads(isCalculationMade("activeness",1))
         socialization = json.loads(isCalculationMade("socialization",1))
         isCalculationMade("occupancy",1)
-        """date = datetime.now()
-        date = '%s-%s-%s'%(date.year,date.month,date.day)
-        data = {}
-        headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
-        data['date'] = date
-        data['startTime'] = '00:01'
-        data['endTime'] = '23:59'
-        data['title'] = 'The activeness'
-        data['description'] = 'The last day\'s activeness is '+ str(activeness['value'])
-        data['userId'] = UID
-        data['topic'] = 'Activity'"""
         print "Sending the last day\s activeness level to the Social Network"
         snRequester.sendActiveness(str(activeness['value']))
-        #print "Respone of PUSH UI",requests.post('http://sonopa.c.smartsigns.nl/venuemaster-web-unified/sms/api/message.sms', data=json.dumps(data),headers=headers).json
-        """data = {}
-        data['title'] = 'The socialization level'
-        data['description'] = 'The last day\'s socialization level is '+str(socialization['value'])
-        data['userId'] = UID
-        data['topic'] = 'Activity'
-        data['startTime'] = '00:01'
-        data['endTime'] = '23:59'
-        data['date'] = date"""
         print "Sending socialization level to the Social Network"
         snRequester.sendSocializationLevel(str(socialization['value']))
-        #print "Response of PUSH UI",requests.post('http://sonopa.c.smartsigns.nl/venuemaster-web-unified/sms/api/message.sms', data=json.dumps(data),headers=headers).json
         parser = argparse.ArgumentParser(description='Give recommendations',
                                          formatter_class=argparse.ArgumentDefaultsHelpFormatter,
                                          conflict_handler='resolve')
 
-        yesterday = datetime.now()
+        #yesterday = datetime.now()
+        yesterday = datetime(2014,10,24,11,18)
         datestr = yesterday.strftime('%Y%m%d')
 
         parser.add_argument('-d', '--date', type=str, default=datestr, help='the date to analyse')
-        parser.add_argument('-l', '--language', default='en', help='language of the messages (\'nl\' or \'en\')')
-        parser.add_argument('-u', '--user-id', default='0', help='id of the user to send messages to')
-        parser.add_argument('-p', '--push-ui', type=str, default='http://sonopa.c.smartsigns.nl/venuemaster-web-unified/sms/api', help='uri of the push ui')
+        parser.add_argument('-l', '--language', default=language, help='language of the messages (\'nl\' or \'en\')')
+        parser.add_argument('-u', '--user-id', default=UID, help='id of the user to send messages to')
+        parser.add_argument('-p', '--push-ui', type=str, default=sms_url, help='uri of the push ui')
         args = parser.parse_args()
 
         day = datetime.strptime(args.date, "%Y%m%d").date() - timedelta(days=1)
@@ -280,7 +259,7 @@ def _recommendations_cron():
 def _communicasting_cron():
     while True:
         print "Communicasting cron sleeping for 3600 seconds"
-        sleep(10)
+        sleep(3600)
         activeness = json.loads(isCalculationMade("activeness",2))
         socialization = json.loads(isCalculationMade("socialization",2))
         stamp = gererate_timestamp()
@@ -297,8 +276,8 @@ def _communicasting_cron():
         data['description'] = 'The last hour\'s activeness is '+ str(activeness['value'])
         data['userId'] = UID
         data['topic'] = 'Activity'
-        print "Sending the activeness level to the Push UI",data
-        print "Respone of PUSH UI",requests.post('http://sonopa.c.smartsigns.nl/venuemaster-web-unified/sms/api/message.sms', data=json.dumps(data),headers=headers).json
+        print "Sending the activeness level to the Communicasting",data
+        print "Respone of PUSH UI",requests.post(sms_url+'/message.sms', data=json.dumps(data),headers=headers, verify=False).json
         data = {}
         data['title'] = 'The socialization level'
         data['description'] = 'The last hours\'s socialization level is '+str(socialization['value'])
@@ -307,32 +286,8 @@ def _communicasting_cron():
         data['startTime'] = str(previous_hour.hour) + ':01'
         data['endTime'] = str(previous_hour.hour) + ':59'
         data['date'] = date
-        print "Sending socialization level to the Push UI",data
-        print "Response of PUSH UI",requests.post('http://sonopa.c.smartsigns.nl/venuemaster-web-unified/sms/api/message.sms', data=json.dumps(data),headers=headers).json
-
-"""@async
-def _backup_cron():
-    #Schedules a new model backup
-    while True:
-        sleep(60)  # TODO Setup larger backup interval
-        print 'Backup model to ' + model_backup_file
-        model.backup(model_backup_file)
-
-
-@async
-def _exit_training_cron():
-    #Exits the training mode of the behavior model
-    sleep(2592000)
-    model.exit_training()
-
-
-@async
-def _send_model_update_cron():
-    #Schedules a periodical update of the model to the social network
-    while True:
-        url = 'http://www.sonopa.com/network/model'  # TODO Set correct URL
-        response = _send_post(url, model.get_serialized_model)  # TODO Handle response
-        sleep(21600)  # Send four times per day"""
+        print "Sending socialization level to the Communicasting",data
+        print "Response of PUSH UI",requests.post(sms_url+'/message.sms', data=json.dumps(data),headers=headers, verify=False).json
 
 
 @async
