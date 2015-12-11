@@ -26,5 +26,7 @@ from app import app
 if __name__ == '__main__':
     app.config['UPDATE-SOCIAL-NETWORK'] = False
     app.config['FAKE-SENSORS'] = False
-
-    app.run(debug=True)
+    import logging
+    format_log = '%(asctime)s %(levelname)s: %(message)s '
+    logging.basicConfig(format=format_log, filename='error.log',level=logging.INFO)
+    app.run(debug=False)

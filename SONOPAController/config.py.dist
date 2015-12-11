@@ -22,6 +22,8 @@ num_days = 63
 # maximum allowed accumulative probability at each end of the distribution to be marked as outlier
 prob_sens = 0.1
 #Hour for they daily computation
-computation_cron = 12
-
+computation_cron = 23
+#URL of the communicasting
 sms_url = ''
+#Language of the recommendations
+language = 'en'

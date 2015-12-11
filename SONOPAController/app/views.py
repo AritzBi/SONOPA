@@ -12,7 +12,7 @@ import json
 from jsonschema import validate
 from os import remove
 from os.path import isfile
-from utils.utils import format_filename, check_pass, hash_pass, get_timestamp
+from utils.utils import format_filename, check_pass, hash_pass, get_timestamp, dict_to_string
 import socket
 from time import sleep, mktime, time as gererate_timestamp
 from app.decorators import async
@@ -27,6 +27,9 @@ from recommendations_PIR import *
 from config import computation_cron, UID, sms_url, DB, DB_USER, DB_PASS, language
 import csv
 from utils import snRequester
+import logging
+from logging import Formatter
+
 
 schema_prefix = './app/schemas/'
 schema_suffix = '_schema'
@@ -58,6 +61,7 @@ def index():
 
 @app.route('/init')
 def init():
+    app.logger.info("The controller has been initialized")
     """GET call that initializes the database and the different underlying systems"""
     with open(configuration_file, 'r') as f:
         global config
@@ -81,7 +85,8 @@ def init_db():
     if db.engine.dialect.has_table(db.session, 'location'):
         message = 'Controller already initialized'
     else:
-        print 'Initializing database...'
+        #print 'Initializing database...'
+        app.logger.info('Initializing database')
         db_create.init_db()
         l = models.Location(name='Kitchen')
         db.session.add(l)
@@ -208,6 +213,7 @@ def _fake_sensors_cron():
             print 'Response: '+requests.post("http://localhost:5000/keep_alive", data=json.dumps(send),headers=headers).text
 @async
 def _recommendations_cron():
+    app.logger.info("Recommendations cron started for the first time")
     while True:
         now = datetime.now()
         next_computation = now
@@ -216,16 +222,20 @@ def _recommendations_cron():
         else:
             next_computation = now + timedelta(hours=24)
             next_computation = next_computation.replace(hour=computation_cron,minute=0)
-        print "Recommendations crons sleeping for",((next_computation - now).total_seconds()),"seconds"
+        app.logger.info("Recommendations crons sleeping for "+str(((next_computation - now).total_seconds()))+" seconds")
+        #print "Recommendations crons sleeping for",((next_computation - now).total_seconds()),"seconds"
         #sleep((next_computation - now).total_seconds())
         sleep(10)
-        print "Making calculations of the hour",computation_cron
+        #print "Making calculations of the hour",computation_cron
+        app.logger.info("Making daily calculations of the hour " + str(computation_cron))
         activeness = json.loads(isCalculationMade("activeness",1))
         socialization = json.loads(isCalculationMade("socialization",1))
         isCalculationMade("occupancy",1)
-        print "Sending the last day\s activeness level to the Social Network"
+        #print "Sending the last day\s activeness level to the Social Network"
+        app.logger.info("Sending the last day\s activeness level to the Social Network")
         snRequester.sendActiveness(str(activeness['value']))
-        print "Sending socialization level to the Social Network"
+        #print "Sending socialization level to the Social Network"
+        app.logger.info("Sending socialization level to the Social Network")
         snRequester.sendSocializationLevel(str(socialization['value']))
         parser = argparse.ArgumentParser(description='Give recommendations',
                                          formatter_class=argparse.ArgumentDefaultsHelpFormatter,
@@ -257,9 +267,12 @@ def _recommendations_cron():
 
 @async
 def _communicasting_cron():
+    app.logger.info("Communicasting's cron started")
     while True:
-        print "Communicasting cron sleeping for 3600 seconds"
-        sleep(3600)
+        #print "Communicasting cron sleeping for 3600 seconds"
+        app.logger.info("Communicasting's cron sleeping for 3600 seconds")
+        #sleep(3600)
+        sleep(10)
         activeness = json.loads(isCalculationMade("activeness",2))
         socialization = json.loads(isCalculationMade("socialization",2))
         stamp = gererate_timestamp()
@@ -276,8 +289,11 @@ def _communicasting_cron():
         data['description'] = 'The last hour\'s activeness is '+ str(activeness['value'])
         data['userId'] = UID
         data['topic'] = 'Activity'
-        print "Sending the activeness level to the Communicasting",data
-        print "Respone of PUSH UI",requests.post(sms_url+'/message.sms', data=json.dumps(data),headers=headers, verify=False).json
+        #print "Sending the activeness level to the Communicasting",data
+        app.logger.info("Sending the activeness level to the Communicasting \n" + dict_to_string(data))
+        #print "Respone of PUSH UI",requests.post(sms_url+'/message.sms', data=json.dumps(data),headers=headers, verify=False).json
+        response_json = requests.post(sms_url+'/message.sms', data=json.dumps(data),headers=headers, verify=False).json()
+        app.logger.info("Response of PUSH UI " + str(response_json))
         data = {}
         data['title'] = 'The socialization level'
         data['description'] = 'The last hours\'s socialization level is '+str(socialization['value'])
@@ -286,8 +302,11 @@ def _communicasting_cron():
         data['startTime'] = str(previous_hour.hour) + ':01'
         data['endTime'] = str(previous_hour.hour) + ':59'
         data['date'] = date
-        print "Sending socialization level to the Communicasting",data
-        print "Response of PUSH UI",requests.post(sms_url+'/message.sms', data=json.dumps(data),headers=headers, verify=False).json
+        #print "Sending socialization level to the Communicasting",data
+        app.logger.info("Sending the socialization level to the Communicasting \n" +  dict_to_string(data))
+        #print "Response of PUSH UI",requests.post(sms_url+'/message.sms', data=json.dumps(data),headers=headers, verify=False).json
+        response_json = requests.post(sms_url+'/message.sms', data=json.dumps(data),headers=headers, verify=False).json()
+        app.logger.info("Response of PUSH UI " + str(response_json))
 
 
 @async
@@ -295,15 +314,16 @@ def _cleanup_cron():
     """Schedules a periodical cleanup of the sensors that do not seem to be alive"""
     rounds = int(int(config['keep_alive_round']) / sensor_cleanup_round_time)
     while True:
-        print 'Waiting for discoveries...'
+        #print 'Waiting for discoveries...'
+        app.logger.info("Waiting for discoveries in cleanup cron")
         for i in range(rounds):
             _discovery()
             sleep(sensor_cleanup_round_time)
 
-        print 'Cleaning sensors...'
-
+        #print 'Cleaning sensors...'
+        app.logger.info("Cleaning sensors...")
         i = 0
-        print datetime.now() - last_allowed_alive
+        #print datetime.now() - last_allowed_alive
         sensors = db.session.query(models.Sensor).filter(
             (models.Sensor.last_alive) < datetime.now() - last_allowed_alive).all()
         for sensor in sensors:
@@ -958,7 +978,6 @@ def dbToJSon(sensor):
         else:
             return -1
     elif sensor_type=="PIR sensor" or "ZBS-122" in sensor_type:
-        print "ok"
         return {'sensor_id':sensor.id, 'location':models.Location.query.get(sensor.location).name, 'activations':sensor.events.count()}
 def makeCalculation(date,type,mode,calculations):
     yesterday=date-timedelta(days=1)

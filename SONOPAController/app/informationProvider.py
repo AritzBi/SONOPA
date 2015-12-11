@@ -4,6 +4,8 @@ from config import DB, DB_USER,DB_PASS,MAXPEOPLE_WEIGHT,SNINTERACTIONS_WEIGHT
 import json
 import random
 from utils.snRequester import getNumberActivities
+from app import app
+import logging
 json_data=open("./app/configuration/houseConfiguration.json")
 houseConfiguration=json.load(json_data)
 json_data.close()
@@ -75,7 +77,7 @@ def calculateRoomChanges(values):
 			adjacent=False
 		return numRoomChanges
 	else:
-		print "The house configuration is malformed"
+		app.logging.INFO("The house configuration is malformed")
 		return 0
 def calculate_room(values):
 	roomMap= {}

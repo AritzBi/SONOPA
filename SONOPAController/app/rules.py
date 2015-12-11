@@ -26,6 +26,7 @@ from config import DB, DB_USER, DB_PASS
 import time
 from utils.snRequester import sendRecommendation
 from threading import Thread
+from app import app
 
 
 #Returns the reading of the sensors in a time interval
@@ -84,7 +85,7 @@ class RuleThread(Thread):
         self.read_json = True
 
     def run(self):
-        print "Starting the rules thread"
+        app.logger.info("Starting rule's thread")
         while self.signal:
             time.sleep(1)
             if self.read_json == True:
@@ -140,4 +141,4 @@ class RuleThread(Thread):
                             elif consequence['consequence_type'] == 'Message':
                                 sendRecommendation(consequence['message'])
                                 #print "Message: "+consequence['message']
-        print "Finishing the rules thread"
+        app.logger.info("Finishing rule's thread")

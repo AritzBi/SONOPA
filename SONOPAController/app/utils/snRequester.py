@@ -24,6 +24,8 @@ import requests
 from collections import OrderedDict
 from urllib import urlencode
 from config import UID, sn_key, sn_url
+from app import app
+from utils import dict_to_string
 
 
 #Gets the absolute number of activities of a user so far
@@ -57,7 +59,8 @@ def sendSocializationLevel(socialisation):
     url = sn_url+'cust/socializationLevel/?'+sn_key+"=json"
     params = OrderedDict([('UID', UID), ('socialization', socialisation)])
     r = requests.get(url, params=urlencode(params))
-    print r.json()
+    #print r.json()
+    app.logger.info("The response from the social network is: " + str(r.json()))
 
 
 #Sends the activeness of a user to the SN
@@ -65,7 +68,7 @@ def sendActiveness(activeness):
     url = sn_url+'cust/activeness/?'+sn_key+"=json"
     params = OrderedDict([('UID', UID), ('activeness', activeness)])
     r = requests.get(url, params=urlencode(params))
-    print r.json()
+    app.logger.info("The response from the social network is: " + str(r.json()))
 
 
 #Seds the statistics about the diary occupation level for a user of eachf od the rooms

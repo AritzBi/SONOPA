@@ -71,3 +71,13 @@ def get_timestamp(timestamp=None):
     if timestamp is None:
         timestamp = time()
     return int(round(timestamp * 1000))
+
+
+def dict_to_string(dict_to_parse):
+    d=" " 
+    for  i in dict_to_parse:
+        a = i
+        b = dict_to_parse[i]
+        c = i + ":" + str(dict_to_parse[i])
+        d = d + c + '\n'
+    return d
